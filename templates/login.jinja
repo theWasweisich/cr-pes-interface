@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery.js') }}" ></script>
+    <script src="{{ url_for('static', filename='js/login.js') }}" ></script>
+    <title>Login</title>
+</head>
+<body>
+    <div id="loginForm">
+        <h1>Login</h1>
+        <hr>
+        <br>
+        <form name="form1" action="/einstellungen/login" onsubmit="return validate_form()" method="post">
+            <input aria-label="Benutzername" type="text" name="username" id="username" placeholder="Benutzername" required><br>
+            <input aria-label="Passwort" type="password" name="password" id="password" placeholder="Passwort" required><br><br>
+
+            <input type="submit" value="Einloggen">
+        </form>
+    </div>
+</body>
+</html>

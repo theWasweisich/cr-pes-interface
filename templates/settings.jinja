@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <script src="{{ url_for('static', filename='js/settings.js') }}" defer></script>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <title>Settings</title>
+</head>
+<script>
+    function return_crepes() {
+        return {{ crepes|safe }};
+    }
+</script>
+<body>
+    <a href="./">
+        <div id="move_back">
+                <span class="material-symbols-outlined">arrow_back</span> Zurück
+        </div>
+    </a>
+
+    <h1><span class="icon material-symbols-outlined">settings</span>Einstellungen</h1>
+    <div id="crepes_action">
+        <div id="create" data-type="table">
+            <h2>Crêpes Erstellen</h2>
+            <!-- Hier beginnt die Erstellung -->
+            <form action="#" autocomplete="off" onsubmit="create_crepe(); return false;">
+                <table>
+                    <tr>
+                        <td>
+                            <label for="crepeName">Crêpes Name:</label>
+                        </td>
+                        <td>
+                            <input type="text" id="crepeName" name="crepeName" placeholder="Crêpes Name" required autocomplete="off"><br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="price">Preis: </label>
+                        </td>
+                        <td>
+                            <input id="price" name="price" type="number" min="0" step="0.01" required autocomplete="off"> €<br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="ingredients">Zutaten</label>
+                        </td>
+                        <td>
+                            <div class="tooltipRightContainer">
+                                <input class="tooltipRightInput" id="ingredients" type="text" placeholder="Zutaten" required autocomplete="off">
+                                <div class="tooltipRight">Mit Komma getrennt</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="color">Farbe</label>
+                        </td>
+                        <td>
+                            <select name="color" id="color" onchange="change_selected();" style="text-shadow: 0 0 10px white;">
+                                <option value="#FFFFFF" style="background-color: #FFFFFF; color: black;" selected></option>
+                                <option value="#009DFF" style="background-color: #009DFF; color: black;"></option>
+                                <option value="#5B3758" style="background-color: #5B3758; color: white;"></option>
+                                <option value="#566E3D" style="background-color: #566E3D; color: black;"></option>
+                                <option value="#FF1B1C" style="background-color: #FF1B1C; color: black;"></option>
+                                <option value="#31E981" style="background-color: #31E981; color: black;"></option>
+                                <option value="#31E981" style="background-color: #eaee20; color: black;"></option>
+                                <option value="" hidden>Dies ist Fülltext.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="submit" value="Neuen Crêpes erstellen!">
+                        </td>
+
+                    </tr>
+                </table>
+            </form>
+            <!-- Hier endet die Erstellung -->
+        </div>
+        <hr>
+        <div id="edit" data-type="table">
+            <h2>Crêpes Bearbeiten</h2>
+            <select name="crepes_selecter" id="crepes_selecter" onchange="loadCrepe(this, return_crepes()); return false;">
+                <option value="select">Bitte Crêpe auswählen</option>
+                {% for crepe in crepes %}
+                <option value="{{ crepe['name'] }}">{{ crepe['name'] }}</option>
+                {% endfor %}
+            </select>
+            <div>
+                <!-- Hier ist das Feld für die Bearbeitung -->
+                <form action="#" onsubmit="editCrepe(); return false;">
+                    <table>
+                        <tr>
+                            <td>
+                                <label for="editCrepeName">Crêpes Name:</label>
+                            </td>
+                            <td>
+                                <input type="text" name="crepeName" id="editCrepeName">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="editPrice">Preis:</label>
+                            </td>
+                            <td>
+                                <input type="number" name="crepePrice" id="editPrice" min="0" step="0.01" required> €
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="editIngredients">Zutaten:</label>
+                            </td>
+                            <td>
+                                <input type="text" name="ingredients" id="editIngredients">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="submit" value="Bearbeiten">
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                <!-- Hier endet die Bearbeitung -->
+            </div>
+        </div>
+    </div>
+    <div id="list">
+        <div id="no_crepes">
+            <h2>Here are no crêpes!</h2>
+        </div>
+        <div id="crepes_list" data-type="liste">
+            {% for crepe in crepes %}
+            <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}">
+                <div class="crepecontrol w3-right">
+                    <div class="icon_container">
+                        <button data-type="del" data-name="{{ crepe['name'] }}" onclick="delte_crepe(this);">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+                <h4>{{ crepe['name'] }}</h4>
+                <p>{{ crepe['price'] }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <button id="save_btn" onclick="check_sendable(); return false;">
+        <p id="save_text">Speichern</p>
+        <div id="loader_container">
+            <div id="loader"></div>            
+        </div>
+    </button>
+</body>
+</html>

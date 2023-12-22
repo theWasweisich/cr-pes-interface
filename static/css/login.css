@@ -1,0 +1,31 @@
+* {
+    font-family: sans-serif;
+}
+
+body, html {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#loginForm {
+    width: 500px;
+    height: 500px;
+    background-color: grey;
+    margin: auto;
+}
+
+input {
+    margin-bottom: 5px;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}

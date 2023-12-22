@@ -1,0 +1,1 @@
+cmd /k "npx tsc && app.py"

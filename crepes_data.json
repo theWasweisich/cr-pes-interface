@@ -1,0 +1,80 @@
+[
+    {
+        "colour": "y",
+        "ingredients": "['Zucker','Zimt']",
+        "name": "Zimt&Zucker",
+        "price": 2.5
+    },
+    {
+        "colour": "y",
+        "ingredients": "['Schokolade','Schokolade']",
+        "name": "Schoko",
+        "price": 3
+    },
+    {
+        "colour": "y",
+        "ingredients": "['Apfelmuß','Zimt']",
+        "name": "Apfelmuß&Zimt",
+        "price": 3
+    },
+    {
+        "colour": "y",
+        "ingredients": "['abc','abc']",
+        "name": "Schoko&Banane",
+        "price": 3.5
+    },
+    {
+        "colour": "y",
+        "ingredients": "['Kinder','Schokolade']",
+        "name": "Kinderschokolade",
+        "price": 3.5
+    },
+    {
+        "colour": "g",
+        "ingredients": ["Käse","Käse"],
+        "name": "Käse",
+        "price": 3
+    },
+    {
+        "colour": "g",
+        "ingredients": ["Schinken","Schinken"],
+        "name": "Schinken",
+        "price": 3
+    },
+    {
+        "colour": "g",
+        "ingredients": ["abc","abc"],
+        "name": "Käse&Schinken",
+        "price": 3.5
+    },
+    {
+        "colour": "g",
+        "ingredients": ["Spezi","Aal"],
+        "name": "Spezial",
+        "price": 4
+    },
+    {
+        "colour": "g",
+        "ingredients": ["Pizza","Pizza"],
+        "name": "Pizza",
+        "price": 4.5
+    },
+    {
+        "colour": "g",
+        "ingredients": ["🍕","🍕"],
+        "name": "Italiano",
+        "price": 4.5
+    },
+    {
+        "colour": "w",
+        "ingredients": ["🌲","🌲"],
+        "name": "CrêpeNatur",
+        "price": 2
+    },
+    {
+        "colour": "p",
+        "ingredients": ["🌲","🌲"],
+        "name": "Jahrescrêpes'Raphael'",
+        "price": 3.5
+    }
+]
