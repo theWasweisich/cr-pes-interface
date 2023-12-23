@@ -9,7 +9,7 @@
     
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     
@@ -29,11 +29,13 @@
 
 <body>
     
-    <header class="w3-container" id="oben">
-        <h1 class="w3-bar-item">Crêpes</h1>
-        <a href="/einstellungen">
-            <p class="w3-bar-item w3-right"><span class="icon material-symbols-outlined">settings</span>Einstellungen</p>
-        </a>
+    <header id="oben">
+        <div>
+            <h1 class="w3-bar-item">Crêpes</h1>
+            <a href="/einstellungen">
+                <p><span class="icon material-symbols-outlined">settings</span>Einstellungen</p>
+            </a>
+        </div>
     </header>
 
     <div id="side_nav" class="w3-sidebar w3-bar-block w3-dark-gray" style="width: 25%">

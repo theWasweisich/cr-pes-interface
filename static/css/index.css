@@ -14,15 +14,41 @@ html, body {
 #oben {
     position: sticky;
     top: 0;
+    width: 100%;
+    padding: 0;margin:0;
 }
 
 #oben h1 {
     position: sticky;
+    margin: 0;
+    padding: 15px;
 }
 
-#oben > p {
+#oben > div {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+}
+
+#oben a {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 5px;
+    margin-right: 10px;
+}
+
+#oben p {
+    float: left;
+    width: 100%;
+    border: none;
+    display: block;
+    outline: 0;
+
     position: sticky;
     top: 0;
+    margin: 0;
 }
 
 header {
@@ -56,7 +82,11 @@ header {
 .icon {
     position: relative;
     top: 5px;
-    left: 0px;
+    left: -8px;
+}
+
+a[href="/einstellungen"] {
+    text-decoration: none;
 }
 
 .collapse_sidemenu {

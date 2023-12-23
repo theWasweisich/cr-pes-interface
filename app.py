@@ -143,6 +143,11 @@ def serve_shifts():
         session.pop("secret")
         return "", 405
 
+@app.route("/")
+def serve_homepage():
+    return render_template("index.jinja", crepes=crêpes)
+
+
 
 @app.route("/help_page")
 def rick_roll():
@@ -184,8 +189,9 @@ def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
 
 
 def bad_request(e):
-    if "einstellungen" in request.referrer:
-        return redirect("/einstellungen")
+    if request.referrer:
+        if "einstellungen" in request.referrer:
+            return redirect("/einstellungen")
     return redirect("/")
 
 
