@@ -5,6 +5,7 @@ from flask import (
     Flask,
     flash,
     get_flashed_messages,
+    make_response,
     redirect,
     render_template,
     request,
@@ -22,7 +23,7 @@ from ast import literal_eval
 import werkzeug
 import os
 
-from api_blueprint import api_bp
+from blueprint_API import api_bp
 
 import json
 
@@ -35,6 +36,7 @@ import json
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
 
 app = Flask(__name__)
+
 app.register_blueprint(api_bp, url_prefix="/api")
 
 app.secret_key = secrets.token_hex(100)
@@ -45,17 +47,18 @@ con = sqlite3.connect('datenbank.db')
 cur = con.cursor()
 del con
 
-cur.execute('SELECT name, price, ingredients, colour FROM Crêpes')
+cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
 crêpes_res = cur.fetchall()
 del cur
 
 
 for crepe in crêpes_res:
     crêpes.append(
-        {"name": crepe[0],
-         "price": crepe[1],
-         "ingredients": literal_eval(crepe[2]),
-         "colour": crepe[3]
+        {"id": crepe[0],
+         "name": crepe[1],
+         "price": crepe[2],
+         "ingredients": literal_eval(crepe[3]),
+         "colour": crepe[4]
          }
     )
 
@@ -137,7 +140,12 @@ def rick_roll():
 
 @app.route("/favicon.ico")
 def serve_favicon():
-    return redirect(flask.url_for('static', filename='favicon.ico'))
+    with open("favicon.ico", "rb") as f:
+        data = f.read()
+    resp = make_response(data)
+    resp.headers.set("Content-Type", "image/x-icon")
+    resp.status_code = 200
+    return resp
 
 @app.errorhandler(404)
 def not_found(*args, **kwargs):
