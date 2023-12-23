@@ -9,7 +9,9 @@
     
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index_crepecontrol.css') }}">
     
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     
@@ -26,17 +28,18 @@
     <title>Crêpes</title>
     
 </head>
-
 <body>
     
-    <header class="w3-container" id="oben">
-        <h1 class="w3-bar-item">Crêpes</h1>
-        <a href="/einstellungen">
-            <p class="w3-bar-item w3-right"><span class="icon material-symbols-outlined">settings</span>Einstellungen</p>
-        </a>
+    <header id="oben">
+        <div>
+            <h1 class="w3-bar-item">Crêpes</h1>
+            <a href="/einstellungen">
+                <p><span class="icon material-symbols-outlined">settings</span>Einstellungen</p>
+            </a>
+        </div>
     </header>
 
-    <div id="side_nav" class="w3-sidebar w3-bar-block w3-dark-gray" style="width: 25%">
+    <div id="side_nav" style="width: 25%">
         
         <p class="w3-bar-item">Bestellung<span class="collapse_sidemenu w3-button"><a href="/help_page"><span class="material-symbols-outlined">question_mark</span></a></span></p>
         
@@ -68,13 +71,14 @@
     
         <div id="main" class="w3-container">
             {% for crepe in crepes %}
-            <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['preis'] }}" data-colour="{{ crepe['farbe'] }}">
+            <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}" data-id="{{ crepe['id'] }}">
                 <div class="crepecontrol w3-right">
-                    
+                    <button>-</button>
+                    <button>+</button>
                 </div>
                 <h4>{{ crepe['name'] }}</h4>
                 
-                <p>{{ crepe['preis_str'] }}</p>
+                <p>[PREIS]</p>
             </div>
             {% endfor %}
         </div>

@@ -16,6 +16,7 @@ a:has(#move_back) {
 }
 
 #move_back {
+    -webkit-user-select: none;
     user-select: none;
     cursor: pointer;
     box-sizing: content-box;
@@ -30,10 +31,20 @@ a:has(#move_back) {
     transform: translateY(5px);
 }
 
+#crepes_list > .crepe_container {
+    margin-bottom: 15px;
+    padding: 10px;
+}
+
 .crepe_container {
     margin: 2px;
     background-color: rgba(128, 128, 128, 0.309);
     border: 1px solid black;
+}
+
+.crepe_container > input {
+    background-color:transparent;
+    border: none;
 }
 
 #crepes_list {
@@ -41,7 +52,7 @@ a:has(#move_back) {
     border: 1px solid black;
     padding: 10px;
     background-color: rgba(255, 255, 255, 0.229);
-    max-width: 50%;
+    max-width: 75%;
     max-height: 500px;
     overflow-y: scroll;
     overflow-x: auto;
@@ -70,17 +81,34 @@ Hier beginnt die Crêpes-Farbe
     border: 1px solid black;
 }
 
-div[data-colour='yellow'] {
-    background-color: #eaee20;
+/*
+
+Hinweis: data-colour ist wie folgt: rrr,ggg,bbb
+
+
+*/
+
+
+div[data-colour='255,255,255'] {
+    background-color: rgba(255,255,255,0.9);
 }
-div[data-colour='green'] {
-    background-color: #31E981;
+div[data-colour='0,157,255'] {
+    background-color: rgba(0,157,255,0.9);
 }
-div[data-colour='purple'] {
-    background-color: #5B3758;
+div[data-colour='91,55,87'] {
+    background-color: rgba(91,55,87,0.9);
 }
-div[data-colour='white'] {
-    background-color: #FFFFFF;
+div[data-colour='86,110,64'] {
+    background-color: rgba(86,110,64,0.9);
+}
+div[data-colour='255,023,27'] {
+    background-color: rgba(255,023,27,0.9);
+}
+div[data-colour='34,234,136'] {
+    background-color: rgba(34,234,136,0.9);
+}
+div[data-colour='236,239,64'] {
+    background-color: rgba(236,239,64,0.9);
 }
 
 /*
@@ -112,10 +140,6 @@ button[data-type="del"]:active {
     margin: 15px;
     /* border: 1px solid black; */
     float: left;
-}
-
-#edit {
-    margin-top: 15px;
 }
 
 #create input {
@@ -191,7 +215,7 @@ Hier beginnt der Stil des Tooltips
     text-align: center;
     padding: 5px 0;
     border-radius: 6px;
-
+    
     position: absolute;
     right: 0;
     z-index: 1;
@@ -200,3 +224,6 @@ Hier beginnt der Stil des Tooltips
 .tooltipRightInput:focus ~ .tooltipRight {
     visibility: visible;
 }
+/* 
+Hier endet der Stil des Tooltips
+*/

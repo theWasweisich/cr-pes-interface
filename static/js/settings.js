@@ -39,6 +39,7 @@ var send_to_server_list = {
     edit: new Array,
     delete: new Array
 };
+var crepes_selected = false;
 function prepare_loader() {
     var button = document.getElementById('save_btn');
     var text = document.getElementById('save_text');
@@ -93,7 +94,6 @@ function check_sendable() {
 }
 function change_selected() {
     var select_elem = document.getElementById('color');
-    // @ts-expect-error
     var selected_color = select_elem.value;
     select_elem.style.backgroundColor = selected_color;
 }
@@ -127,6 +127,7 @@ function create_crepe() {
     return __awaiter(this, void 0, void 0, function () {
         var name, price, ingredients, color, crepe_data;
         return __generator(this, function (_a) {
+            console.log("Creating crêpes");
             name = document.getElementById('crepeName');
             price = document.getElementById('price');
             ingredients = document.getElementById('ingredients');
@@ -157,12 +158,15 @@ function create_crepe() {
 }
 function send_to_server() {
     return __awaiter(this, void 0, void 0, function () {
-        var response, answer, e_1;
+        var response, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, fetch("/api/edit", {
+                    console.log("Sending off");
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, fetch("/api/save", {
                             method: "POST",
                             mode: "cors",
                             cache: "no-cache",
@@ -174,43 +178,47 @@ function send_to_server() {
                             referrerPolicy: "no-referrer",
                             body: JSON.stringify(send_to_server_list)
                         })];
-                case 1:
+                case 2:
                     response = _a.sent();
-                    answer = response.status;
-                    console.log("Status Code: ".concat(answer));
-                    if (answer == 200) {
+                    console.log("Status Code: ".concat(response.status));
+                    if (response.status == 200) {
                         return [2 /*return*/, true];
                     }
                     else {
                         throw Error("Das hat nicht funktioniert");
                     }
-                    return [3 /*break*/, 3];
-                case 2:
+                    return [3 /*break*/, 4];
+                case 3:
                     e_1 = _a.sent();
                     console.log(e_1);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
             }
         });
     });
 }
 function loadCrepe(elem, crepes_data) {
-    var crêpes_name = elem.value;
+    var crepes_id = document.getElementById('editID');
     var crepes_name = document.getElementById('editCrepeName');
     var crepes_price = document.getElementById('editPrice');
     var crepes_ingredients = document.getElementById('editIngredients');
+    if (elem.value == "select") {
+        crepes_id.value, crepes_name.value, crepes_price.value, crepes_ingredients.value = "";
+        crepes_selected = false;
+        return;
+    }
+    var crêpes_name = elem.value;
     crepes_data.forEach(function (crepes) {
         if (crepes.name == crêpes_name) {
             console.log(crepes);
-            // @ts-expect-error
+            crepes_id.value = crepes['id'];
             crepes_name.value = crepes['name'];
-            // @ts-expect-error
             crepes_price.value = crepes['price'];
-            // @ts-expect-error
             crepes_ingredients.value = crepes['ingredients'];
             return;
         }
     });
+    crepes_selected = true;
 }
 function editCrepe() {
 }

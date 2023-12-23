@@ -1,10 +1,13 @@
+from asyncio import constants
 import sqlite3
 import flask
+from jinja2 import Undefined
 from werkzeug import exceptions
 from flask import (
     Flask,
     flash,
     get_flashed_messages,
+    make_response,
     redirect,
     render_template,
     request,
@@ -17,12 +20,13 @@ from datetime import datetime
 import logging
 import secrets
 import sys
+from typing import Any
 from ast import literal_eval
 
 import werkzeug
 import os
 
-from api_blueprint import api_bp
+from blueprint_API import api_bp
 
 import json
 
@@ -35,31 +39,45 @@ import json
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
 
 app = Flask(__name__)
+
 app.register_blueprint(api_bp, url_prefix="/api")
 
 app.secret_key = secrets.token_hex(100)
-
-crêpes = []
 
 con = sqlite3.connect('datenbank.db')
 cur = con.cursor()
 del con
 
-cur.execute('SELECT name, price, ingredients, colour FROM Crêpes')
+cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
 crêpes_res = cur.fetchall()
+
+cur.execute('SELECT * FROM shifts')
+shifts_res = cur.fetchall()
 del cur
 
 
+crêpes: list[dict[str, Any]] = []
+
 for crepe in crêpes_res:
     crêpes.append(
-        {"name": crepe[0],
-         "price": crepe[1],
-         "ingredients": literal_eval(crepe[2]),
-         "colour": crepe[3]
+        {"id": crepe[0],
+         "name": crepe[1],
+         "price": crepe[2],
+         "ingredients": literal_eval(crepe[3]),
+         "colour": crepe[4]
          }
     )
 
-
+shifts: list[dict[str, Any]] = []
+for shift in shifts_res:
+    shifts.append(
+        {"id": shift[0],
+         "time_start": shift[1],
+         "time_end": shift[2],
+         "shift_name": shift[3],
+         "staff": shift[4]
+         }
+    )
 
 global sales
 sales: list = []
@@ -84,6 +102,8 @@ def serve_einstellungen():
             raise Exception
     except:
         return url_for("serve_login")
+
+
 
 
 @app.route("/einstellungen/login", methods=("POST", "GET"))
@@ -111,24 +131,22 @@ def serve_login():
     else:
         return "", 405
 
+@app.route("/schichten")
+def serve_shifts():
+    logging.warning(f"{request.remote_addr} versucht, schichten zu öffnen")
+    if not "secret" in session:
+        logging.info(session)
+        return redirect("/einstellungen/login", 307)
+    if session["secret"] in valid_keys:
+        return render_template("shifts.jinja", shifts=shifts)
+    else:
+        session.pop("secret")
+        return "", 405
+
 @app.route("/")
-def serve_crepes():
-    msg = get_flashed_messages()
-    if "NotFound" in msg:
-        resp = flask.make_response(render_template("index.jinja", crepes=crêpes, notfound=True))
-        resp.headers["Cache-Control"] = "no-cache"
-        return resp
-    resp = flask.make_response(render_template("index.jinja", crepes=crêpes, notfound=False))
-    resp.headers["Cache-Control"] = "no-cache"
-    return resp
+def serve_homepage():
+    return render_template("index.jinja", crepes=crêpes)
 
-
-
-@app.route("/settings", methods=("POST",))
-@cross_origin()
-def get_new_crepe():
-    print(request.json)
-    return json.dumps({"status": "success"})
 
 
 @app.route("/help_page")
@@ -137,7 +155,12 @@ def rick_roll():
 
 @app.route("/favicon.ico")
 def serve_favicon():
-    return redirect(flask.url_for('static', filename='favicon.ico'))
+    with open("favicon.ico", "rb") as f:
+        data = f.read()
+    resp = make_response(data)
+    resp.headers.set("Content-Type", "image/x-icon")
+    resp.status_code = 200
+    return resp
 
 @app.errorhandler(404)
 def not_found(*args, **kwargs):
@@ -166,8 +189,9 @@ def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
 
 
 def bad_request(e):
-    if "einstellungen" in request.referrer:
-        return redirect("/einstellungen")
+    if request.referrer:
+        if "einstellungen" in request.referrer:
+            return redirect("/einstellungen")
     return redirect("/")
 
 
