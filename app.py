@@ -1,5 +1,7 @@
+from asyncio import constants
 import sqlite3
 import flask
+from jinja2 import Undefined
 from werkzeug import exceptions
 from flask import (
     Flask,
@@ -18,6 +20,7 @@ from datetime import datetime
 import logging
 import secrets
 import sys
+from typing import Any
 from ast import literal_eval
 
 import werkzeug
@@ -41,16 +44,19 @@ app.register_blueprint(api_bp, url_prefix="/api")
 
 app.secret_key = secrets.token_hex(100)
 
-crêpes = []
-
 con = sqlite3.connect('datenbank.db')
 cur = con.cursor()
 del con
 
 cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
 crêpes_res = cur.fetchall()
+
+cur.execute('SELECT * FROM shifts')
+shifts_res = cur.fetchall()
 del cur
 
+
+crêpes: list[dict[str, Any]] = []
 
 for crepe in crêpes_res:
     crêpes.append(
@@ -62,7 +68,16 @@ for crepe in crêpes_res:
          }
     )
 
-
+shifts: list[dict[str, Any]] = []
+for shift in shifts_res:
+    shifts.append(
+        {"id": shift[0],
+         "time_start": shift[1],
+         "time_end": shift[2],
+         "shift_name": shift[3],
+         "staff": shift[4]
+         }
+    )
 
 global sales
 sales: list = []
@@ -87,6 +102,8 @@ def serve_einstellungen():
             raise Exception
     except:
         return url_for("serve_login")
+
+
 
 
 @app.route("/einstellungen/login", methods=("POST", "GET"))
@@ -114,24 +131,17 @@ def serve_login():
     else:
         return "", 405
 
-@app.route("/")
-def serve_crepes():
-    msg = get_flashed_messages()
-    if "NotFound" in msg:
-        resp = flask.make_response(render_template("index.jinja", crepes=crêpes, notfound=True))
-        resp.headers["Cache-Control"] = "no-cache"
-        return resp
-    resp = flask.make_response(render_template("index.jinja", crepes=crêpes, notfound=False))
-    resp.headers["Cache-Control"] = "no-cache"
-    return resp
-
-
-
-@app.route("/settings", methods=("POST",))
-@cross_origin()
-def get_new_crepe():
-    print(request.json)
-    return json.dumps({"status": "success"})
+@app.route("/schichten")
+def serve_shifts():
+    logging.warning("jmdn versucht, schichten zu öffnen")
+    if not "secret" in session:
+        logging.info(session)
+        return redirect("/einstellungen/login", 307)
+    if session["secret"] in valid_keys:
+        return render_template("shifts.jinja", shifts=shifts)
+    else:
+        session.pop("secret")
+        return "", 405
 
 
 @app.route("/help_page")

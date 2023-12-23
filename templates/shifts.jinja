@@ -7,11 +7,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/external/googlefonts.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/external/w3.css')}}">
-    <script src="{{ url_for('static', filename='js/settings.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/shifts.js') }}" defer></script>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Schichten</title>
 </head>
 <body>
-    
+    {% for shift in shifts %}
+    <div>
+        <p>{{ shift["shift_name"] }}</p>
+        <p>{{ shift["time_start"] }}</p>
+        <hr>
+    </div>
+    {% endfor %}
 </body>
 </html>
