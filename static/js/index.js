@@ -63,12 +63,16 @@ function event_listener(ev) {
     }
 }
 function add_event_listeners() {
-    var main = document.getElementById('main');
     var crepes = document.getElementsByClassName('crepe_container');
-    Array.from(crepes).forEach(function (crepe) {
-        crepe.addEventListener('click', event_listener, true);
+    var crepes_list = Array.from(crepes);
+    crepes_list.forEach(function (crepe) {
+        crepe.addEventListener("click", function (ev) {
+            ev.stopPropagation();
+            console.log(ev.target);
+        });
     });
 }
+add_event_listeners();
 function underlayClicked(event, element) {
     if (event.target != element) {
         alert("UPSIDAYSI");

@@ -1,3 +1,25 @@
 ::-webkit-scrollbar {
     display: none;
 }
+
+div[data-colour='255,255,255'] {
+    background-color: rgba(255,255,255,0.9);
+}
+div[data-colour='0,157,255'] {
+    background-color: rgba(0,157,255,0.9);
+}
+div[data-colour='91,55,87'] {
+    background-color: rgba(91,55,87,0.9);
+}
+div[data-colour='86,110,64'] {
+    background-color: rgba(86,110,64,0.9);
+}
+div[data-colour='255,023,27'] {
+    background-color: rgba(255,023,27,0.9);
+}
+div[data-colour='34,234,136'] {
+    background-color: rgba(34,234,136,0.9);
+}
+div[data-colour='236,239,64'] {
+    background-color: rgba(236,239,64,0.9);
+}

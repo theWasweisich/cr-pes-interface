@@ -133,7 +133,7 @@ def serve_login():
 
 @app.route("/schichten")
 def serve_shifts():
-    logging.warning("jmdn versucht, schichten zu öffnen")
+    logging.warning(f"{request.remote_addr} versucht, schichten zu öffnen")
     if not "secret" in session:
         logging.info(session)
         return redirect("/einstellungen/login", 307)
