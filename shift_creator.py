@@ -2,7 +2,7 @@ import sqlite3
 import datetime
 import json
 
-current_time = datetime.datetime.now()
+current_time = datetime.datetime.fromisoformat("2023-12-31T22:59:59.000Z")
 SHIFT_DURATION = datetime.timedelta(hours=1)
 
 in_1_hour = current_time + SHIFT_DURATION
