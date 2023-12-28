@@ -35,11 +35,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var crepelist = [];
+var in_table = [];
 var Crêpe2 = /** @class */ (function () {
-    function Crêpe2(name, preis, zutaten, amount, root_element) {
+    function Crêpe2(id, name, preis, amount, root_element) {
+        this.crepeId = id;
         this.name = name;
         this.preis = preis;
-        this.zutaten = zutaten;
         this.amount = amount;
         this.root_element = root_element;
     }
@@ -62,7 +63,7 @@ function event_listener(ev) {
         console.log("YAY");
     }
 }
-function add_event_listeners() {
+function setup() {
     var crepes = document.getElementsByClassName('crepe_container');
     var crepes_list = Array.from(crepes);
     crepes_list.forEach(function (crepe) {
@@ -70,9 +71,9 @@ function add_event_listeners() {
             ev.stopPropagation();
             console.log(ev.target);
         });
+        set_data(crepe);
     });
 }
-add_event_listeners();
 function underlayClicked(event, element) {
     if (event.target != element) {
         alert("UPSIDAYSI");
@@ -80,8 +81,13 @@ function underlayClicked(event, element) {
         return;
     }
 }
-function set_data(crepeName, crepePreis, crepeZutaten, root_element) {
-    crepelist.push(new Crêpe2(crepeName, crepePreis, crepeZutaten, 1, root_element));
+function set_data(root_element, crepeId, crepeName, crepePreis) {
+    if (crepeName == undefined && crepePreis == undefined && crepeId == undefined) {
+        crepeName = root_element.getAttribute('data-name');
+        crepePreis = (root_element.getAttribute('data-preis'));
+        crepeId = (root_element.getAttribute('data-id'));
+    }
+    crepelist.push(new Crêpe2(crepeId, crepeName, crepePreis, 1, root_element));
     return true;
 }
 /**
@@ -137,4 +143,34 @@ function send_crepes(data) {
             }
         });
     });
+}
+/**
+ * Daten in der Tabelle verändern
+ */
+function editing_table(data, remove) {
+    var table = document.getElementById("crepe_table");
+    // alle TableRows sollten ein data-id attribute haben, um sie den crepes zuordnen zu können.
+    // Alle TableCells sollten ein data-type attribut haben (amount, name, price)
+    function edit_table_entry(crepe, new_amount) {
+        var translator = Intl.NumberFormat("de-DE");
+        var row = table.querySelector("[data-id=\"".concat(crepe.id, "\"]"));
+        row.querySelector("[data-type=\"amount\"]").innerHTML = new_amount.toString();
+        row.querySelector("[data-type=\"price\"]").innerHTML = translator.format(crepe.preis * new_amount);
+    }
+    function create_new_entry(data, table) {
+        data.forEach(function (crepes) {
+            var tr = table.insertRow();
+            var amount = tr.insertCell(0);
+            var name = tr.insertCell(1);
+            var price = tr.insertCell(2);
+            amount.innerHTML = crepes.amount.toString();
+            name.innerHTML = crepes.name;
+            price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(crepes.preis);
+            var index = tr.rowIndex;
+            tr.setAttribute("data-id", index.toString());
+        });
+    }
+    function remove_table_entry(id) {
+        table.querySelector("[data-id=\"".concat(id, "\"]")).remove();
+    }
 }

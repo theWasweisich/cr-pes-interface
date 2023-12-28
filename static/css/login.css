@@ -11,13 +11,34 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 100vh;
+}
+
+#form_head {
+    background-color: hsl(0, 0%, 100%);
+}
+
+#form_head a {
+    text-decoration: none;
+    display: flex;
+    height: fit-content;
+    width: fit-content;
+    top: 0;
+    right: 0;
+    position: relative;
 }
 
 #loginForm {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 500px;
-    height: 500px;
+    height: min-content;
     background-color: grey;
     margin: auto;
+    padding: 10px;
+    border: 5px dashed black;
 }
 
 input {

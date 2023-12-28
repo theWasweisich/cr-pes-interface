@@ -1,18 +1,20 @@
 
 var crepelist = []
+var in_table = []
 
 
 class Crêpe2 {
+    id: number;
     name: string;
     preis: number;
-    zutaten: Array<string>;
+    crepeId: number;
     amount: number;
     root_element: HTMLElement;
 
-    constructor(name, preis, zutaten, amount, root_element) {
+    constructor(id, name, preis, amount, root_element) {
+        this.crepeId = id;
         this.name = name;
         this.preis = preis;
-        this.zutaten = zutaten;
         this.amount = amount;
         this.root_element = root_element;
     }
@@ -37,7 +39,7 @@ function event_listener(ev) {
     }
 }
 
-function add_event_listeners() {
+function setup() {
     
     var crepes = document.getElementsByClassName('crepe_container') as HTMLCollectionOf<HTMLElement>;
 
@@ -47,11 +49,11 @@ function add_event_listeners() {
         crepe.addEventListener("click", function(ev) {
             ev.stopPropagation()
             console.log(ev.target);
-        })
+        });
+        set_data(crepe);
     });
 }
 
-add_event_listeners();
 
 function underlayClicked(event, element) {
     if (event.target != element) {
@@ -63,8 +65,13 @@ function underlayClicked(event, element) {
 }
 
 
-function set_data(crepeName, crepePreis, crepeZutaten, root_element) {
-    crepelist.push(new Crêpe2(crepeName, crepePreis, crepeZutaten, 1, root_element))
+function set_data(root_element: HTMLElement, crepeId?, crepeName?: string, crepePreis?: number) {
+    if (crepeName == undefined && crepePreis == undefined && crepeId == undefined) {
+        crepeName = root_element.getAttribute('data-name')
+        crepePreis = (root_element.getAttribute('data-preis')) as unknown as number
+        crepeId = (root_element.getAttribute('data-id')) as unknown as number
+    }
+    crepelist.push(new Crêpe2(crepeId, crepeName, crepePreis, 1, root_element))
     return true;
 }
 
@@ -117,3 +124,44 @@ async function send_crepes(data) {
         console.log("Error: " + error);
     }
 }
+
+/**
+ * Daten in der Tabelle verändern
+ */
+function editing_table(data: Crêpe2, remove?: boolean) {
+    const table = document.getElementById("crepe_table");
+
+    // alle TableRows sollten ein data-id attribute haben, um sie den crepes zuordnen zu können.
+    // Alle TableCells sollten ein data-type attribut haben (amount, name, price)
+
+    
+
+    function edit_table_entry(crepe: Crêpe2, new_amount: number) {
+        var translator = Intl.NumberFormat("de-DE");
+        var row = table.querySelector(`[data-id="${crepe.id}"]`) as HTMLTableRowElement
+        (row.querySelector(`[data-type="amount"]`) as HTMLTableCellElement).innerHTML = new_amount.toString();
+        (row.querySelector(`[data-type="price"]`) as HTMLTableCellElement).innerHTML = translator.format(crepe.preis * new_amount);
+    }
+
+    function create_new_entry(data: Array<Crêpe2>, table: HTMLTableElement) {
+        data.forEach(crepes => {
+            var tr = table.insertRow()
+    
+            var amount = tr.insertCell(0)
+            var name = tr.insertCell(1)
+            var price = tr.insertCell(2)
+
+            amount.innerHTML = crepes.amount.toString()
+            name.innerHTML = crepes.name
+            price.innerHTML = Intl.NumberFormat('de-DE', {style: 'currency', currency: 'EUR'}).format(crepes.preis)
+
+            var index = tr.rowIndex
+            tr.setAttribute("data-id", index.toString())
+        });
+    }
+
+    function remove_table_entry(id: number) {
+        table.querySelector(`[data-id="${id}"]`).remove();
+    }
+}
+

@@ -5,6 +5,7 @@ from jinja2 import Undefined
 from werkzeug import exceptions
 from flask import (
     Flask,
+    Response,
     flash,
     get_flashed_messages,
     make_response,
@@ -15,6 +16,7 @@ from flask import (
     url_for,
 )
 from flask_cors import cross_origin
+import status
 
 from datetime import datetime
 import logging
@@ -30,19 +32,17 @@ from blueprint_API import api_bp
 
 import json
 
-# logger_nerv = logging.getLogger("werkzeug")
-# logger_nerv.setLevel(logging.CRITICAL)
-
-# del logger_nerv
-
 
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
+
 
 app = Flask(__name__)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
 app.secret_key = secrets.token_hex(100)
+
+
 
 con = sqlite3.connect('datenbank.db')
 cur = con.cursor()
@@ -57,6 +57,9 @@ del cur
 
 
 crêpes: list[dict[str, Any]] = []
+
+
+
 
 for crepe in crêpes_res:
     crêpes.append(
@@ -84,9 +87,9 @@ sales: list = []
 
 valid_keys = []
 
-@app.route("/default")
-def serve_default():
-    return "<h1>Hallo</h1>"
+@app.route("/")
+def serve_homepage():
+    return render_template("index.jinja", crepes=crêpes)
 
 
 @app.route("/einstellungen")
@@ -104,8 +107,6 @@ def serve_einstellungen():
         return url_for("serve_login")
 
 
-
-
 @app.route("/einstellungen/login", methods=("POST", "GET"))
 def serve_login():
     if request.method == "GET":
@@ -114,6 +115,7 @@ def serve_login():
         _, cur = get_db()
         username = request.form["username"]
         password = request.form["password"]
+
         sql = "SELECT priviledge FROM users WHERE username = ? AND password = ?"
         cur.execute(sql, (username, password))
 
@@ -127,9 +129,10 @@ def serve_login():
             return redirect("/einstellungen/login")
 
 
-        return ""
+        return "", status.HTTP_403_FORBIDDEN
     else:
-        return "", 405
+        return "", status.HTTP_405_METHOD_NOT_ALLOWED
+
 
 @app.route("/schichten")
 def serve_shifts():
@@ -141,17 +144,16 @@ def serve_shifts():
         return render_template("shifts.jinja", shifts=shifts)
     else:
         session.pop("secret")
-        return "", 405
+        return "", status.HTTP_403_FORBIDDEN
 
-@app.route("/")
-def serve_homepage():
-    return render_template("index.jinja", crepes=crêpes)
 
 
 
 @app.route("/help_page")
 def rick_roll():
-    return redirect("https://youtu.be/dQw4w9WgXcQ?si=7sPxh0li5uSBE3rr") # Rickröll 😘
+    resp = Response("https://youtu.be/dQw4w9WgXcQ?si=7sPxh0li5uSBE3rr")
+    resp.headers.add("Du kleiner", "l'opfl")
+    return resp # Rickröll 😘
 
 @app.route("/favicon.ico")
 def serve_favicon():
@@ -159,10 +161,10 @@ def serve_favicon():
         data = f.read()
     resp = make_response(data)
     resp.headers.set("Content-Type", "image/x-icon")
-    resp.status_code = 200
+    resp.status_code = status.HTTP_200_OK
     return resp
 
-@app.errorhandler(404)
+@app.errorhandler(status.HTTP_404_NOT_FOUND)
 def not_found(*args, **kwargs):
     flash("NotFound", category="error")
     logging.critical("Flashed!")

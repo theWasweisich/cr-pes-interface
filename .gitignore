@@ -6,3 +6,5 @@ __pycache__
 .venv
 .hintrc
 *.log
+key.pem
+cert.pem

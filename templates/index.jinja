@@ -50,15 +50,15 @@
         </div>
         
         <table id="crepe_table">
-            <tr>
+            <tr data-id="XXX">
                 <th>Anzahl</th>
                 <th style="width: 75%;">Art</th>
                 <th>Preis</th>
             </tr>
-            <tr>
-                <td>2</td>
-                <td>Schoko</td>
-                <td>3€</td>
+            <tr data-id="0">
+                <td data-type="amount">2</td>
+                <td data-type="name">Schoko</td>
+                <td data-type="price">3€</td>
             </tr>
         </table>
 
@@ -71,7 +71,7 @@
     
         <div id="main" class="w3-container">
             {% for crepe in crepes %}
-            <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}" data-id="{{ crepe['id'] }}">
+            <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}" data-id="{{ crepe['id'] }}" onload="set_data(this);">
                 <div class="crepecontrol w3-right">
                     <button>-</button>
                     <button>+</button>
