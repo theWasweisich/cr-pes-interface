@@ -43,7 +43,7 @@ def delete_crepe():
     Data should contain: `id`, `name`
     """
     data = request.json
-    logging.debug(f"Removed Crêpes arrived!\nData: {data}")
+    logging.debug(f"Removed Crêpes arrived!\nData: {data}") # FIXME
     return {"status": "success"}
 
 def apply_changes(changes: dict[str, list[dict]]):
