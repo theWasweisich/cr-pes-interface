@@ -8,4 +8,4 @@ __pycache__
 *.log
 key.pem
 cert.pem
-activate.bat
+venv_activate.bat
