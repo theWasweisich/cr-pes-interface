@@ -1,10 +1,6 @@
 // Imported: formatter, set_data, Crêpes2, crepelist from global
-
-
-/**
- * 
- * @returns Question
- */
+var need_to_speichern: boolean = false;
+var crepes_selected = false;
 
 window.onbeforeunload = function () {
     if (need_to_speichern) {
@@ -13,7 +9,6 @@ window.onbeforeunload = function () {
     else return;
 }
 
-var need_to_speichern: boolean = false;
 
 let send_to_server_list = {
     new: new Array,
@@ -39,8 +34,6 @@ function set_settings_up() {
         }
     }
 }
-
-var crepes_selected = false;
 
 function prepare_loader() {
     const button = document.getElementById('save_btn');
@@ -100,7 +93,9 @@ function check_if_empty() {
     }
 }
 
-
+/**
+ * Checks, if crepes_list is empty and if it is, shows the empty elem instead.
+ */
 function toggle_empty() {
     var error_elem = document.getElementById('no_crepes');
     var list_elem = document.getElementById('crepes_list');
@@ -115,10 +110,15 @@ function toggle_empty() {
 }
 
 function delte_crepe(target: HTMLElement) {
-    var crepename = target.getAttribute('data-name');
-    var elem = document.querySelector(`div[data-name="${crepename}"]`)
-    elem.remove()
+    var root = target.parentElement.parentElement.parentElement;
+    var crepename = root.getAttribute('data-name');
+    root.remove();
     toggle_empty();
+    var id = root.getAttribute("data-id")
+    send_to_server_list.delete.push({
+        "id": id,
+        "name": crepename
+    });
 }
 
 
@@ -129,7 +129,7 @@ async function create_crepe(): Promise<boolean> {
     let ingredients = document.getElementById('ingredients');
     let color = document.getElementById('color');
     
-    var crepe_data = {"new": {
+    var crepe_data = {
         // @ts-expect-error
         "name": name.value,
         // @ts-expect-error
@@ -138,11 +138,10 @@ async function create_crepe(): Promise<boolean> {
         "ingredients": ingredients.value,
         // @ts-expect-error
         "color": color.value
-        }
-    };
+        };
     if ("new" in crepe_data) {
-        console.log(crepe_data["new"])
-        send_to_server_list.new.push(crepe_data["new"])
+        console.log(crepe_data)
+        send_to_server_list.new.push(crepe_data)
         need_to_speichern = true;
     }
     else {console.log("NO!")};

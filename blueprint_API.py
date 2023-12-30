@@ -22,22 +22,26 @@ def index():
     return "<h1>Hier gehts zur API</h1>"
 
 @cross_origin
-@api_bp.route("/crepe/new", methods=("PUT",))
+@api_bp.route("/crepes/new", methods=("PUT",))
 def new_crepe():
     data = request.json
     logging.debug(f"New Crêpes arrived!\nData: {data}")
     return {"status": "success"}
 
 @cross_origin
-@api_bp.route("/crepe/edit", methods=("PATCH",))
+@api_bp.route("/crepes/edit", methods=("PATCH",))
 def edit_crepe():
     data = request.json
     logging.debug(f"Edited Crêpes arrived!\nData: {data}")
     return {"status": "success"}
 
+
 @cross_origin
-@api_bp.route("/crepe/delete", methods=("PUT",))
+@api_bp.route("/crepes/delete", methods=("DELETE",))
 def delete_crepe():
+    """
+    Data should contain: `id`, `name`
+    """
     data = request.json
     logging.debug(f"Removed Crêpes arrived!\nData: {data}")
     return {"status": "success"}

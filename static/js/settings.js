@@ -1,7 +1,3 @@
-/**
- *
- * @returns Question
- */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -38,6 +34,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+// Imported: formatter, set_data, Crêpes2, crepelist from global
+var need_to_speichern = false;
+var crepes_selected = false;
 window.onbeforeunload = function () {
     if (need_to_speichern) {
         return "U SURE?";
@@ -45,13 +44,24 @@ window.onbeforeunload = function () {
     else
         return;
 };
-var need_to_speichern = false;
 var send_to_server_list = {
     new: new Array,
     edit: new Array,
     delete: new Array
 };
-var crepes_selected = false;
+function set_settings_up() {
+    if (crepelist.length == 0) {
+        var list = document.getElementById("crepes_list");
+        var elems = list.querySelectorAll(".crepe_container");
+        for (var i = 0; i < elems.length; i++) {
+            var crepe = elems[i];
+            var id = crepe.getAttribute("data-id");
+            var name = crepe.getAttribute("data-name");
+            var price = crepe.getAttribute('data-price');
+            crepelist.push(new Crêpe2(id, name, price, 0, crepe));
+        }
+    }
+}
 function prepare_loader() {
     var button = document.getElementById('save_btn');
     var text = document.getElementById('save_text');
@@ -65,6 +75,7 @@ function prepare_loader() {
         loader.style.display = "none";
     });
 }
+set_settings_up();
 prepare_loader();
 function check_sendable() {
     return __awaiter(this, void 0, void 0, function () {
@@ -109,6 +120,9 @@ function check_if_empty() {
         return false;
     }
 }
+/**
+ * Checks, if crepes_list is empty and if it is, shows the empty elem instead.
+ */
 function toggle_empty() {
     var error_elem = document.getElementById('no_crepes');
     var list_elem = document.getElementById('crepes_list');
@@ -122,10 +136,15 @@ function toggle_empty() {
     }
 }
 function delte_crepe(target) {
-    var crepename = target.getAttribute('data-name');
-    var elem = document.querySelector("div[data-name=\"".concat(crepename, "\"]"));
-    elem.remove();
+    var root = target.parentElement.parentElement.parentElement;
+    var crepename = root.getAttribute('data-name');
+    root.remove();
     toggle_empty();
+    var id = root.getAttribute("data-id");
+    send_to_server_list.delete.push({
+        "id": id,
+        "name": crepename
+    });
 }
 function create_crepe() {
     return __awaiter(this, void 0, void 0, function () {
@@ -136,20 +155,19 @@ function create_crepe() {
             price = document.getElementById('price');
             ingredients = document.getElementById('ingredients');
             color = document.getElementById('color');
-            crepe_data = { "new": {
-                    // @ts-expect-error
-                    "name": name.value,
-                    // @ts-expect-error
-                    "price": price.value,
-                    // @ts-expect-error
-                    "ingredients": ingredients.value,
-                    // @ts-expect-error
-                    "color": color.value
-                }
+            crepe_data = {
+                // @ts-expect-error
+                "name": name.value,
+                // @ts-expect-error
+                "price": price.value,
+                // @ts-expect-error
+                "ingredients": ingredients.value,
+                // @ts-expect-error
+                "color": color.value
             };
             if ("new" in crepe_data) {
-                console.log(crepe_data["new"]);
-                send_to_server_list.new.push(crepe_data["new"]);
+                console.log(crepe_data);
+                send_to_server_list.new.push(crepe_data);
                 need_to_speichern = true;
             }
             else {
