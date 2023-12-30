@@ -36,6 +36,10 @@ a:has(#move_back) {
     padding: 10px;
 }
 
+fieldset {
+    margin: 5px;
+}
+
 .crepe_container {
     margin: 2px;
     background-color: rgba(128, 128, 128, 0.309);
@@ -45,6 +49,7 @@ a:has(#move_back) {
 .crepe_container > input {
     background-color:transparent;
     border: none;
+    border-bottom: 1px black dotted;
 }
 
 #crepes_list {

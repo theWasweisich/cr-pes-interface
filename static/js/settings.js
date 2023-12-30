@@ -1,3 +1,7 @@
+/**
+ *
+ * @returns Question
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,6 +38,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+window.onbeforeunload = function () {
+    if (need_to_speichern) {
+        return "U SURE?";
+    }
+    else
+        return;
+};
+var need_to_speichern = false;
 var send_to_server_list = {
     new: new Array,
     edit: new Array,
@@ -61,25 +73,9 @@ function check_sendable() {
             switch (_a.label) {
                 case 0:
                     save_btn = document.getElementById('save_btn');
-                    if (!(send_to_server_list.new.length != 0)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, send_to_server()];
+                    return [4 /*yield*/, save_changes()];
                 case 1:
-                    res = _a.sent();
-                    return [3 /*break*/, 6];
-                case 2:
-                    if (!(send_to_server_list.edit.length != 0)) return [3 /*break*/, 4];
-                    return [4 /*yield*/, send_to_server()];
-                case 3:
-                    res = _a.sent();
-                    return [3 /*break*/, 6];
-                case 4:
-                    if (!(send_to_server_list.delete.length != 0)) return [3 /*break*/, 6];
-                    return [4 /*yield*/, send_to_server()];
-                case 5:
-                    res = _a.sent();
-                    _a.label = 6;
-                case 6:
-                    if (res) {
+                    if (_a.sent()) {
                         save_btn.style.backgroundColor = "rgba(0, 255, 0, 1);";
                         save_btn.innerText = "Gespeichert!";
                         setTimeout(function () {
@@ -94,9 +90,17 @@ function check_sendable() {
 }
 function change_selected() {
     var select_elem = document.getElementById('color');
+    var custom_select_elem = document.getElementById("ccolor");
+    if (select_elem.value == 'custom') {
+        select_elem.hidden = true;
+        custom_select_elem.hidden = false;
+    }
     var selected_color = select_elem.value;
     select_elem.style.backgroundColor = selected_color;
 }
+/**
+ * Funktion prüft, ob die Liste mit Crêpes leer ist
+ */
 function check_if_empty() {
     if (document.getElementById('crepes_list').childElementCount == 0) {
         return true;
@@ -105,7 +109,7 @@ function check_if_empty() {
         return false;
     }
 }
-function show_empty() {
+function toggle_empty() {
     var error_elem = document.getElementById('no_crepes');
     var list_elem = document.getElementById('crepes_list');
     if (check_if_empty()) {
@@ -121,7 +125,7 @@ function delte_crepe(target) {
     var crepename = target.getAttribute('data-name');
     var elem = document.querySelector("div[data-name=\"".concat(crepename, "\"]"));
     elem.remove();
-    show_empty();
+    toggle_empty();
 }
 function create_crepe() {
     return __awaiter(this, void 0, void 0, function () {
@@ -146,6 +150,7 @@ function create_crepe() {
             if ("new" in crepe_data) {
                 console.log(crepe_data["new"]);
                 send_to_server_list.new.push(crepe_data["new"]);
+                need_to_speichern = true;
             }
             else {
                 console.log("NO!");
@@ -158,42 +163,133 @@ function create_crepe() {
 }
 function send_to_server() {
     return __awaiter(this, void 0, void 0, function () {
-        var response, e_1;
+        function send_delete() {
+            return __awaiter(this, void 0, void 0, function () {
+                var response, e_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, fetch("/api/crepes/delete", {
+                                    method: "DELETE",
+                                    mode: "cors",
+                                    cache: "no-cache",
+                                    credentials: "same-origin",
+                                    headers: { "Content-Type": "application/json" },
+                                    redirect: "manual",
+                                    referrerPolicy: "no-referrer",
+                                    body: JSON.stringify(send_to_server_list.delete)
+                                })];
+                        case 1:
+                            response = _a.sent();
+                            if (response.status == 200) {
+                                need_to_speichern = false;
+                                return [2 /*return*/, true];
+                            }
+                            else {
+                                return [2 /*return*/, false];
+                            }
+                            return [3 /*break*/, 3];
+                        case 2:
+                            e_1 = _a.sent();
+                            console.error(e_1);
+                            return [3 /*break*/, 3];
+                        case 3: return [2 /*return*/];
+                    }
+                });
+            });
+        }
+        function send_edit() {
+            return __awaiter(this, void 0, void 0, function () {
+                var response, e_2;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, fetch("/api/crepes/edit", {
+                                    method: "PATCH",
+                                    mode: "cors",
+                                    cache: "no-cache",
+                                    credentials: "same-origin",
+                                    headers: { "Content-Type": "application/json" },
+                                    redirect: "manual",
+                                    referrerPolicy: "no-referrer",
+                                    body: JSON.stringify(send_to_server_list.edit)
+                                })];
+                        case 1:
+                            response = _a.sent();
+                            if (response.status == 200) {
+                                need_to_speichern = false;
+                                return [2 /*return*/, true];
+                            }
+                            else {
+                                return [2 /*return*/, false];
+                            }
+                            return [3 /*break*/, 3];
+                        case 2:
+                            e_2 = _a.sent();
+                            console.error(e_2);
+                            return [3 /*break*/, 3];
+                        case 3: return [2 /*return*/];
+                    }
+                });
+            });
+        }
+        function send_new() {
+            return __awaiter(this, void 0, void 0, function () {
+                var response, e_3;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, fetch("/api/crepes/new", {
+                                    method: "PUT",
+                                    mode: "cors",
+                                    cache: "no-cache",
+                                    credentials: "same-origin",
+                                    headers: { "Content-Type": "application/json" },
+                                    redirect: "manual",
+                                    referrerPolicy: "no-referrer",
+                                    body: JSON.stringify(send_to_server_list.new)
+                                })];
+                        case 1:
+                            response = _a.sent();
+                            if (response.status == 200) {
+                                need_to_speichern = false;
+                                return [2 /*return*/, true];
+                            }
+                            else {
+                                return [2 /*return*/, false];
+                            }
+                            return [3 /*break*/, 3];
+                        case 2:
+                            e_3 = _a.sent();
+                            console.error(e_3);
+                            return [3 /*break*/, 3];
+                        case 3: return [2 /*return*/];
+                    }
+                });
+            });
+        }
+        var return_value;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    console.log("Sending off");
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, fetch("/api/save", {
-                            method: "POST",
-                            mode: "cors",
-                            cache: "no-cache",
-                            credentials: "same-origin",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            redirect: "manual",
-                            referrerPolicy: "no-referrer",
-                            body: JSON.stringify(send_to_server_list)
-                        })];
-                case 2:
-                    response = _a.sent();
-                    console.log("Status Code: ".concat(response.status));
-                    if (response.status == 200) {
-                        return [2 /*return*/, true];
-                    }
-                    else {
-                        throw Error("Das hat nicht funktioniert");
-                    }
-                    return [3 /*break*/, 4];
-                case 3:
-                    e_1 = _a.sent();
-                    console.log(e_1);
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
+            console.log("Sending off");
+            ;
+            ;
+            return_value = false;
+            if (send_to_server_list["new"].length >= 1) {
+                return_value = true;
+                send_new();
             }
+            if (send_to_server_list["edit"].length >= 1) {
+                return_value = true;
+                send_edit();
+            }
+            if (send_to_server_list["delete"].length >= 1) {
+                return_value = true;
+                send_delete();
+            }
+            return [2 /*return*/, return_value];
         });
     });
 }
@@ -223,5 +319,14 @@ function loadCrepe(elem, crepes_data) {
 function editCrepe() {
 }
 function save_changes() {
-    console.log(send_to_server_list);
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            console.warn("Folgendes wird versendet werden: ");
+            console.log(send_to_server_list);
+            if (!send_to_server()) {
+                return [2 /*return*/, false];
+            }
+            return [2 /*return*/, true];
+        });
+    });
 }

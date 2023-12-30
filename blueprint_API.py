@@ -21,40 +21,25 @@ api_bp = Blueprint('api_bp', __name__)
 def index():
     return "<h1>Hier gehts zur API</h1>"
 
-@api_bp.route("/save", methods=("POST",))
-@cross_origin()
-def receive_changes():
-    logging.info(">> Changes arrived!")
-
+@cross_origin
+@api_bp.route("/crepe/new", methods=("PUT",))
+def new_crepe():
     data = request.json
-    logging.info(type(data))
-    
-    if type(data) != dict:
-        return {"status": "failed"}, 501
+    logging.debug(f"New Crêpes arrived!\nData: {data}")
+    return {"status": "success"}
 
-    if "new" in data:
-        logging.info("Received a new Crêpes!")
-        new = data["new"]
-        changes['new'] = new
-    else:
-        changes['new'] = []
+@cross_origin
+@api_bp.route("/crepe/edit", methods=("PATCH",))
+def edit_crepe():
+    data = request.json
+    logging.debug(f"Edited Crêpes arrived!\nData: {data}")
+    return {"status": "success"}
 
-    if "edit" in data:
-        edit = data["edit"]
-        changes["edit"] = edit
-    else:
-        changes['edit'] = []
-
-    if "delete" in data:
-        delete = data["delete"]
-        changes["delete"] = delete
-    else:
-        changes['delete'] = []
- 
-    apply_changes(changes)
-
-    print("Angekommst: " + str(changes))
-
+@cross_origin
+@api_bp.route("/crepe/delete", methods=("PUT",))
+def delete_crepe():
+    data = request.json
+    logging.debug(f"Removed Crêpes arrived!\nData: {data}")
     return {"status": "success"}
 
 def apply_changes(changes: dict[str, list[dict]]):
