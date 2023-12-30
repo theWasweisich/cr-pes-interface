@@ -77,9 +77,12 @@ function prepare_loader() {
 }
 set_settings_up();
 prepare_loader();
-function check_sendable() {
+/**
+ * Function that is called by #save_btn
+ */
+function button_save_changes_to_server() {
     return __awaiter(this, void 0, void 0, function () {
-        var res, save_btn;
+        var save_btn;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -135,6 +138,10 @@ function toggle_empty() {
         error_elem.style.display = "none";
     }
 }
+/**
+ * Entfernt crêpes von der liste und fügt sie der send_to_server_list an.
+ * @param target Der Löschen Knopf
+ */
 function delte_crepe(target) {
     var root = target.parentElement.parentElement.parentElement;
     var crepename = root.getAttribute('data-name');
@@ -145,6 +152,31 @@ function delte_crepe(target) {
         "id": id,
         "name": crepename
     });
+}
+function loadCrepe(elem, crepes_data) {
+    var crepes_id = document.getElementById('editID');
+    var crepes_name = document.getElementById('editCrepeName');
+    var crepes_price = document.getElementById('editPrice');
+    var crepes_ingredients = document.getElementById('editIngredients');
+    if (elem.value == "select") {
+        crepes_id.value, crepes_name.value, crepes_price.value, crepes_ingredients.value = "";
+        crepes_selected = false;
+        return;
+    }
+    var crêpes_name = elem.value;
+    crepes_data.forEach(function (crepes) {
+        if (crepes.name == crêpes_name) {
+            console.log(crepes);
+            crepes_id.value = crepes['id'];
+            crepes_name.value = crepes['name'];
+            crepes_price.value = crepes['price'];
+            crepes_ingredients.value = crepes['ingredients'];
+            return;
+        }
+    });
+    crepes_selected = true;
+}
+function editCrepe() {
 }
 function create_crepe() {
     return __awaiter(this, void 0, void 0, function () {
@@ -174,11 +206,13 @@ function create_crepe() {
                 console.log("NO!");
             }
             ;
-            // check_sendable
             return [2 /*return*/];
         });
     });
 }
+/**
+ * **Bitte save_changes() benutzen**
+ */
 function send_to_server() {
     return __awaiter(this, void 0, void 0, function () {
         function send_delete() {
@@ -291,7 +325,7 @@ function send_to_server() {
         }
         var return_value;
         return __generator(this, function (_a) {
-            console.log("Sending off");
+            console.log("Speichern");
             ;
             ;
             return_value = false;
@@ -311,40 +345,40 @@ function send_to_server() {
         });
     });
 }
-function loadCrepe(elem, crepes_data) {
-    var crepes_id = document.getElementById('editID');
-    var crepes_name = document.getElementById('editCrepeName');
-    var crepes_price = document.getElementById('editPrice');
-    var crepes_ingredients = document.getElementById('editIngredients');
-    if (elem.value == "select") {
-        crepes_id.value, crepes_name.value, crepes_price.value, crepes_ingredients.value = "";
-        crepes_selected = false;
-        return;
-    }
-    var crêpes_name = elem.value;
-    crepes_data.forEach(function (crepes) {
-        if (crepes.name == crêpes_name) {
-            console.log(crepes);
-            crepes_id.value = crepes['id'];
-            crepes_name.value = crepes['name'];
-            crepes_price.value = crepes['price'];
-            crepes_ingredients.value = crepes['ingredients'];
-            return;
-        }
-    });
-    crepes_selected = true;
-}
-function editCrepe() {
-}
+/**
+ * Sendet alles an den Server
+ *
+ * **Letzte funktion, die das Senden verhindern kann**
+ */
 function save_changes() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            console.warn("Folgendes wird versendet werden: ");
-            console.log(send_to_server_list);
+            console.warn("Folgendes wird versandt: ");
+            console.warn(send_to_server_list);
             if (!send_to_server()) {
                 return [2 /*return*/, false];
             }
             return [2 /*return*/, true];
         });
     });
+}
+function check_if_need_to_speichern() {
+    /**
+     * Checks if send_to_server_list is empty
+     */
+    function is_all_empty() {
+        if (send_to_server_list.delete.length != 0 && send_to_server_list.edit.length != 0 && send_to_server_list.new.length != 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    var btn = document.getElementById('save_btn');
+    if (is_all_empty()) {
+        btn.style.backgroundColor = "rgb(120, 120, 120)";
+    }
+    else {
+        btn.style.backgroundColor = "rgb(0, 133, 35)";
+    }
 }

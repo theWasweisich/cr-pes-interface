@@ -53,10 +53,11 @@ function prepare_loader() {
 set_settings_up();
 prepare_loader();
 
+/**
+ * Function that is called by #save_btn
+ */
+async function button_save_changes_to_server() {
 
-async function check_sendable() {
-
-    var res: boolean
     var save_btn = document.getElementById('save_btn')
 
     if (await save_changes()) {
@@ -109,6 +110,10 @@ function toggle_empty() {
     }
 }
 
+/**
+ * Entfernt crêpes von der liste und fügt sie der send_to_server_list an.
+ * @param target Der Löschen Knopf
+ */
 function delte_crepe(target: HTMLElement) {
     var root = target.parentElement.parentElement.parentElement;
     var crepename = root.getAttribute('data-name');
@@ -121,6 +126,40 @@ function delte_crepe(target: HTMLElement) {
     });
 }
 
+
+function loadCrepe(elem: HTMLSelectElement, crepes_data: Array<any>) {
+    var crepes_id = document.getElementById('editID') as HTMLInputElement;
+    var crepes_name = document.getElementById('editCrepeName') as HTMLInputElement;
+    var crepes_price = document.getElementById('editPrice') as HTMLInputElement;
+    var crepes_ingredients = document.getElementById('editIngredients') as HTMLInputElement;
+
+    if (elem.value == "select") {
+        crepes_id.value, crepes_name.value, crepes_price.value, crepes_ingredients.value = "";
+        crepes_selected = false;
+        return;
+    }
+    var crêpes_name = elem.value;
+
+    crepes_data.forEach(crepes => {
+        if (crepes.name == crêpes_name) {
+            console.log(crepes);
+            
+            crepes_id.value = crepes['id'];
+            
+            crepes_name.value = crepes['name'];
+            
+            crepes_price.value = crepes['price'];
+            
+            crepes_ingredients.value = crepes['ingredients'];
+            return;
+        }
+    });
+    crepes_selected = true;
+}
+
+function editCrepe() {
+    
+}
 
 async function create_crepe(): Promise<boolean> {
     console.log("Creating crêpes");
@@ -145,14 +184,15 @@ async function create_crepe(): Promise<boolean> {
         need_to_speichern = true;
     }
     else {console.log("NO!")};
-    // check_sendable
     return;
 }
 
 
-
+/**
+ * **Bitte save_changes() benutzen**
+ */
 async function send_to_server(): Promise<boolean> {
-    console.log("Sending off");
+    console.log("Speichern");
     
 
     async function send_delete() {
@@ -234,46 +274,37 @@ async function send_to_server(): Promise<boolean> {
 
 }
 
-function loadCrepe(elem: HTMLSelectElement, crepes_data: Array<any>) {
-    var crepes_id = document.getElementById('editID') as HTMLInputElement;
-    var crepes_name = document.getElementById('editCrepeName') as HTMLInputElement;
-    var crepes_price = document.getElementById('editPrice') as HTMLInputElement;
-    var crepes_ingredients = document.getElementById('editIngredients') as HTMLInputElement;
-
-    if (elem.value == "select") {
-        crepes_id.value, crepes_name.value, crepes_price.value, crepes_ingredients.value = "";
-        crepes_selected = false;
-        return;
-    }
-    var crêpes_name = elem.value;
-
-    crepes_data.forEach(crepes => {
-        if (crepes.name == crêpes_name) {
-            console.log(crepes);
-            
-            crepes_id.value = crepes['id'];
-            
-            crepes_name.value = crepes['name'];
-            
-            crepes_price.value = crepes['price'];
-            
-            crepes_ingredients.value = crepes['ingredients'];
-            return;
-        }
-    });
-    crepes_selected = true;
-}
-
-function editCrepe() {
-    
-}
-
-
+/**
+ * Sendet alles an den Server
+ * 
+ * **Letzte funktion, die das Senden verhindern kann**
+ */
 async function save_changes(): Promise<boolean> {
-    console.warn("Folgendes wird versendet werden: ");
-    console.log(send_to_server_list)
+    console.warn("Folgendes wird versandt: ");
+    console.warn(send_to_server_list)
     if (!send_to_server()) {
         return false;
     }
     return true;
+}
+
+function check_if_need_to_speichern() {
+
+    /**
+     * Checks if send_to_server_list is empty
+     */
+    function is_all_empty() {
+        if (send_to_server_list.delete.length != 0 && send_to_server_list.edit.length != 0 && send_to_server_list.new.length != 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    var btn = document.getElementById('save_btn') as HTMLButtonElement
+
+    if (is_all_empty()) {
+        btn.style.backgroundColor = "rgb(120, 120, 120)";
+    } else {
+        btn.style.backgroundColor = "rgb(0, 133, 35)";
+    }
 }
