@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/external/googlefonts.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/external/w3.css')}}">
+    <script src="{{ url_for('static', filename='js/global.js') }}"></script>
     <script src="{{ url_for('static', filename='js/settings.js') }}" defer></script>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Einstellungen</title>
@@ -23,8 +24,11 @@
         </div>
     </a>
 
-    <h1><span class="icon material-symbols-outlined">settings</span>Einstellungen</h1>
-    <a href="/schichten">Schichten</a>
+    <div id="header">
+        <h1><span class="icon material-symbols-outlined">settings</span>Einstellungen</h1>
+        <a href="/schichten">Schichten</a>
+    </div>
+
     <div id="crepes_action">
         <div id="create" data-type="table">
             <h2>Crêpes Erstellen</h2>
@@ -63,6 +67,7 @@
                             <label for="color">Farbe</label>
                         </td>
                         <td>
+                            <input type="color" name="ccolor" id="ccolor" hidden>
                             <select name="color" id="color" onchange="change_selected();" style="text-shadow: 0 0 10px white;">
                                 <option value="#FFFFFF" style="background-color: #FFFFFF" selected></option>
                                 <option value="#009DFF" style="background-color: #009DFF"></option>
@@ -71,7 +76,7 @@
                                 <option value="#FF1B1C" style="background-color: #FF1B1C"></option>
                                 <option value="#31E981" style="background-color: #31E981"></option>
                                 <option value="#31E981" style="background-color: #eaee20"></option>
-                                <option value="" hidden>Dies ist Fülltext.</option>
+                                <option value="custom">Benutzerdefiniert</option>
                             </select>
                         </td>
                     </tr>
@@ -91,26 +96,30 @@
         <div id="no_crepes">
             <h2>Here are no crêpes!</h2>
         </div>
-        <div id="crepes_list" data-type="liste">
-            {% for crepe in crepes %}
-            <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}">
-                <div class="crepecontrol w3-right">
-                    <div class="icon_container">
-                        <button data-type="del" data-name="{{ crepe['name'] }}" onclick="delte_crepe(this);">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
+        <!-- Hier beginnt die Editierung -->
+        <fieldset>
+            <legend>Bearbeiten</legend>
+            <div id="crepes_list" data-type="liste">
+                {% for crepe in crepes %}
+                <div class="crepe_container" data-id="{{ crepe['id'] }}" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}">
+                    <div class="crepecontrol w3-right">
+                        <div class="icon_container">
+                            <button data-type="del" data-name="{{ crepe['name'] }}" onclick="delte_crepe(this);">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
                     </div>
+                    <input type="text" value="{{ crepe['name'] }}" /><br>
+                    <input type="text" value="{{ crepe['price'] }}" /><br>
                 </div>
-                <input type="text" value="{{ crepe['name'] }}" /><br>
-                <input type="text" value="{{ crepe['price'] }}" /><br>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
+        </fieldset>
     </div>
-    <button id="save_btn" onclick="check_sendable(); return false;">
+    <button id="save_btn" onclick="button_save_changes_to_server(); return false;" type="button">
         <p id="save_text">Speichern</p>
         <div id="loader_container">
-            <div id="loader"></div>            
+            <div id="loader"></div>
         </div>
     </button>
 </body>

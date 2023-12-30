@@ -5,6 +5,7 @@ from jinja2 import Undefined
 from werkzeug import exceptions
 from flask import (
     Flask,
+    Response,
     flash,
     get_flashed_messages,
     make_response,
@@ -15,8 +16,10 @@ from flask import (
     url_for,
 )
 from flask_cors import cross_origin
+import status
+import waitress
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import secrets
 import sys
@@ -30,19 +33,17 @@ from blueprint_API import api_bp
 
 import json
 
-# logger_nerv = logging.getLogger("werkzeug")
-# logger_nerv.setLevel(logging.CRITICAL)
-
-# del logger_nerv
-
-
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
+
 
 app = Flask(__name__)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
 app.secret_key = secrets.token_hex(100)
+app.permanent_session_lifetime = timedelta(minutes=5)
+
+
 
 con = sqlite3.connect('datenbank.db')
 cur = con.cursor()
@@ -57,6 +58,9 @@ del cur
 
 
 crêpes: list[dict[str, Any]] = []
+
+
+
 
 for crepe in crêpes_res:
     crêpes.append(
@@ -82,28 +86,30 @@ for shift in shifts_res:
 global sales
 sales: list = []
 
-valid_keys = []
+def valid_keys() -> list[str]:
+    con, cur = get_db()
+    cur.execute("SELECT s_key FROM secret_keys")
+    keys = cur.fetchall()
+    for i in range(len(keys)):
+        keys[i] = keys[i][0]
+    return keys
 
-@app.route("/default")
-def serve_default():
-    return "<h1>Hallo</h1>"
+@app.route("/")
+def serve_homepage():
+    return render_template("index.jinja", crepes=crêpes)
 
 
 @app.route("/einstellungen")
 def serve_einstellungen():
-    # logging.info("Alarm")
-    # return render_template("settings.jinja", crepes=crêpes)
     try:
         if not "secret" in session:
             return redirect("/einstellungen/login")
-        if session["secret"] in valid_keys:
+        if session["secret"] in valid_keys():
             return render_template("settings.jinja", crepes=crêpes)
         else:
             raise Exception
     except:
         return url_for("serve_login")
-
-
 
 
 @app.route("/einstellungen/login", methods=("POST", "GET"))
@@ -114,22 +120,30 @@ def serve_login():
         _, cur = get_db()
         username = request.form["username"]
         password = request.form["password"]
+
         sql = "SELECT priviledge FROM users WHERE username = ? AND password = ?"
         cur.execute(sql, (username, password))
 
         try:
             if cur.fetchone()[0] == 10:
-                secret = secrets.token_hex(100)
-                valid_keys.append(secret)
-                session["secret"] = secret
+                secret_key = secrets.token_hex(100)
+                
+                con, cur = get_db()
+                cur.execute("INSERT INTO secret_keys (s_key) VALUES (?)", (secret_key,))
+                con.commit(); con.close()
+
+                resp = redirect("/einstellungen")
+                resp.set_cookie('secret', secret_key, 3600)
+                session["secret"] = secret_key
                 return redirect("/einstellungen")
         except TypeError:
             return redirect("/einstellungen/login")
 
 
-        return ""
+        return "", status.HTTP_403_FORBIDDEN
     else:
-        return "", 405
+        return "", status.HTTP_405_METHOD_NOT_ALLOWED
+
 
 @app.route("/schichten")
 def serve_shifts():
@@ -137,21 +151,26 @@ def serve_shifts():
     if not "secret" in session:
         logging.info(session)
         return redirect("/einstellungen/login", 307)
-    if session["secret"] in valid_keys:
+    if session["secret"] in valid_keys():
         return render_template("shifts.jinja", shifts=shifts)
     else:
-        session.pop("secret")
-        return "", 405
 
-@app.route("/")
-def serve_homepage():
-    return render_template("index.jinja", crepes=crêpes)
+        con, cur = get_db()
+        cur.execute("DELETE FROM secret_keys WHERE s_key = ?", session["secret"])
+        con.commit(); con.close()
+
+        session.pop("secret")
+
+        return "", status.HTTP_403_FORBIDDEN
+
 
 
 
 @app.route("/help_page")
 def rick_roll():
-    return redirect("https://youtu.be/dQw4w9WgXcQ?si=7sPxh0li5uSBE3rr") # Rickröll 😘
+    resp = redirect("https://youtu.be/dQw4w9WgXcQ?si=7sPxh0li5uSBE3rr")
+    resp.headers.add("Du bist ein", "l'opfl")
+    return resp # Rickroll 😘
 
 @app.route("/favicon.ico")
 def serve_favicon():
@@ -159,19 +178,25 @@ def serve_favicon():
         data = f.read()
     resp = make_response(data)
     resp.headers.set("Content-Type", "image/x-icon")
-    resp.status_code = 200
+    resp.status_code = status.HTTP_200_OK
     return resp
 
-@app.errorhandler(404)
+@app.errorhandler(status.HTTP_404_NOT_FOUND)
 def not_found(*args, **kwargs):
     flash("NotFound", category="error")
     logging.critical("Flashed!")
     return redirect("/")
 
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+
 @app.after_request
 def after_req(e: flask.Response):
-    # logging.info(f"{request.remote_addr} -- {request.method}: {request.path}")
-    e.headers.add_header("X-HI", "MOINMOIN")
+    # if "static" in request.path:
+    #     logging.debug(f"{request.remote_addr} -- {request.method} {request.path}")
+    #     return e
+    # logging.info(f"{request.remote_addr} -- {request.method} {request.path}")
     return e
 
 def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
@@ -197,12 +222,30 @@ def bad_request(e):
 
 app.register_error_handler(404, bad_request)
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 if __name__ == "__main__":
     logging.info("👋 app.py wurde ausgeführt!")
-    if '-p' in sys.argv:
-        import subprocess
-        _ = subprocess.run(['waitress-serve', '--host', '127.0.0.1', '--port', '80', 'app:app'])
+
+    logger = logging.getLogger("waitress")
+    logger.setLevel(logging.DEBUG)
+
+    del logger
+
+    if ('-p' in sys.argv) or ('--production' in sys.argv):
+        print(bcolors.OKGREEN + "Production-Ready Server" + bcolors.ENDC)
+        waitress.serve(app, host="127.0.0.1", port=80)
     else:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
+        print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
         app.run(host='127.0.0.1', port=80, debug=True)

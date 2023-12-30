@@ -34,45 +34,35 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var crepelist = [];
-var Crêpe2 = /** @class */ (function () {
-    function Crêpe2(name, preis, zutaten, amount, root_element) {
-        this.name = name;
-        this.preis = preis;
-        this.zutaten = zutaten;
-        this.amount = amount;
-        this.root_element = root_element;
-    }
-    Crêpe2.prototype.return_for_sending = function () {
-        var map = new Map();
-        map.set("name", this.name);
-        map.set("preis", this.preis);
-        map.set("amount", this.amount);
-        return map;
-    };
-    return Crêpe2;
-}());
+var in_table = [];
+// Imported: formatter, set_data, Crêpes2, crepelist, set_color from global
 function event_listener(ev) {
-    if (ev.target != "div.crepe_container") {
-        console.log("Nö");
-        console.log(ev.target);
-        return false;
+    var original_target = ev.target;
+    var target = ev.currentTarget;
+    if (original_target.tagName == "BUTTON") {
+        console.groupCollapsed("Draufgedrückt");
+        console.log(original_target);
+        console.log(target);
+        console.groupEnd();
     }
     else {
-        console.log("YAY");
+        console.log("nönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönönö");
+        // console.log(target)
     }
 }
-function add_event_listeners() {
+function setup() {
     var crepes = document.getElementsByClassName('crepe_container');
     var crepes_list = Array.from(crepes);
     crepes_list.forEach(function (crepe) {
         crepe.addEventListener("click", function (ev) {
-            ev.stopPropagation();
-            console.log(ev.target);
-        });
+            event_listener(ev);
+        }, true);
+        set_data(crepe);
+        set_color(crepe);
+        crepe.querySelector('[type="price"]').innerHTML = formatter.format(Number(crepe.getAttribute('data-preis')));
     });
 }
-add_event_listeners();
+setup();
 function underlayClicked(event, element) {
     if (event.target != element) {
         alert("UPSIDAYSI");
@@ -80,25 +70,14 @@ function underlayClicked(event, element) {
         return;
     }
 }
-function set_data(crepeName, crepePreis, crepeZutaten, root_element) {
-    crepelist.push(new Crêpe2(crepeName, crepePreis, crepeZutaten, 1, root_element));
-    return true;
-}
-/**
- * For formatting number to currency
- */
-var formatter = new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR'
-});
 /**
  * Adds a crepe
  * @param {Crêpe2} crepe The crepe to add
  */
 function append_to_table(crepe) {
     var table = document.getElementById("crepe_table");
-    var new_row = document.createElement("tr");
-    new_row.setAttribute('data-crepe', crepe.name);
+    var new_row = table.insertRow();
+    new_row.setAttribute('data-id', String(crepe.id));
     var anz = new_row.insertCell(0);
     var name = new_row.insertCell(1);
     var preis = new_row.insertCell(2);
@@ -137,4 +116,71 @@ function send_crepes(data) {
             }
         });
     });
+}
+/**
+ * Daten in der Tabelle verändern
+ */
+function editing_table(data, remove) {
+    var table = document.getElementById("crepe_table");
+    // alle TableRows sollten ein data-id attribute haben, um sie den crepes zuordnen zu können.
+    // Alle TableCells sollten ein data-type attribut haben (amount, name, price)
+    if (remove != null && remove && table.querySelector("[data-id=\"".concat(data.id, "\"]")) != null) {
+        remove_table_entry(data, table);
+    }
+    if (table.querySelector("[data-id=\"".concat(data.id, "\"]")) == null) {
+        create_new_entry(data, table);
+    }
+    else {
+        edit_table_entry(data);
+    }
+    function edit_table_entry(crepe) {
+        var translator = Intl.NumberFormat("de-DE");
+        var row = table.querySelector("[data-id=\"".concat(crepe.id, "\"]"));
+        row.querySelector("[data-type=\"amount\"]").innerHTML = crepe.amount.toString();
+        row.querySelector("[data-type=\"price\"]").innerHTML = translator.format(crepe.preis * crepe.amount);
+    }
+    function create_new_entry(crepes, table) {
+        var tr = table.insertRow();
+        var amount = tr.insertCell(0);
+        var name = tr.insertCell(1);
+        var price = tr.insertCell(2);
+        amount.innerHTML = crepes.amount.toString();
+        name.innerHTML = crepes.name;
+        price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(crepes.preis);
+        var index = tr.rowIndex;
+        tr.setAttribute("data-id", crepes.id.toString());
+    }
+    ;
+    function remove_table_entry(crêpe, table) {
+        table.querySelector("[data-id=\"".concat(crêpe.id, "\"]")).remove();
+        crêpe.amount == 0;
+    }
+}
+/**
+ * Funktion, mit der man mithilfe des HTMLElementes den Crêpe bekommt
+ * @param elem The root div element of the crêpe
+ * @returns Crêpe2 or null, if the crepes has not been found
+ */
+function get_crepe_from_elem(elem) {
+    var id = elem.getAttribute("data-id");
+    for (var index = 0; index < crepelist.length; index++) {
+        var crepe = crepelist[index];
+        console.groupCollapsed("TEHEST");
+        console.debug(Number(crepe.crepeId));
+        console.debug(Number(id));
+        console.debug(typeof (id), typeof (crepe.crepeId));
+        console.debug(crepe.crepeId == id);
+        console.groupEnd();
+        if (crepe.crepeId == id) {
+            console.log("Ja");
+            return crepe;
+        }
+    }
+    return null;
+}
+function reset_crepeslist() {
+    for (var index = 0; index < crepelist.length; index++) {
+        var element = crepelist[index];
+        element.amount = 1;
+    }
 }

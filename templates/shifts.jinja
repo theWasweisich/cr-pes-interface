@@ -14,9 +14,10 @@
 <body>
     <div id="shift_list">
         {% for shift in shifts %}
-        <div>
+        <div onclick="ev_Listener(this);">
             <p>{{ shift["shift_name"] }}</p>
-            <p>{{ shift["time_start"] }}</p>
+            <p data-type="start">{{ shift["time_start"] }}</p>
+            <p data-fill="elapsed"></p>
             <hr>
         </div>
         {% endfor %}

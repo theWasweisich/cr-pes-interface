@@ -6,3 +6,6 @@ __pycache__
 .venv
 .hintrc
 *.log
+key.pem
+cert.pem
+venv_activate.bat

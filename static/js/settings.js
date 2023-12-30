@@ -34,12 +34,34 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+// Imported: formatter, set_data, Crêpes2, crepelist from global
+var need_to_speichern = false;
+var crepes_selected = false;
+window.onbeforeunload = function () {
+    if (need_to_speichern) {
+        return "U SURE?";
+    }
+    else
+        return;
+};
 var send_to_server_list = {
     new: new Array,
     edit: new Array,
     delete: new Array
 };
-var crepes_selected = false;
+function set_settings_up() {
+    if (crepelist.length == 0) {
+        var list = document.getElementById("crepes_list");
+        var elems = list.querySelectorAll(".crepe_container");
+        for (var i = 0; i < elems.length; i++) {
+            var crepe = elems[i];
+            var id = crepe.getAttribute("data-id");
+            var name = crepe.getAttribute("data-name");
+            var price = crepe.getAttribute('data-price');
+            crepelist.push(new Crêpe2(id, name, price, 0, crepe));
+        }
+    }
+}
 function prepare_loader() {
     var button = document.getElementById('save_btn');
     var text = document.getElementById('save_text');
@@ -53,33 +75,21 @@ function prepare_loader() {
         loader.style.display = "none";
     });
 }
+set_settings_up();
 prepare_loader();
-function check_sendable() {
+/**
+ * Function that is called by #save_btn
+ */
+function button_save_changes_to_server() {
     return __awaiter(this, void 0, void 0, function () {
-        var res, save_btn;
+        var save_btn;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     save_btn = document.getElementById('save_btn');
-                    if (!(send_to_server_list.new.length != 0)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, send_to_server()];
+                    return [4 /*yield*/, save_changes()];
                 case 1:
-                    res = _a.sent();
-                    return [3 /*break*/, 6];
-                case 2:
-                    if (!(send_to_server_list.edit.length != 0)) return [3 /*break*/, 4];
-                    return [4 /*yield*/, send_to_server()];
-                case 3:
-                    res = _a.sent();
-                    return [3 /*break*/, 6];
-                case 4:
-                    if (!(send_to_server_list.delete.length != 0)) return [3 /*break*/, 6];
-                    return [4 /*yield*/, send_to_server()];
-                case 5:
-                    res = _a.sent();
-                    _a.label = 6;
-                case 6:
-                    if (res) {
+                    if (_a.sent()) {
                         save_btn.style.backgroundColor = "rgba(0, 255, 0, 1);";
                         save_btn.innerText = "Gespeichert!";
                         setTimeout(function () {
@@ -94,9 +104,17 @@ function check_sendable() {
 }
 function change_selected() {
     var select_elem = document.getElementById('color');
+    var custom_select_elem = document.getElementById("ccolor");
+    if (select_elem.value == 'custom') {
+        select_elem.hidden = true;
+        custom_select_elem.hidden = false;
+    }
     var selected_color = select_elem.value;
     select_elem.style.backgroundColor = selected_color;
 }
+/**
+ * Funktion prüft, ob die Liste mit Crêpes leer ist
+ */
 function check_if_empty() {
     if (document.getElementById('crepes_list').childElementCount == 0) {
         return true;
@@ -105,7 +123,10 @@ function check_if_empty() {
         return false;
     }
 }
-function show_empty() {
+/**
+ * Checks, if crepes_list is empty and if it is, shows the empty elem instead.
+ */
+function toggle_empty() {
     var error_elem = document.getElementById('no_crepes');
     var list_elem = document.getElementById('crepes_list');
     if (check_if_empty()) {
@@ -117,84 +138,19 @@ function show_empty() {
         error_elem.style.display = "none";
     }
 }
+/**
+ * Entfernt crêpes von der liste und fügt sie der send_to_server_list an.
+ * @param target Der Löschen Knopf
+ */
 function delte_crepe(target) {
-    var crepename = target.getAttribute('data-name');
-    var elem = document.querySelector("div[data-name=\"".concat(crepename, "\"]"));
-    elem.remove();
-    show_empty();
-}
-function create_crepe() {
-    return __awaiter(this, void 0, void 0, function () {
-        var name, price, ingredients, color, crepe_data;
-        return __generator(this, function (_a) {
-            console.log("Creating crêpes");
-            name = document.getElementById('crepeName');
-            price = document.getElementById('price');
-            ingredients = document.getElementById('ingredients');
-            color = document.getElementById('color');
-            crepe_data = { "new": {
-                    // @ts-expect-error
-                    "name": name.value,
-                    // @ts-expect-error
-                    "price": price.value,
-                    // @ts-expect-error
-                    "ingredients": ingredients.value,
-                    // @ts-expect-error
-                    "color": color.value
-                }
-            };
-            if ("new" in crepe_data) {
-                console.log(crepe_data["new"]);
-                send_to_server_list.new.push(crepe_data["new"]);
-            }
-            else {
-                console.log("NO!");
-            }
-            ;
-            // check_sendable
-            return [2 /*return*/];
-        });
-    });
-}
-function send_to_server() {
-    return __awaiter(this, void 0, void 0, function () {
-        var response, e_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    console.log("Sending off");
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, fetch("/api/save", {
-                            method: "POST",
-                            mode: "cors",
-                            cache: "no-cache",
-                            credentials: "same-origin",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            redirect: "manual",
-                            referrerPolicy: "no-referrer",
-                            body: JSON.stringify(send_to_server_list)
-                        })];
-                case 2:
-                    response = _a.sent();
-                    console.log("Status Code: ".concat(response.status));
-                    if (response.status == 200) {
-                        return [2 /*return*/, true];
-                    }
-                    else {
-                        throw Error("Das hat nicht funktioniert");
-                    }
-                    return [3 /*break*/, 4];
-                case 3:
-                    e_1 = _a.sent();
-                    console.log(e_1);
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
-            }
-        });
+    var root = target.parentElement.parentElement.parentElement;
+    var crepename = root.getAttribute('data-name');
+    root.remove();
+    toggle_empty();
+    var id = root.getAttribute("data-id");
+    send_to_server_list.delete.push({
+        "id": id,
+        "name": crepename
     });
 }
 function loadCrepe(elem, crepes_data) {
@@ -222,6 +178,207 @@ function loadCrepe(elem, crepes_data) {
 }
 function editCrepe() {
 }
+function create_crepe() {
+    return __awaiter(this, void 0, void 0, function () {
+        var name, price, ingredients, color, crepe_data;
+        return __generator(this, function (_a) {
+            console.log("Creating crêpes");
+            name = document.getElementById('crepeName');
+            price = document.getElementById('price');
+            ingredients = document.getElementById('ingredients');
+            color = document.getElementById('color');
+            crepe_data = {
+                // @ts-expect-error
+                "name": name.value,
+                // @ts-expect-error
+                "price": price.value,
+                // @ts-expect-error
+                "ingredients": ingredients.value,
+                // @ts-expect-error
+                "color": color.value
+            };
+            if ("new" in crepe_data) {
+                console.log(crepe_data);
+                send_to_server_list.new.push(crepe_data);
+                need_to_speichern = true;
+            }
+            else {
+                console.log("NO!");
+            }
+            ;
+            return [2 /*return*/];
+        });
+    });
+}
+/**
+ * **Bitte save_changes() benutzen**
+ */
+function send_to_server() {
+    return __awaiter(this, void 0, void 0, function () {
+        function send_delete() {
+            return __awaiter(this, void 0, void 0, function () {
+                var response, e_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, fetch("/api/crepes/delete", {
+                                    method: "DELETE",
+                                    mode: "cors",
+                                    cache: "no-cache",
+                                    credentials: "same-origin",
+                                    headers: { "Content-Type": "application/json" },
+                                    redirect: "manual",
+                                    referrerPolicy: "no-referrer",
+                                    body: JSON.stringify(send_to_server_list.delete)
+                                })];
+                        case 1:
+                            response = _a.sent();
+                            if (response.status == 200) {
+                                need_to_speichern = false;
+                                return [2 /*return*/, true];
+                            }
+                            else {
+                                return [2 /*return*/, false];
+                            }
+                            return [3 /*break*/, 3];
+                        case 2:
+                            e_1 = _a.sent();
+                            console.error(e_1);
+                            return [3 /*break*/, 3];
+                        case 3: return [2 /*return*/];
+                    }
+                });
+            });
+        }
+        function send_edit() {
+            return __awaiter(this, void 0, void 0, function () {
+                var response, e_2;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, fetch("/api/crepes/edit", {
+                                    method: "PATCH",
+                                    mode: "cors",
+                                    cache: "no-cache",
+                                    credentials: "same-origin",
+                                    headers: { "Content-Type": "application/json" },
+                                    redirect: "manual",
+                                    referrerPolicy: "no-referrer",
+                                    body: JSON.stringify(send_to_server_list.edit)
+                                })];
+                        case 1:
+                            response = _a.sent();
+                            if (response.status == 200) {
+                                need_to_speichern = false;
+                                return [2 /*return*/, true];
+                            }
+                            else {
+                                return [2 /*return*/, false];
+                            }
+                            return [3 /*break*/, 3];
+                        case 2:
+                            e_2 = _a.sent();
+                            console.error(e_2);
+                            return [3 /*break*/, 3];
+                        case 3: return [2 /*return*/];
+                    }
+                });
+            });
+        }
+        function send_new() {
+            return __awaiter(this, void 0, void 0, function () {
+                var response, e_3;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, fetch("/api/crepes/new", {
+                                    method: "PUT",
+                                    mode: "cors",
+                                    cache: "no-cache",
+                                    credentials: "same-origin",
+                                    headers: { "Content-Type": "application/json" },
+                                    redirect: "manual",
+                                    referrerPolicy: "no-referrer",
+                                    body: JSON.stringify(send_to_server_list.new)
+                                })];
+                        case 1:
+                            response = _a.sent();
+                            if (response.status == 200) {
+                                need_to_speichern = false;
+                                return [2 /*return*/, true];
+                            }
+                            else {
+                                return [2 /*return*/, false];
+                            }
+                            return [3 /*break*/, 3];
+                        case 2:
+                            e_3 = _a.sent();
+                            console.error(e_3);
+                            return [3 /*break*/, 3];
+                        case 3: return [2 /*return*/];
+                    }
+                });
+            });
+        }
+        var return_value;
+        return __generator(this, function (_a) {
+            console.log("Speichern");
+            ;
+            ;
+            return_value = false;
+            if (send_to_server_list["new"].length >= 1) {
+                return_value = true;
+                send_new();
+            }
+            if (send_to_server_list["edit"].length >= 1) {
+                return_value = true;
+                send_edit();
+            }
+            if (send_to_server_list["delete"].length >= 1) {
+                return_value = true;
+                send_delete();
+            }
+            return [2 /*return*/, return_value];
+        });
+    });
+}
+/**
+ * Sendet alles an den Server
+ *
+ * **Letzte funktion, die das Senden verhindern kann**
+ */
 function save_changes() {
-    console.log(send_to_server_list);
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            console.warn("Folgendes wird versandt: ");
+            console.warn(send_to_server_list);
+            if (!send_to_server()) {
+                return [2 /*return*/, false];
+            }
+            return [2 /*return*/, true];
+        });
+    });
+}
+function check_if_need_to_speichern() {
+    /**
+     * Checks if send_to_server_list is empty
+     */
+    function is_all_empty() {
+        if (send_to_server_list.delete.length != 0 && send_to_server_list.edit.length != 0 && send_to_server_list.new.length != 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    var btn = document.getElementById('save_btn');
+    if (is_all_empty()) {
+        btn.style.backgroundColor = "rgb(120, 120, 120)";
+    }
+    else {
+        btn.style.backgroundColor = "rgb(0, 133, 35)";
+    }
 }
