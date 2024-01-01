@@ -3,12 +3,23 @@
     box-sizing: border-box;
 }
 
+img {
+    max-width: 300px;
+    float: right;
+}
+
 h1 {
     margin-left: 5%;
 }
 
 .crepe_container {
     position: relative;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    padding: 15px;
+    margin: 2px;
+    background-color: rgba(128, 128, 128, 0.309);
+    border: 1px solid black;
 }
 
 .edited_hint {
@@ -48,17 +59,11 @@ a:has(#move_back) {
 
 #crepes_list > .crepe_container {
     margin-bottom: 15px;
-    padding: 10px;
 }
 
 fieldset {
     margin: 5px;
-}
-
-.crepe_container {
-    margin: 2px;
-    background-color: rgba(128, 128, 128, 0.309);
-    border: 1px solid black;
+    width: max-content;
 }
 
 .crepe_container > input {
@@ -68,6 +73,7 @@ fieldset {
 }
 
 #crepes_list {
+    min-width: 750px;
     margin: 15px;
     border: 1px solid black;
     padding: 10px;
@@ -140,6 +146,7 @@ button[data-type="del"] {
     background-color: red;
     color: white;
     border: 2px solid grey;
+    border-radius: 0.5rem;
     filter: drop-shadow(1px 1px black);
 }
 

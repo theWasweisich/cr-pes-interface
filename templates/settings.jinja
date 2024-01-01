@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/external/googlefonts.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/external/w3.css')}}">
-    <script src="{{ url_for('static', filename='js/global.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/settings.js') }}" defer></script>
+    <link rel="stylesheet" href="/static/css/settings.css">
+    <link rel="stylesheet" href="/static/css/global.css">
+    <link rel="stylesheet" href="/static/css/external/googlefonts.css" />
+    <script src="/static/js/global.js"></script>
+    <script src="/static/js/settings.js" defer></script>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Einstellungen</title>
 </head>
@@ -18,6 +17,7 @@
     }
 </script>
 <body>
+    <img src="/static/assets/settings_hundi.jpg" alt="Hundihundihundihundi ja FAIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIN">
     <a href="./">
         <div id="move_back">
                 <span class="material-symbols-outlined">arrow_back</span> Zurück
@@ -101,7 +101,7 @@
             <legend>Bearbeiten</legend>
             <div id="crepes_list" data-type="liste">
                 {% for crepe in crepes %}
-                <div class="crepe_container" data-id="{{ crepe['id'] }}" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}">
+                <div class="crepe_container" data-id="{{ crepe['id'] }}" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}" was_edited="false">
                     <div class="edited_hint"></div>
                     <div class="crepecontrol">
                         <div class="icon_container">
@@ -110,8 +110,8 @@
                             </button>
                         </div>
                     </div>
-                    <input type="text" value="{{ crepe['name'] }}" oninput="input_changed(this);"/><br>
-                    <input type="text" value="{{ crepe['price'] }}" oninput="input_changed(this);"/><br>
+                    <input name="Crêpes Name" type="text" value="{{ crepe['name'] }}" oninput="input_changed(this);"/><br>
+                    <input name="Crêpes Preis" type="text" value="{{ crepe['price'] }}" oninput="input_changed(this);"/><br>
                 </div>
                 {% endfor %}
             </div>

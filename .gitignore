@@ -9,3 +9,4 @@ __pycache__
 key.pem
 cert.pem
 venv_activate.bat
+/personal_notes
