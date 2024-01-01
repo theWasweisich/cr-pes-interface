@@ -1,3 +1,4 @@
+// Imported: formatter, set_data, Crêpes2, crepelist from global
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,9 +35,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-// Imported: formatter, set_data, Crêpes2, crepelist from global
+// Some useful Variables
 var need_to_speichern = false;
 var crepes_selected = false;
+var edited_crepes_ids = [];
 window.onbeforeunload = function () {
     if (need_to_speichern) {
         return "U SURE?";
@@ -159,6 +161,7 @@ function delte_crepe(target) {
         "name": crepename
     });
     need_to_speichern = true;
+    check_if_need_to_speichern();
 }
 function loadCrepe(elem, crepes_data) {
     var crepes_id = document.getElementById('editID');
@@ -207,6 +210,7 @@ function create_crepe() {
             console.log(crepe_data);
             send_to_server_list.new.push(crepe_data);
             need_to_speichern = true;
+            check_if_need_to_speichern();
             return [2 /*return*/];
         });
     });
@@ -377,6 +381,35 @@ function check_if_need_to_speichern() {
     }
     else {
         btn.style.backgroundColor = "rgb(0, 133, 35)";
+    }
+}
+function input_changed(elem) {
+    var container = elem.parentElement;
+    var marker = container.getElementsByClassName("edited_hint")[0];
+    var crepes_id = elem.getAttribute("data-id");
+    elem.addEventListener("focusout", function () {
+        if (elem.value != elem.defaultValue) {
+            console.log("Something changed!");
+            edited_crepes_ids.push(crepes_id);
+        }
+        else {
+            console.log("Nothing changed!");
+            if (crepes_id in edited_crepes_ids) {
+                edited_crepes_ids.splice(edited_crepes_ids.indexOf(crepes_id), 1);
+            }
+        }
+    }, { once: true });
+    if (elem.value != elem.defaultValue) {
+        container.setAttribute("was_edited", "true");
+        marker.style.display = "block";
+        need_to_speichern = true;
+        check_if_need_to_speichern();
+    }
+    else {
+        marker.style.display = "none";
+        container.setAttribute("was_edited", "false");
+        need_to_speichern = true;
+        check_if_need_to_speichern();
     }
 }
 check_if_need_to_speichern();

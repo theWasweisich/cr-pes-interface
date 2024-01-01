@@ -102,15 +102,16 @@
             <div id="crepes_list" data-type="liste">
                 {% for crepe in crepes %}
                 <div class="crepe_container" data-id="{{ crepe['id'] }}" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}">
-                    <div class="crepecontrol w3-right">
+                    <div class="edited_hint"></div>
+                    <div class="crepecontrol">
                         <div class="icon_container">
                             <button data-type="del" data-name="{{ crepe['name'] }}" onclick="delte_crepe(this);">
                                 <span class="material-symbols-outlined">delete</span>
                             </button>
                         </div>
                     </div>
-                    <input type="text" value="{{ crepe['name'] }}" /><br>
-                    <input type="text" value="{{ crepe['price'] }}" /><br>
+                    <input type="text" value="{{ crepe['name'] }}" oninput="input_changed(this);"/><br>
+                    <input type="text" value="{{ crepe['price'] }}" oninput="input_changed(this);"/><br>
                 </div>
                 {% endfor %}
             </div>

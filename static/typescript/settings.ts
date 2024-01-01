@@ -1,6 +1,9 @@
 // Imported: formatter, set_data, Crêpes2, crepelist from global
+
+// Some useful Variables
 var need_to_speichern: boolean = false;
 var crepes_selected = false;
+
 
 window.onbeforeunload = function () {
     if (need_to_speichern) {
@@ -131,6 +134,7 @@ function delte_crepe(target: HTMLElement) {
         "name": crepename
     });
     need_to_speichern = true;
+    check_if_need_to_speichern();
 }
 
 
@@ -188,6 +192,7 @@ async function create_crepe(): Promise<boolean> {
     console.log(crepe_data)
     send_to_server_list.new.push(crepe_data)
     need_to_speichern = true;
+    check_if_need_to_speichern();
     return;
 }
 
@@ -311,6 +316,34 @@ function check_if_need_to_speichern() {
         btn.style.backgroundColor = "rgb(120, 120, 120)";
     } else {
         btn.style.backgroundColor = "rgb(0, 133, 35)";
+    }
+}
+
+function input_changed(elem: HTMLInputElement) {
+    var container = elem.parentElement
+    var marker = container.getElementsByClassName("edited_hint")[0] as HTMLElement
+
+    
+    elem.addEventListener("focusout", () => {
+        if (elem.value != elem.defaultValue) {
+            console.log("Something changed!")
+        } else {
+            console.log("Nothing changed!")
+        }
+    },
+    { once: true}
+    )
+
+    if (elem.value != elem.defaultValue) {
+        container.setAttribute("was_edited", "true")
+        marker.style.display = "block"
+        need_to_speichern = true;
+        check_if_need_to_speichern();
+    } else {
+        marker.style.display = "none"
+        container.setAttribute("was_edited", "false")
+        need_to_speichern = true;
+        check_if_need_to_speichern();
     }
 }
 

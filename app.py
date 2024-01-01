@@ -104,7 +104,7 @@ def serve_homepage():
 def serve_einstellungen():
     try:
         if not "secret" in session:
-            return redirect("/einstellungen/login")
+            return redirect("/einstellungen/login", 302)
         if session["secret"] in valid_keys():
             return render_template("settings.jinja", crepes=crêpes)
         else:
@@ -128,6 +128,8 @@ def serve_login():
         try:
             if cur.fetchone()[0] == 10:
                 secret_key = secrets.token_hex(100)
+
+                cur.execute("DELETE FROM secret_keys")
                 
                 cur.execute("INSERT INTO secret_keys (s_key) VALUES (?)", (secret_key,))
                 con.commit()

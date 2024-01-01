@@ -7,6 +7,21 @@ h1 {
     margin-left: 5%;
 }
 
+.crepe_container {
+    position: relative;
+}
+
+.edited_hint {
+    display: none;
+    height: 100%;
+    width: 5px;
+    background-color: blue;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+
 a:has(#move_back) {
     display: block;
     width: 90px;
@@ -141,11 +156,13 @@ button[data-type="del"]:active {
     float: left;
 }
 
+
 #crepes_action {
     margin: 15px;
     /* border: 1px solid black; */
     float: left;
 }
+
 
 #create input {
     text-align: right;
@@ -157,6 +174,10 @@ button[data-type="del"]:active {
     clear: both;
 }
 
+
+.crepecontrol {
+    float: right;
+}
 
 
 /*
@@ -231,4 +252,16 @@ Hier beginnt der Stil des Tooltips
 }
 /* 
 Hier endet der Stil des Tooltips
+*/
+
+/*
+Hier beginnt der Stil der Placeholder beim Bearbeiten
+*/
+
+.crepe_container > input[type="text"]::placeholder {
+    color: black;
+}
+
+/*
+Hier endet der Stil der Placeholder beim Bearbeiten
 */
