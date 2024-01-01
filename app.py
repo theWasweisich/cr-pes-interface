@@ -33,7 +33,7 @@ from blueprint_API import api_bp
 
 import json
 
-logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
+logging.basicConfig(filename="server.log", filemode="a", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
 
 
 app = Flask(__name__)
@@ -90,6 +90,7 @@ def valid_keys() -> list[str]:
     con, cur = get_db()
     cur.execute("SELECT s_key FROM secret_keys")
     keys = cur.fetchall()
+    con.close()
     for i in range(len(keys)):
         keys[i] = keys[i][0]
     return keys
@@ -117,7 +118,7 @@ def serve_login():
     if request.method == "GET":
         return render_template("login.jinja")
     elif request.method == "POST":
-        _, cur = get_db()
+        con, cur = get_db()
         username = request.form["username"]
         password = request.form["password"]
 
@@ -128,9 +129,8 @@ def serve_login():
             if cur.fetchone()[0] == 10:
                 secret_key = secrets.token_hex(100)
                 
-                con, cur = get_db()
                 cur.execute("INSERT INTO secret_keys (s_key) VALUES (?)", (secret_key,))
-                con.commit(); con.close()
+                con.commit()
 
                 resp = redirect("/einstellungen")
                 resp.set_cookie('secret', secret_key, 3600)
@@ -138,6 +138,8 @@ def serve_login():
                 return redirect("/einstellungen")
         except TypeError:
             return redirect("/einstellungen/login")
+        finally:
+            con.close()
 
 
         return "", status.HTTP_403_FORBIDDEN
@@ -160,6 +162,8 @@ def serve_shifts():
         con.commit(); con.close()
 
         session.pop("secret")
+
+        con.close()
 
         return "", status.HTTP_403_FORBIDDEN
 

@@ -1,3 +1,4 @@
+from ast import literal_eval
 from operator import truediv
 import flask
 from flask import (
@@ -24,8 +25,35 @@ def index():
 @cross_origin
 @api_bp.route("/crepes/new", methods=("PUT",))
 def new_crepe():
-    data = request.json
+    data = request.get_json()[0]
     logging.debug(f"New Crêpes arrived!\nData: {data}")
+
+    name = data["name"]
+    price = data["price"]
+    ingredients = data["ingredients"].split(",")
+    color = data["color"]
+
+    logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
+
+    con, cur = get_db()
+
+    try:
+        cur.execute("INSERT INTO Crêpes (name, price, ingredients, colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
+        con.commit()
+    except sqlite3.OperationalError as e:
+        return {"status": "error", "type": "database", "error": e.sqlite_errorname}
+    
+    except sqlite3.IntegrityError as e:
+        
+        if e.sqlite_errorcode == 2067:
+            return {"status": "error", "type": "crepe_exists"}
+        
+        return {"status": "error", "type": "database", "error": e.sqlite_errorname}
+    except Exception as e:
+        return {"status": "error", "type": "unknown"}
+
+    con.close()
+
     return {"status": "success"}
 
 @cross_origin
@@ -42,29 +70,15 @@ def delete_crepe():
     """
     Data should contain: `id`, `name`
     """
-    data = request.json
+    data = request.get_json()
     logging.debug(f"Removed Crêpes arrived!\nData: {data}") # FIXME
+
+    for crepe in data:
+        id = crepe["id"]
+        name = crepe["name"]
+
+
     return {"status": "success"}
-
-def apply_changes(changes: dict[str, list[dict]]):
-
-    con, cur = get_connection()
-
-    # Changes für new
-    new = changes["new"]
-    for change in new:
-        name = change["name"]
-        preis = change["price"]
-        ingredients = change["ingredients"].split(",")
-        for ing in ingredients:
-            ing = str(ing).strip()
-        color = change["color"]
-        cur.execute("INSERT INTO Crêpes (name, price, ingredients, colour) VALUES (?, ?, ?, ?);", (name, preis, str(ingredients), color))
-        con.commit()
-        con.close()
-    
-    edit = changes["edit"]
-    return
 
 @api_bp.route("/new_sale", methods=("POST",))
 @cross_origin()
@@ -88,16 +102,15 @@ def receive_sales():
 
     return {"status": "success"}
 
-@api_bp.route("/save", methods=("POST",))
-def save_changes():
-    print(changes)
-    # save the changes
-    return {"status": "failed"}
 
-def get_connection() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
+def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     conn = sqlite3.connect("datenbank.db")
     cur = conn.cursor()
     return (conn, cur)
+
+
+
+
 
 hello_str = r"""
 

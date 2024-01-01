@@ -197,15 +197,9 @@ function create_crepe() {
                 // @ts-expect-error
                 "color": color.value
             };
-            if ("new" in crepe_data) {
-                console.log(crepe_data);
-                send_to_server_list.new.push(crepe_data);
-                need_to_speichern = true;
-            }
-            else {
-                console.log("NO!");
-            }
-            ;
+            console.log(crepe_data);
+            send_to_server_list.new.push(crepe_data);
+            need_to_speichern = true;
             return [2 /*return*/];
         });
     });
@@ -217,83 +211,79 @@ function send_to_server() {
     return __awaiter(this, void 0, void 0, function () {
         function send_delete() {
             return __awaiter(this, void 0, void 0, function () {
-                var response, e_1;
+                var response, text;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0:
-                            _a.trys.push([0, 2, , 3]);
-                            return [4 /*yield*/, fetch("/api/crepes/delete", {
-                                    method: "DELETE",
-                                    mode: "cors",
-                                    cache: "no-cache",
-                                    credentials: "same-origin",
-                                    headers: { "Content-Type": "application/json" },
-                                    redirect: "manual",
-                                    referrerPolicy: "no-referrer",
-                                    body: JSON.stringify(send_to_server_list.delete)
-                                })];
+                        case 0: return [4 /*yield*/, fetch("/api/crepes/delete", {
+                                method: "DELETE",
+                                mode: "cors",
+                                cache: "no-cache",
+                                credentials: "same-origin",
+                                headers: { "Content-Type": "application/json" },
+                                redirect: "manual",
+                                referrerPolicy: "no-referrer",
+                                body: JSON.stringify(send_to_server_list.delete)
+                            })];
                         case 1:
                             response = _a.sent();
-                            if (response.status == 200) {
+                            return [4 /*yield*/, response.text()];
+                        case 2:
+                            text = _a.sent();
+                            if (response.ok) {
                                 need_to_speichern = false;
+                                console.log(text);
                                 return [2 /*return*/, true];
                             }
                             else {
+                                console.warn(text);
                                 return [2 /*return*/, false];
                             }
-                            return [3 /*break*/, 3];
-                        case 2:
-                            e_1 = _a.sent();
-                            console.error(e_1);
-                            return [3 /*break*/, 3];
-                        case 3: return [2 /*return*/];
+                            return [2 /*return*/];
                     }
                 });
             });
         }
         function send_edit() {
             return __awaiter(this, void 0, void 0, function () {
-                var response, e_2;
+                var response, text;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0:
-                            _a.trys.push([0, 2, , 3]);
-                            return [4 /*yield*/, fetch("/api/crepes/edit", {
-                                    method: "PATCH",
-                                    mode: "cors",
-                                    cache: "no-cache",
-                                    credentials: "same-origin",
-                                    headers: { "Content-Type": "application/json" },
-                                    redirect: "manual",
-                                    referrerPolicy: "no-referrer",
-                                    body: JSON.stringify(send_to_server_list.edit)
-                                })];
+                        case 0: return [4 /*yield*/, fetch("/api/crepes/edit", {
+                                method: "PATCH",
+                                mode: "cors",
+                                cache: "no-cache",
+                                credentials: "same-origin",
+                                headers: { "Content-Type": "application/json" },
+                                redirect: "manual",
+                                referrerPolicy: "no-referrer",
+                                body: JSON.stringify(send_to_server_list.edit)
+                            })];
                         case 1:
                             response = _a.sent();
-                            if (response.status == 200) {
+                            return [4 /*yield*/, response.text()];
+                        case 2:
+                            text = _a.sent();
+                            if (response.ok) {
                                 need_to_speichern = false;
+                                console.log(text);
                                 return [2 /*return*/, true];
                             }
                             else {
+                                console.warn(text);
                                 return [2 /*return*/, false];
                             }
-                            return [3 /*break*/, 3];
-                        case 2:
-                            e_2 = _a.sent();
-                            console.error(e_2);
-                            return [3 /*break*/, 3];
-                        case 3: return [2 /*return*/];
+                            return [2 /*return*/];
                     }
                 });
             });
         }
         function send_new() {
             return __awaiter(this, void 0, void 0, function () {
-                var response, e_3;
+                var response, text;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            _a.trys.push([0, 2, , 3]);
+                            console.log("Send new!");
                             return [4 /*yield*/, fetch("/api/crepes/new", {
                                     method: "PUT",
                                     mode: "cors",
@@ -306,19 +296,19 @@ function send_to_server() {
                                 })];
                         case 1:
                             response = _a.sent();
-                            if (response.status == 200) {
+                            return [4 /*yield*/, response.text()];
+                        case 2:
+                            text = _a.sent();
+                            if (response.ok) {
                                 need_to_speichern = false;
+                                console.log(text);
                                 return [2 /*return*/, true];
                             }
                             else {
+                                console.warn(text);
                                 return [2 /*return*/, false];
                             }
-                            return [3 /*break*/, 3];
-                        case 2:
-                            e_3 = _a.sent();
-                            console.error(e_3);
-                            return [3 /*break*/, 3];
-                        case 3: return [2 /*return*/];
+                            return [2 /*return*/];
                     }
                 });
             });
@@ -329,15 +319,15 @@ function send_to_server() {
             ;
             ;
             return_value = false;
-            if (send_to_server_list["new"].length >= 1) {
+            if (send_to_server_list.new.length >= 1) {
                 return_value = true;
                 send_new();
             }
-            if (send_to_server_list["edit"].length >= 1) {
+            if (send_to_server_list.edit.length >= 1) {
                 return_value = true;
                 send_edit();
             }
-            if (send_to_server_list["delete"].length >= 1) {
+            if (send_to_server_list.delete.length >= 1) {
                 return_value = true;
                 send_delete();
             }

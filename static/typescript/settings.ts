@@ -116,6 +116,12 @@ function toggle_empty() {
  */
 function delte_crepe(target: HTMLElement) {
     var root = target.parentElement.parentElement.parentElement;
+    if (!('crepe_container' in root.classList)) {
+        console.group("Error")
+        console.error("FATAL ERROR. Function: delete_crepe")
+        console.info(root)
+        console.groupEnd()
+    }
     var crepename = root.getAttribute('data-name');
     root.remove();
     toggle_empty();
@@ -178,12 +184,9 @@ async function create_crepe(): Promise<boolean> {
         // @ts-expect-error
         "color": color.value
         };
-    if ("new" in crepe_data) {
-        console.log(crepe_data)
-        send_to_server_list.new.push(crepe_data)
-        need_to_speichern = true;
-    }
-    else {console.log("NO!")};
+    console.log(crepe_data)
+    send_to_server_list.new.push(crepe_data)
+    need_to_speichern = true;
     return;
 }
 
@@ -196,79 +199,80 @@ async function send_to_server(): Promise<boolean> {
     
 
     async function send_delete() {
-        try {
-            var response = await fetch("/api/crepes/delete", {
-                method: "DELETE",
-                mode: "cors",
-                cache: "no-cache",
-                credentials: "same-origin",
-                headers: { "Content-Type": "application/json" },
-                redirect: "manual",
-                referrerPolicy: "no-referrer",
-                body: JSON.stringify(send_to_server_list.delete)
-            })
+        var response = await fetch("/api/crepes/delete", {
+            method: "DELETE",
+            mode: "cors",
+            cache: "no-cache",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            redirect: "manual",
+            referrerPolicy: "no-referrer",
+            body: JSON.stringify(send_to_server_list.delete)
+        })
 
-            if (response.status == 200) {
-                need_to_speichern = false;
-                return true;
-            } else {
-                return false;
-            }
-        } catch (e) {
-            console.error(e)
+        var text = await response.text()
+
+        if (response.ok) {
+            need_to_speichern = false;
+            console.log(text)
+            return true;
+        } else {
+            console.warn(text)
+            return false;
         }
     }
     async function send_edit() {
-        try {
-            var response = await fetch("/api/crepes/edit", {
-                method: "PATCH",
-                mode: "cors",
-                cache: "no-cache",
-                credentials: "same-origin",
-                headers: { "Content-Type": "application/json" },
-                redirect: "manual",
-                referrerPolicy: "no-referrer",
-                body: JSON.stringify(send_to_server_list.edit)
-            })
+        var response = await fetch("/api/crepes/edit", {
+            method: "PATCH",
+            mode: "cors",
+            cache: "no-cache",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            redirect: "manual",
+            referrerPolicy: "no-referrer",
+            body: JSON.stringify(send_to_server_list.edit)
+        })
 
-            if (response.status == 200) {
-                need_to_speichern = false;
-                return true;
-            } else {
-                return false;
-            }
-        } catch (e) {
-            console.error(e)
+        var text = await response.text()
+
+        if (response.ok) {
+            need_to_speichern = false;
+            console.log(text)
+            return true;
+        } else {
+            console.warn(text)
+            return false;
         }
     };
     async function send_new() {
-        try {
-            var response = await fetch("/api/crepes/new", {
-                method: "PUT",
-                mode: "cors",
-                cache: "no-cache",
-                credentials: "same-origin",
-                headers: { "Content-Type": "application/json" },
-                redirect: "manual",
-                referrerPolicy: "no-referrer",
-                body: JSON.stringify(send_to_server_list.new)
-            })
+        console.log("Send new!")
+        var response = await fetch("/api/crepes/new", {
+            method: "PUT",
+            mode: "cors",
+            cache: "no-cache",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            redirect: "manual",
+            referrerPolicy: "no-referrer",
+            body: JSON.stringify(send_to_server_list.new)
+        })
 
-            if (response.status == 200) {
-                need_to_speichern = false;
-                return true;
-            } else {
-                return false;
-            }
-        } catch (e) {
-            console.error(e)
+        var text = await response.text()
+
+        if (response.ok) {
+            need_to_speichern = false;
+            console.log(text)
+            return true;
+        } else {
+            console.warn(text)
+            return false;
         }
     };
 
     var return_value: boolean = false
-    if (send_to_server_list["new"].length >= 1) { return_value = true; send_new() }
-    if (send_to_server_list["edit"].length >= 1) { return_value = true; send_edit() }
-    if (send_to_server_list["delete"].length >= 1) { return_value = true; send_delete() }
+    if (send_to_server_list.new.length >= 1) { return_value = true; send_new() }
+    if (send_to_server_list.edit.length >= 1) { return_value = true; send_edit() }
+    if (send_to_server_list.delete.length >= 1) { return_value = true; send_delete() }
 
     return return_value;
 
