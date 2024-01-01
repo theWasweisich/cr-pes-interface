@@ -101,17 +101,21 @@ a[href="/einstellungen"] {
     right: 20px;
 }
 
-.crepecontrol button {
-    margin: 0;
-    padding: 0;
-    flex: 1 1 auto;
+@media (width <=  860) {
+    .crepecontrol button {
+        margin: 0;
+        padding: 0;
+        flex: 1 1 auto;
+    }
+    
+    .crepecontrol .btn {
+        margin: 0;
+        padding: 0;
+        display: flex;
+    }
+
 }
 
-.crepecontrol .btn {
-    margin: 0;
-    padding: 0;
-    display: flex;
-}
 
 /* Crêpes Tabelle */
 

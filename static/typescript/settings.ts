@@ -40,7 +40,7 @@ function prepare_loader() {
     const text = document.getElementById('save_text');
     const loader = document.getElementById('loader');
 
-    button.addEventListener("mouseover", () => {
+    button.addEventListener("mouseenter", () => {
         text.style.display = "none";
         loader.style.display = "block";
     })
@@ -64,7 +64,7 @@ async function button_save_changes_to_server() {
         save_btn.style.backgroundColor = "rgba(0, 255, 0, 1);";
         save_btn.innerText = "Gespeichert!";
         setTimeout(() => {
-            save_btn.style.backgroundClip = "auto;";
+            save_btn.style.backgroundColor = "auto;";
             save_btn.innerText = "Speichern";
         }, 2000)
     }
@@ -130,6 +130,7 @@ function delte_crepe(target: HTMLElement) {
         "id": id,
         "name": crepename
     });
+    need_to_speichern = true;
 }
 
 
@@ -312,3 +313,5 @@ function check_if_need_to_speichern() {
         btn.style.backgroundColor = "rgb(0, 133, 35)";
     }
 }
+
+check_if_need_to_speichern()

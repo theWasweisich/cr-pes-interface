@@ -2,24 +2,49 @@
     display: none;
 }
 
-div[data-colour='255,255,255'] {
+@media (prefers-color-scheme: dark) {
+    div[data-colour='#ffffff'] {
+        background-color: #808080;
+    }
+    div[data-colour='#009dff'] {
+        background-color: #170073;
+    }
+    div[data-colour='#5b3757'] {
+        background-color: #2A1818;
+    }
+    div[data-colour='#566e40'] {
+        background-color: #1B3324;
+    }
+    div[data-colour='#ff171b'] {
+        background-color: #63080ae5;
+    }
+    div[data-colour='#22ea88'] {
+        background-color: #0f6d40e5;
+    }
+    div[data-colour='#ecef40'] {
+        background-color: #808122e5;
+    }
+}
+
+
+div[data-colour='#ffffff'] {
     background-color: rgba(255,255,255,0.9);
 }
-div[data-colour='0,157,255'] {
+div[data-colour='#009dff'] {
     background-color: rgba(0,157,255,0.9);
 }
-div[data-colour='91,55,87'] {
+div[data-colour='#5b3757'] {
     background-color: rgba(91,55,87,0.9);
 }
-div[data-colour='86,110,64'] {
+div[data-colour='#566e40'] {
     background-color: rgba(86,110,64,0.9);
 }
-div[data-colour='255,023,27'] {
+div[data-colour='#ff171b'] {
     background-color: rgba(255,023,27,0.9);
 }
-div[data-colour='34,234,136'] {
+div[data-colour='#22ea88'] {
     background-color: rgba(34,234,136,0.9);
 }
-div[data-colour='236,239,64'] {
+div[data-colour='#ecef40'] {
     background-color: rgba(236,239,64,0.9);
 }

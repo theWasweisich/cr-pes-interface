@@ -66,7 +66,7 @@ function prepare_loader() {
     var button = document.getElementById('save_btn');
     var text = document.getElementById('save_text');
     var loader = document.getElementById('loader');
-    button.addEventListener("mouseover", function () {
+    button.addEventListener("mouseenter", function () {
         text.style.display = "none";
         loader.style.display = "block";
     });
@@ -93,7 +93,7 @@ function button_save_changes_to_server() {
                         save_btn.style.backgroundColor = "rgba(0, 255, 0, 1);";
                         save_btn.innerText = "Gespeichert!";
                         setTimeout(function () {
-                            save_btn.style.backgroundClip = "auto;";
+                            save_btn.style.backgroundColor = "auto;";
                             save_btn.innerText = "Speichern";
                         }, 2000);
                     }
@@ -144,6 +144,12 @@ function toggle_empty() {
  */
 function delte_crepe(target) {
     var root = target.parentElement.parentElement.parentElement;
+    if (!('crepe_container' in root.classList)) {
+        console.group("Error");
+        console.error("FATAL ERROR. Function: delete_crepe");
+        console.info(root);
+        console.groupEnd();
+    }
     var crepename = root.getAttribute('data-name');
     root.remove();
     toggle_empty();
@@ -152,6 +158,7 @@ function delte_crepe(target) {
         "id": id,
         "name": crepename
     });
+    need_to_speichern = true;
 }
 function loadCrepe(elem, crepes_data) {
     var crepes_id = document.getElementById('editID');
@@ -372,3 +379,4 @@ function check_if_need_to_speichern() {
         btn.style.backgroundColor = "rgb(0, 133, 35)";
     }
 }
+check_if_need_to_speichern();

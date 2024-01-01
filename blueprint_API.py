@@ -1,4 +1,5 @@
 from ast import literal_eval
+from email.policy import strict
 from operator import truediv
 import flask
 from flask import (
@@ -68,14 +69,26 @@ def edit_crepe():
 @api_bp.route("/crepes/delete", methods=("DELETE",))
 def delete_crepe():
     """
+    Function to delete the crêpes specified by the given data
     Data should contain: `id`, `name`
     """
-    data = request.get_json()
+    data = request.get_json()[0]
     logging.debug(f"Removed Crêpes arrived!\nData: {data}") # FIXME
 
-    for crepe in data:
-        id = crepe["id"]
-        name = crepe["name"]
+    con, cur = get_db()
+
+    id = data["id"]
+    name = data["name"]
+
+    cur.execute("SELECT name FROM `Crêpes` WHERE id = ?", [id,])
+    db_name: str = cur.fetchone()[0]
+
+    if db_name == name:
+        cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?", [id, name])
+        con.close()
+    else:
+        con.close()
+        return {"status": "failed", "error": "crepe_not_found"}
 
 
     return {"status": "success"}
