@@ -9,18 +9,19 @@
     <script src="/static/js/login.js" ></script>
     <title>Login</title>
 </head>
+<script>
+
+    function User(username, password) {
+        this.username = username;
+        this.password = password;
+    }
+
+
+    console.log('Hilfestellung:')
+    console.table([new User('cheffe', 'LassMichRein')])
+</script>
 <body>
-    <script>
 
-        function User(username, password) {
-            this.username = username;
-            this.password = password;
-        }
-
-
-        console.log('Hilfestellung:')
-        console.table([new User('cheffe', 'LassMichRein')])
-    </script>
     <div id="loginForm">
         <div id="form_head">
             <h1>Login</h1>

@@ -38,7 +38,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 // Some useful Variables
 var need_to_speichern = false;
 var crepes_selected = false;
-var edited_crepes_ids = [];
 window.onbeforeunload = function () {
     if (need_to_speichern) {
         return "U SURE?";
@@ -386,17 +385,12 @@ function check_if_need_to_speichern() {
 function input_changed(elem) {
     var container = elem.parentElement;
     var marker = container.getElementsByClassName("edited_hint")[0];
-    var crepes_id = elem.getAttribute("data-id");
     elem.addEventListener("focusout", function () {
         if (elem.value != elem.defaultValue) {
             console.log("Something changed!");
-            edited_crepes_ids.push(crepes_id);
         }
         else {
             console.log("Nothing changed!");
-            if (crepes_id in edited_crepes_ids) {
-                edited_crepes_ids.splice(edited_crepes_ids.indexOf(crepes_id), 1);
-            }
         }
     }, { once: true });
     if (elem.value != elem.defaultValue) {
@@ -410,6 +404,30 @@ function input_changed(elem) {
         container.setAttribute("was_edited", "false");
         need_to_speichern = true;
         check_if_need_to_speichern();
+    }
+}
+/**
+ * Made to be called just before sending to server
+ */
+function check_for_edits() {
+    var list = document.getElementById("crepes_list");
+    var crepes = list.getElementsByClassName("crepe_container");
+    for (var i = 0; i < crepes.length; i++) {
+        var crepe = crepes[i];
+        var name_input = crepe.querySelector('input[name="Crêpes Name"]');
+        var price_input = crepe.querySelector('input[name="Crêpes Preis"]');
+        if (crepe.getAttribute("was_edited") == "true") {
+            var id = crepe.getAttribute("data-id");
+            var name = name_input.value;
+            var price = price_input.value;
+            send_to_server_list.edit.push({
+                "id": id,
+                "name": name,
+                "price": price
+            });
+            need_to_speichern = true;
+            check_if_need_to_speichern();
+        }
     }
 }
 check_if_need_to_speichern();

@@ -3,9 +3,24 @@
     box-sizing: border-box;
 }
 
+input:not([type="button"]) {
+    border: none;
+    border-bottom: 1px dotted black;
+}
+
+input:invalid {
+    border-bottom: 1px solid red !important;
+}
+
 img {
     max-width: 300px;
     float: right;
+}
+
+@media (max-width: 900px) {
+    img {
+        display: none;
+    }
 }
 
 h1 {
@@ -243,7 +258,7 @@ Hier beginnt der Stil des Tooltips
     visibility: hidden;
     margin-top: 5px;
     width: 100%;
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.322);
     color: #fff;
     text-align: center;
     padding: 5px 0;

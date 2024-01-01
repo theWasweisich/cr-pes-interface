@@ -48,7 +48,7 @@
                             <label for="price">Preis: </label>
                         </td>
                         <td>
-                            <input id="price" name="price" type="number" min="0" step="0.01" required autocomplete="off"> €<br>
+                            <input id="price" name="price" type="number" min="0" step="0.01" required autocomplete="off" placeholder="0"> €<br>
                         </td>
                     </tr>
                     <tr>
@@ -111,7 +111,7 @@
                         </div>
                     </div>
                     <input name="Crêpes Name" type="text" value="{{ crepe['name'] }}" oninput="input_changed(this);"/><br>
-                    <input name="Crêpes Preis" type="text" value="{{ crepe['price'] }}" oninput="input_changed(this);"/><br>
+                    <input name="Crêpes Preis" type="text" value="{{ crepe['price'] }}" oninput="input_changed(this);" pattern="^\d*.\d*$"/><br>
                 </div>
                 {% endfor %}
             </div>

@@ -14,18 +14,12 @@ body {
     height: 100vh;
 }
 
-#form_head {
-    background-color: hsl(0, 0%, 100%);
-}
-
 #form_head a {
     text-decoration: none;
     display: flex;
     height: fit-content;
     width: fit-content;
-    top: 0;
-    right: 0;
-    position: relative;
+    float: right;
 }
 
 #loginForm {

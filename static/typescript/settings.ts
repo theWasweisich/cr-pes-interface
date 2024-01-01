@@ -335,15 +335,46 @@ function input_changed(elem: HTMLInputElement) {
     )
 
     if (elem.value != elem.defaultValue) {
+        elem.checkValidity();
         container.setAttribute("was_edited", "true")
         marker.style.display = "block"
         need_to_speichern = true;
         check_if_need_to_speichern();
     } else {
+        elem.checkValidity();
         marker.style.display = "none"
         container.setAttribute("was_edited", "false")
         need_to_speichern = true;
         check_if_need_to_speichern();
+    }
+}
+
+/**
+ * Made to be called just before sending to server
+ */
+function check_for_edits() {
+    var list = document.getElementById("crepes_list")
+    var crepes = list.getElementsByClassName("crepe_container");
+
+    for (let i = 0; i < crepes.length; i++) {
+        const crepe = crepes[i];
+
+        var name_input = crepe.querySelector('input[name="Crêpes Name"]') as HTMLInputElement
+        var price_input = crepe.querySelector('input[name="Crêpes Preis"]') as HTMLInputElement
+        
+        if (crepe.getAttribute("was_edited") == "true") {
+            var id = crepe.getAttribute("data-id")
+            var name = name_input.value
+            var price = price_input.value
+
+            send_to_server_list.edit.push({
+                "id": id,
+                "name": name,
+                "price": price
+            })
+            need_to_speichern = true;
+            check_if_need_to_speichern();
+        }
     }
 }
 
