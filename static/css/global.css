@@ -32,24 +32,24 @@ html, body {
 }
 
 
-div[data-colour='#ffffff'] {
-    background-color: rgba(255,255,255,0.9);
+div[data-colour='white'] {
+    background-color: #ffffffe5;
 }
-div[data-colour='#009dff'] {
-    background-color: rgba(0,157,255,0.9);
+div[data-colour='blue'] {
+    background-color: #009dffe5;
 }
-div[data-colour='#5b3757'] {
-    background-color: rgba(91,55,87,0.9);
+div[data-colour='purple'] {
+    background-color: #5b3757e5;
 }
-div[data-colour='#566e40'] {
-    background-color: rgba(86,110,64,0.9);
+div[data-colour='dark_green'] {
+    background-color: #566e40e5;
 }
-div[data-colour='#ff171b'] {
-    background-color: rgba(255,023,27,0.9);
+div[data-colour='red'] {
+    background-color: #ff171be5;
 }
-div[data-colour='#22ea88'] {
-    background-color: rgba(34,234,136,0.9);
+div[data-colour='light_green'] {
+    background-color: #22ea88e5;
 }
-div[data-colour='#ecef40'] {
-    background-color: rgba(236,239,64,0.9);
+div[data-colour='yellow'] {
+    background-color: #ecef40e5;
 }

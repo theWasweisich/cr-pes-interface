@@ -114,7 +114,7 @@
                             </div>
                         </div>
                         <input name="Crêpes Name" type="text" value="{{ crepe['name'] }}" oninput="input_changed(this);"/><br>
-                        <input name="Crêpes Preis" type="text" data-value="{{ crepe['price'] }}" oninput="input_changed(this);" pattern="^(\d{1,2}(?:\.|,)\d{1,2}(?:\s€|€)?)$"/><br>
+                        <input name="Crêpes Preis" type="text" data-value="{{ crepe['price'] }}" oninput="input_changed(this);" pattern="^(?:\d*(?:\.|,)*)+(?:\d+,\d+)(?: €|€)?$"/><br>
                     </div>
                     {% endfor %}
                 </div>

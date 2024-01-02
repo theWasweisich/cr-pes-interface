@@ -63,6 +63,7 @@ function set_settings_up() {
             var preis_machine_value = preis.getAttribute("data-value");
             var preis_human_value = formatter.format(preis_machine_value);
             preis.setAttribute("value", preis_human_value);
+            preis.setAttribute("placeholder", preis_human_value);
             crepelist.push(new Crêpe2(id, name, price, 0, crepe));
         }
     }
@@ -393,8 +394,10 @@ function input_changed(elem) {
             console.log("Nothing changed!");
         }
         ;
-        validate_input(elem);
     }, { once: true });
+    elem.addEventListener("oninput", function () {
+        validate_input(elem);
+    });
     if (elem.value != elem.defaultValue) {
         elem.checkValidity();
         container.setAttribute("was_edited", "true");

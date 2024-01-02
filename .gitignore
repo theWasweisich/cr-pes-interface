@@ -8,5 +8,5 @@ __pycache__
 *.log
 key.pem
 cert.pem
-venv_activate.bat
+_venv_activate.bat
 /personal_notes

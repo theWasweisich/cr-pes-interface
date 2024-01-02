@@ -280,9 +280,7 @@ Hier endet der Stil des Tooltips
 Hier beginnt der Stil der Placeholder beim Bearbeiten
 */
 
-.crepe_container > input[type="text"]::placeholder {
-    color: black;
-}
+
 
 /*
 Hier endet der Stil der Placeholder beim Bearbeiten
