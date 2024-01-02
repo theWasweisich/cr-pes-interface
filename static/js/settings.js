@@ -59,6 +59,10 @@ function set_settings_up() {
             var id = crepe.getAttribute("data-id");
             var name = crepe.getAttribute("data-name");
             var price = crepe.getAttribute('data-price');
+            var preis = crepe.querySelector('input[name="Crêpes Preis"]');
+            var preis_machine_value = preis.getAttribute("data-value");
+            var preis_human_value = formatter.format(preis_machine_value);
+            preis.setAttribute("value", preis_human_value);
             crepelist.push(new Crêpe2(id, name, price, 0, crepe));
         }
     }
@@ -188,31 +192,26 @@ function loadCrepe(elem, crepes_data) {
 function editCrepe() {
 }
 function create_crepe() {
-    return __awaiter(this, void 0, void 0, function () {
-        var name, price, ingredients, color, crepe_data;
-        return __generator(this, function (_a) {
-            console.log("Creating crêpes");
-            name = document.getElementById('crepeName');
-            price = document.getElementById('price');
-            ingredients = document.getElementById('ingredients');
-            color = document.getElementById('color');
-            crepe_data = {
-                // @ts-expect-error
-                "name": name.value,
-                // @ts-expect-error
-                "price": price.value,
-                // @ts-expect-error
-                "ingredients": ingredients.value,
-                // @ts-expect-error
-                "color": color.value
-            };
-            console.log(crepe_data);
-            send_to_server_list.new.push(crepe_data);
-            need_to_speichern = true;
-            check_if_need_to_speichern();
-            return [2 /*return*/];
-        });
-    });
+    console.log("Creating crêpes");
+    var name = document.getElementById('crepeName');
+    var price = document.getElementById('price');
+    var ingredients = document.getElementById('ingredients');
+    var color = document.getElementById('color');
+    var crepe_data = {
+        // @ts-expect-error
+        "name": name.value,
+        // @ts-expect-error
+        "price": price.value,
+        // @ts-expect-error
+        "ingredients": ingredients.value,
+        // @ts-expect-error
+        "color": color.value
+    };
+    console.log(crepe_data);
+    send_to_server_list.new.push(crepe_data);
+    need_to_speichern = true;
+    check_if_need_to_speichern();
+    return;
 }
 /**
  * **Bitte save_changes() benutzen**
@@ -358,6 +357,7 @@ function save_changes() {
             if (!send_to_server()) {
                 return [2 /*return*/, false];
             }
+            location.reload();
             return [2 /*return*/, true];
         });
     });
@@ -392,26 +392,46 @@ function input_changed(elem) {
         else {
             console.log("Nothing changed!");
         }
+        ;
+        validate_input(elem);
     }, { once: true });
     if (elem.value != elem.defaultValue) {
+        elem.checkValidity();
         container.setAttribute("was_edited", "true");
         marker.style.display = "block";
         need_to_speichern = true;
         check_if_need_to_speichern();
     }
     else {
+        elem.checkValidity();
         marker.style.display = "none";
         container.setAttribute("was_edited", "false");
         need_to_speichern = true;
         check_if_need_to_speichern();
     }
 }
+function validate_input(elem) {
+    var validity = elem.validity;
+    var value = elem.value;
+    if (validity.patternMismatch) {
+        elem.setCustomValidity("Nee, das passt noch ned so ganz");
+    }
+    else if (validity.valueMissing) {
+        elem.setCustomValidity("Ey, da muss schon was stehen!");
+    }
+    else if (validity.valid) {
+        elem.setCustomValidity("");
+    }
+    elem.reportValidity();
+}
 /**
  * Made to be called just before sending to server
  */
 function check_for_edits() {
+    console.log("Check'in for edits");
     var list = document.getElementById("crepes_list");
     var crepes = list.getElementsByClassName("crepe_container");
+    send_to_server_list.edit = [];
     for (var i = 0; i < crepes.length; i++) {
         var crepe = crepes[i];
         var name_input = crepe.querySelector('input[name="Crêpes Name"]');
@@ -429,5 +449,6 @@ function check_for_edits() {
             check_if_need_to_speichern();
         }
     }
+    ;
 }
 check_if_need_to_speichern();

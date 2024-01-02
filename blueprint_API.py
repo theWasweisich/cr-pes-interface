@@ -9,6 +9,7 @@ from flask import (
 from flask_cors import cross_origin
 import logging
 import sqlite3
+import status
 
 from datetime import date, datetime
 import json
@@ -21,39 +22,43 @@ api_bp = Blueprint('api_bp', __name__)
 
 @api_bp.route("/")
 def index():
-    return "<h1>Hier gehts zur API</h1>"
+    return "", status.HTTP_403_FORBIDDEN
 
 @cross_origin
 @api_bp.route("/crepes/new", methods=("PUT",))
 def new_crepe():
-    data = request.get_json()[0]
-    logging.debug(f"New Crêpes arrived!\nData: {data}")
+    data_list = request.get_json()
+    # logging.debug(f"New Crêpes arrived!\nData: {data_list}")
 
-    name = data["name"]
-    price = data["price"]
-    ingredients = data["ingredients"].split(",")
-    color = data["color"]
+    if data_list.length == 0:
+        return {"status": "failed", "type": "noting_changed"}
 
-    logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
+    for data in data_list:
+        name = data["name"]
+        price = data["price"]
+        ingredients = data["ingredients"].split(",")
+        color = data["color"]
 
-    con, cur = get_db()
+        logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
 
-    try:
-        cur.execute("INSERT INTO Crêpes (name, price, ingredients, colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
-        con.commit()
-    except sqlite3.OperationalError as e:
-        return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-    
-    except sqlite3.IntegrityError as e:
+        con, cur = get_db()
+
+        try:
+            cur.execute("INSERT INTO Crêpes (name, price, ingredients, colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
+            con.commit()
+        except sqlite3.OperationalError as e:
+            return {"status": "error", "type": "database", "error": e.sqlite_errorname}
         
-        if e.sqlite_errorcode == 2067:
-            return {"status": "error", "type": "crepe_exists"}
-        
-        return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-    except Exception as e:
-        return {"status": "error", "type": "unknown"}
+        except sqlite3.IntegrityError as e:
+            
+            if e.sqlite_errorcode == 2067:
+                return {"status": "error", "type": "crepe_exists"}
+            
+            return {"status": "error", "type": "database", "error": e.sqlite_errorname}
+        except Exception as e:
+            return {"status": "error", "type": "unknown"}
 
-    con.close()
+        con.close()
 
     return {"status": "success"}
 
@@ -72,25 +77,26 @@ def delete_crepe():
     Function to delete the crêpes specified by the given data
     Data should contain: `id`, `name`
     """
-    data = request.get_json()[0]
-    logging.debug(f"Removed Crêpes arrived!\nData: {data}") # FIXME
+    data_list = request.get_json()
+    # logging.debug(f"Removed Crêpes arrived!\nData: {data_list}") # FIXME
 
     con, cur = get_db()
 
-    id = data["id"]
-    name = data["name"]
+    for data in data_list:
+        id = data["id"]
+        name = data["name"]
 
-    cur.execute("SELECT name FROM `Crêpes` WHERE id = ?", [id,])
-    db_name: str = cur.fetchone()[0]
+        cur.execute("SELECT name FROM `Crêpes` WHERE id = ?", [id,])
+        db_name: str = cur.fetchone()[0]
 
-    if db_name == name:
-        cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?", [id, name])
-        con.close()
-    else:
-        con.close()
-        return {"status": "failed", "error": "crepe_not_found"}
+        if db_name == name:
+            cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?", [id, name])
+            con.close()
+        else:
+            con.close()
+            return {"status": "failed", "error": "crepe_not_found"}
 
-
+    con.close()
     return {"status": "success"}
 
 @api_bp.route("/new_sale", methods=("POST",))

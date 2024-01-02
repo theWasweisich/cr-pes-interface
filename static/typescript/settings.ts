@@ -31,8 +31,12 @@ function set_settings_up() {
             var id = crepe.getAttribute("data-id")
             var name = crepe.getAttribute("data-name")
             var price = crepe.getAttribute('data-price') as unknown as number
-    
-    
+
+            var preis = crepe.querySelector('input[name="Crêpes Preis"]') as HTMLInputElement
+            var preis_machine_value = preis.getAttribute("data-value") as unknown as number
+            var preis_human_value = formatter.format(preis_machine_value)
+            preis.setAttribute("value", preis_human_value)
+
             crepelist.push(new Crêpe2(id, name, price, 0, crepe))
         }
     }
@@ -172,7 +176,7 @@ function editCrepe() {
     
 }
 
-async function create_crepe(): Promise<boolean> {
+function create_crepe(): boolean {
     console.log("Creating crêpes");
     let name = document.getElementById('crepeName');
     let price = document.getElementById('price');
@@ -295,6 +299,7 @@ async function save_changes(): Promise<boolean> {
     if (!send_to_server()) {
         return false;
     }
+    location.reload()
     return true;
 }
 
@@ -329,7 +334,8 @@ function input_changed(elem: HTMLInputElement) {
             console.log("Something changed!")
         } else {
             console.log("Nothing changed!")
-        }
+        };
+        validate_input(elem);
     },
     { once: true}
     )
@@ -349,18 +355,38 @@ function input_changed(elem: HTMLInputElement) {
     }
 }
 
+function validate_input(elem: HTMLInputElement) {
+    const validity = elem.validity
+    const value = elem.value;
+
+    if (validity.patternMismatch) {
+        elem.setCustomValidity("Nee, das passt noch ned so ganz");
+    } else if (validity.valueMissing) {
+        elem.setCustomValidity("Ey, da muss schon was stehen!")
+    } else if (validity.valid) {
+        elem.setCustomValidity("");
+    }
+
+
+    elem.reportValidity()
+}
 /**
  * Made to be called just before sending to server
  */
 function check_for_edits() {
+    console.log("Check'in for edits")
     var list = document.getElementById("crepes_list")
     var crepes = list.getElementsByClassName("crepe_container");
 
+    
+    send_to_server_list.edit = []
+    
     for (let i = 0; i < crepes.length; i++) {
         const crepe = crepes[i];
-
+        
         var name_input = crepe.querySelector('input[name="Crêpes Name"]') as HTMLInputElement
         var price_input = crepe.querySelector('input[name="Crêpes Preis"]') as HTMLInputElement
+
         
         if (crepe.getAttribute("was_edited") == "true") {
             var id = crepe.getAttribute("data-id")
@@ -375,7 +401,7 @@ function check_for_edits() {
             need_to_speichern = true;
             check_if_need_to_speichern();
         }
-    }
+    };
 }
 
 check_if_need_to_speichern()
