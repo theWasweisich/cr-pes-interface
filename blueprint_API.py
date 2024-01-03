@@ -9,6 +9,8 @@ from flask import (
 from flask_cors import cross_origin
 import logging
 import sqlite3
+
+from numpy import number
 import status
 
 from datetime import date, datetime
@@ -70,6 +72,10 @@ def edit_crepe():
     logging.debug(f"Edited Crêpes arrived!\nData: {data}")
     for crepe in data:
         id = crepe["id"]
+        name = crepe["name"]
+        price = crepe["price"]
+        price_str = parse_price(price)
+
         cur.execute("SELECT name, price FROM Crêpes WHERE id=?", id)
         res = cur.fetchone()
         db_name = res[0]
@@ -77,8 +83,33 @@ def edit_crepe():
         db_price_str = str(db_price).replace("\xa0", " ")
         logging.debug(f"DB_Data: {db_name} ({type(db_name)}) :: {db_price} ({type(db_price)})")
 
+        if (db_price != price_str):
+            logging.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
+            cur.execute("UPDATE Crêpes SET price=? WHERE id=?", (price, id))
+        if name != db_name:
+            logging.info(f"Database & Edited are not the same! {name} vs {db_name}")
+            cur.execute("UPDATE Crêpes SET name=? WHERE id=?", (name, id))
+
+    con.commit()
     con.close()
     return {"status": "success"}
+
+def parse_price(start: str) -> float:
+    price_str = ""
+    if start.find(",") == 0:
+        if start.find(".") == 0:
+            start = start.removesuffix("€")
+            start = start.removesuffix(" €")
+            return float(start) # type: ignore
+
+    ALLOWED_CHARS_FOR_PRICE = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ",", "."]
+    for letter in str(start):
+        if (letter in ALLOWED_CHARS_FOR_PRICE):
+            price_str = price_str + letter
+    price_str = price_str.replace(".", "")
+    price_str = price_str.replace(",", ".", 1)
+    return float(price_str) # type: ignore
+
 
 
 @cross_origin
