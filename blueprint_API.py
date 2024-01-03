@@ -65,8 +65,19 @@ def new_crepe():
 @cross_origin
 @api_bp.route("/crepes/edit", methods=("PATCH",))
 def edit_crepe():
-    data = request.json
+    con, cur = get_db()
+    data = request.get_json()
     logging.debug(f"Edited Crêpes arrived!\nData: {data}")
+    for crepe in data:
+        id = crepe["id"]
+        cur.execute("SELECT name, price FROM Crêpes WHERE id=?", id)
+        res = cur.fetchone()
+        db_name = res[0]
+        db_price = res[1]
+        db_price_str = str(db_price).replace("\xa0", " ")
+        logging.debug(f"DB_Data: {db_name} ({type(db_name)}) :: {db_price} ({type(db_price)})")
+
+    con.close()
     return {"status": "success"}
 
 

@@ -297,11 +297,45 @@ async function send_to_server(): Promise<boolean> {
 async function save_changes(): Promise<boolean> {
     console.warn("Folgendes wird versandt: ");
     console.warn(send_to_server_list)
-    if (!send_to_server()) {
+    const res = await send_to_server();
+    if (res) {
+        setTimeout(function () {
+            location.reload()
+        }, 3500)
+        changes_saved(true);
+        return true;
+    } else {
+        changes_saved(false);
         return false;
     }
-    location.reload()
-    return true;
+
+    /**
+     * Takes around 3000 ms
+     * @param status If saving was successfull or not
+     */
+    function changes_saved(status: boolean) {
+        var elem = document.getElementById("feedback_message_container")
+        var elem_txt = elem.children[0] as HTMLElement
+    
+        if (status) {
+            elem.style.backgroundColor = "green"
+            elem_txt.innerHTML = "Erfolgreich gespeichert"
+        } else {
+            elem.style.backgroundColor = "red"
+            elem_txt.innerHTML = "Fehler beim Speichern"
+        }
+        animation_in()
+        setTimeout(animation_out, 2000)
+    
+        function animation_in() {
+            const Anim = new KeyframeEffect(elem, [{opacity: "1", top: "15px"}], {duration: 500, fill: "forwards"})
+            new Animation(Anim, document.timeline).play()
+        }
+        function animation_out() {
+            const Anim = new KeyframeEffect(elem, [{opacity: "0", top: "0"}], {duration: 500, fill: "forwards"})
+            new Animation(Anim, document.timeline).play()
+        }
+    }
 }
 
 function check_if_need_to_speichern() {
@@ -329,7 +363,7 @@ function input_changed(elem: HTMLInputElement) {
     var container = elem.parentElement
     var marker = container.getElementsByClassName("edited_hint")[0] as HTMLElement
 
-    
+
     elem.addEventListener("focusout", () => {
         if (elem.value != elem.defaultValue) {
             console.log("Something changed!")
@@ -382,7 +416,6 @@ function check_for_edits() {
     var list = document.getElementById("crepes_list")
     var crepes = list.getElementsByClassName("crepe_container");
 
-    
     send_to_server_list.edit = []
     
     for (let i = 0; i < crepes.length; i++) {

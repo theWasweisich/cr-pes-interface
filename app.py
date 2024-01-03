@@ -33,7 +33,7 @@ from blueprint_API import api_bp
 
 import json
 
-logging.basicConfig(filename="server.log", filemode="a", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
+logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
 
 
 app = Flask(__name__)

@@ -352,14 +352,54 @@ function send_to_server() {
  */
 function save_changes() {
     return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            console.warn("Folgendes wird versandt: ");
-            console.warn(send_to_server_list);
-            if (!send_to_server()) {
-                return [2 /*return*/, false];
+        /**
+         * Takes around 3000 ms
+         * @param status If saving was successfull or not
+         */
+        function changes_saved(status) {
+            var elem = document.getElementById("feedback_message_container");
+            var elem_txt = elem.children[0];
+            if (status) {
+                elem.style.backgroundColor = "green";
+                elem_txt.innerHTML = "Erfolgreich gespeichert";
             }
-            location.reload();
-            return [2 /*return*/, true];
+            else {
+                elem.style.backgroundColor = "red";
+                elem_txt.innerHTML = "Fehler beim Speichern";
+            }
+            animation_in();
+            setTimeout(animation_out, 2000);
+            function animation_in() {
+                var Anim = new KeyframeEffect(elem, [{ opacity: "1", top: "15px" }], { duration: 500, fill: "forwards" });
+                new Animation(Anim, document.timeline).play();
+            }
+            function animation_out() {
+                var Anim = new KeyframeEffect(elem, [{ opacity: "0", top: "0" }], { duration: 500, fill: "forwards" });
+                new Animation(Anim, document.timeline).play();
+            }
+        }
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    console.warn("Folgendes wird versandt: ");
+                    console.warn(send_to_server_list);
+                    return [4 /*yield*/, send_to_server()];
+                case 1:
+                    res = _a.sent();
+                    if (res) {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 3500);
+                        changes_saved(true);
+                        return [2 /*return*/, true];
+                    }
+                    else {
+                        changes_saved(false);
+                        return [2 /*return*/, false];
+                    }
+                    return [2 /*return*/];
+            }
         });
     });
 }
