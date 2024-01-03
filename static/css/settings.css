@@ -3,9 +3,50 @@
     box-sizing: border-box;
 }
 
+input:not([type="button"]) {
+    border: none;
+    border-bottom: 1px dotted black;
+}
+
+input:invalid {
+    border-bottom: 1px solid red !important;
+}
+
+img {
+    max-width: 300px;
+    float: right;
+}
+
+@media (max-width: 900px) {
+    img {
+        display: none;
+    }
+}
+
 h1 {
     margin-left: 5%;
 }
+
+.crepe_container {
+    position: relative;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    padding: 15px;
+    margin: 2px;
+    background-color: rgba(128, 128, 128, 0.309);
+    border: 1px solid black;
+}
+
+.edited_hint {
+    display: none;
+    height: 100%;
+    width: 5px;
+    background-color: blue;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
 
 a:has(#move_back) {
     display: block;
@@ -33,17 +74,11 @@ a:has(#move_back) {
 
 #crepes_list > .crepe_container {
     margin-bottom: 15px;
-    padding: 10px;
 }
 
 fieldset {
     margin: 5px;
-}
-
-.crepe_container {
-    margin: 2px;
-    background-color: rgba(128, 128, 128, 0.309);
-    border: 1px solid black;
+    width: max-content;
 }
 
 .crepe_container > input {
@@ -53,6 +88,7 @@ fieldset {
 }
 
 #crepes_list {
+    min-width: 750px;
     margin: 15px;
     border: 1px solid black;
     padding: 10px;
@@ -125,6 +161,7 @@ button[data-type="del"] {
     background-color: red;
     color: white;
     border: 2px solid grey;
+    border-radius: 0.5rem;
     filter: drop-shadow(1px 1px black);
 }
 
@@ -141,11 +178,13 @@ button[data-type="del"]:active {
     float: left;
 }
 
+
 #crepes_action {
     margin: 15px;
     /* border: 1px solid black; */
     float: left;
 }
+
 
 #create input {
     text-align: right;
@@ -157,6 +196,10 @@ button[data-type="del"]:active {
     clear: both;
 }
 
+
+.crepecontrol {
+    float: right;
+}
 
 
 /*
@@ -215,7 +258,7 @@ Hier beginnt der Stil des Tooltips
     visibility: hidden;
     margin-top: 5px;
     width: 100%;
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.322);
     color: #fff;
     text-align: center;
     padding: 5px 0;
@@ -232,3 +275,36 @@ Hier beginnt der Stil des Tooltips
 /* 
 Hier endet der Stil des Tooltips
 */
+
+/*
+Hier beginnt der Stil der Placeholder beim Bearbeiten
+*/
+
+
+
+/*
+Hier endet der Stil der Placeholder beim Bearbeiten
+*/
+
+/* Hier ist die feedback message */
+#feedback_message_container {
+    position: absolute;
+    top: 0;
+    /* opacity: 0; */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 50px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 1rem;
+    overflow: hidden;
+    user-select: none;
+    cursor: default;
+}
+
+#feedback_message {
+    text-decoration: none;
+    font-family: 'Lucida Console', Courier, monospace;
+    color: white;
+}

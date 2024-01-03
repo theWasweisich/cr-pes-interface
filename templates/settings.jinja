@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/external/googlefonts.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/external/w3.css')}}">
-    <script src="{{ url_for('static', filename='js/global.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/settings.js') }}" defer></script>
+    <link rel="stylesheet" href="/static/css/settings.css">
+    <link rel="stylesheet" href="/static/css/global.css">
+    <link rel="stylesheet" href="/static/css/external/googlefonts.css" />
+    <script src="/static/js/global.js"></script>
+    <script src="/static/js/settings.js" defer></script>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Einstellungen</title>
 </head>
@@ -18,11 +17,12 @@
     }
 </script>
 <body>
-    <a href="./">
-        <div id="move_back">
-                <span class="material-symbols-outlined">arrow_back</span> Zurück
-        </div>
-    </a>
+    <img src="/static/assets/settings_hundi.jpg" alt="Hundihundihundihundi ja FAIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIN">
+    <a href="./"><div id="move_back"><span class="material-symbols-outlined">arrow_back</span> Zurück</div></a>
+
+    <div id="feedback_message_container">
+        <p id="feedback_message">TEST</p>
+    </div>
 
     <div id="header">
         <h1><span class="icon material-symbols-outlined">settings</span>Einstellungen</h1>
@@ -48,7 +48,7 @@
                             <label for="price">Preis: </label>
                         </td>
                         <td>
-                            <input id="price" name="price" type="number" min="0" step="0.01" required autocomplete="off"> €<br>
+                            <input id="price" name="price" type="number" min="0" step="0.01" required autocomplete="off" placeholder="0"> €<br>
                         </td>
                     </tr>
                     <tr>
@@ -99,21 +99,26 @@
         <!-- Hier beginnt die Editierung -->
         <fieldset>
             <legend>Bearbeiten</legend>
-            <div id="crepes_list" data-type="liste">
-                {% for crepe in crepes %}
-                <div class="crepe_container" data-id="{{ crepe['id'] }}" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}">
-                    <div class="crepecontrol w3-right">
-                        <div class="icon_container">
-                            <button data-type="del" data-name="{{ crepe['name'] }}" onclick="delte_crepe(this);">
-                                <span class="material-symbols-outlined">delete</span>
-                            </button>
+            <form action="#" onsubmit="check_for_edits(); return false;">
+
+                <button type="submit">Speichern</button>
+                <div id="crepes_list" data-type="liste">
+                    {% for crepe in crepes %}
+                    <div class="crepe_container" data-id="{{ crepe['id'] }}" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}" was_edited="false">
+                        <div class="edited_hint"></div>
+                        <div class="crepecontrol">
+                            <div class="icon_container">
+                                <button data-type="del" data-name="{{ crepe['name'] }}" onclick="delte_crepe(this);">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
                         </div>
+                        <input name="Crêpes Name" type="text" value="{{ crepe['name'] }}" oninput="input_changed(this);"/><br>
+                        <input name="Crêpes Preis" type="text" data-value="{{ crepe['price'] }}" oninput="input_changed(this);" pattern="^(?:\d*(?:\.|,)*)+(?:\d+,\d+)(?:\s€|€|&nbsp;€)?$"/><br>
                     </div>
-                    <input type="text" value="{{ crepe['name'] }}" /><br>
-                    <input type="text" value="{{ crepe['price'] }}" /><br>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
+            </form>
         </fieldset>
     </div>
     <button id="save_btn" onclick="button_save_changes_to_server(); return false;" type="button">

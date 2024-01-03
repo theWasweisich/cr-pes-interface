@@ -90,6 +90,7 @@ def valid_keys() -> list[str]:
     con, cur = get_db()
     cur.execute("SELECT s_key FROM secret_keys")
     keys = cur.fetchall()
+    con.close()
     for i in range(len(keys)):
         keys[i] = keys[i][0]
     return keys
@@ -103,7 +104,7 @@ def serve_homepage():
 def serve_einstellungen():
     try:
         if not "secret" in session:
-            return redirect("/einstellungen/login")
+            return redirect("/einstellungen/login", 302)
         if session["secret"] in valid_keys():
             return render_template("settings.jinja", crepes=crêpes)
         else:
@@ -117,7 +118,7 @@ def serve_login():
     if request.method == "GET":
         return render_template("login.jinja")
     elif request.method == "POST":
-        _, cur = get_db()
+        con, cur = get_db()
         username = request.form["username"]
         password = request.form["password"]
 
@@ -127,10 +128,11 @@ def serve_login():
         try:
             if cur.fetchone()[0] == 10:
                 secret_key = secrets.token_hex(100)
+
+                cur.execute("DELETE FROM secret_keys")
                 
-                con, cur = get_db()
                 cur.execute("INSERT INTO secret_keys (s_key) VALUES (?)", (secret_key,))
-                con.commit(); con.close()
+                con.commit()
 
                 resp = redirect("/einstellungen")
                 resp.set_cookie('secret', secret_key, 3600)
@@ -138,6 +140,8 @@ def serve_login():
                 return redirect("/einstellungen")
         except TypeError:
             return redirect("/einstellungen/login")
+        finally:
+            con.close()
 
 
         return "", status.HTTP_403_FORBIDDEN
@@ -160,6 +164,8 @@ def serve_shifts():
         con.commit(); con.close()
 
         session.pop("secret")
+
+        con.close()
 
         return "", status.HTTP_403_FORBIDDEN
 

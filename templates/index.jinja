@@ -7,24 +7,22 @@
     
     <!-- CSS Files -->
     
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="/static/css/index.css">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/index_crepecontrol.css') }}">
+    <link rel="stylesheet" href="/static/css/index_crepecontrol.css">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/external/w3.css') }}">
+    <link rel="stylesheet" href="/static/css/external/w3.css">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="/static/css/global.css">
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
     <!-- JS Files -->
 
-    <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/global.js') }}"></script>
-    
-    <script src="{{ url_for('static', filename='js/jquery.js') }}" ></script>
+    <script src="/static/js/index.js" defer></script>
+    <script src="/static/js/global.js"></script>
     
     <title>Crêpes</title>
     
@@ -66,10 +64,6 @@
     </div>
     
     <div class="content">
-        
-    
-    
-    
         <div id="main" class="w3-container">
             {% for crepe in crepes %}
             <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}" data-id="{{ crepe['id'] }}" onload="set_data(this);">
