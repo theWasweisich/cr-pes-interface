@@ -12,6 +12,18 @@
     <title>Schichten</title>
 </head>
 <body>
+    <header>
+        <h1>
+            <span class="icon material-symbols-outlined">settings</span>
+            <p>Einstellungen</p>
+        </h1>
+        <ul>
+            <li><a href="/">Kasse</a></li>
+            <li><a href="/einstellungen">Einstellungen</a></li>
+            <li><a href="#" class="active">Schichten</a></li>
+        </ul>
+
+    </header>
     <div id="shift_list">
         {% for shift in shifts %}
         <div onclick="ev_Listener(this);">
