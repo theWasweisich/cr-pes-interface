@@ -1,7 +1,10 @@
+@import url(/static/css/header_style.css);
+
 * {
     font-family: sans-serif;
     box-sizing: border-box;
 }
+
 
 input:not([type="button"]) {
     border: none;
@@ -13,18 +16,15 @@ input:invalid {
 }
 
 img {
+    position: absolute;
     max-width: 300px;
-    float: right;
+    right: 0;
 }
 
 @media (max-width: 900px) {
     img {
         display: none;
     }
-}
-
-h1 {
-    margin-left: 5%;
 }
 
 .crepe_container {
@@ -290,7 +290,7 @@ Hier endet der Stil der Placeholder beim Bearbeiten
 #feedback_message_container {
     position: absolute;
     top: 0;
-    /* opacity: 0; */
+    opacity: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 500px;

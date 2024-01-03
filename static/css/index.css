@@ -1,3 +1,9 @@
+@import url(/static/css/header_style.css);
+
+::-webkit-scrollbar {
+    display: block !important;
+}
+
 :root {
     font-family: Arial, Helvetica, sans-serif;
     cursor: unset;
@@ -9,68 +15,25 @@ html, body {
     padding: 0;
     width: 100%;
     min-height: 100%;
+    overflow: auto;
 }
 
-#oben {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    height: 85px;
-    padding: 0;margin:0;
-}
-
-#oben h1 {
-    position: sticky;
-    margin: 0;
-    padding: 15px;
-}
-
-#oben > div {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-}
-
-#oben a {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 5px;
-    margin-right: 10px;
-}
-
-#oben p {
-    float: left;
-    width: 100%;
-    border: none;
-    display: block;
-    outline: 0;
-
-    position: sticky;
-    top: 0;
-    margin: 0;
-}
-
-header {
-    background-color: black;
-    color: white;
-}
 
 #side_nav {
     width: 400px !important; /* Wenn das geändert wird, auch bei .content ändern! */
     border-left: 5px solid black;
     border-bottom: 5px solid black;
     background-color: darkgray;
-    position: fixed;
-    top: 85px;
-    right: 0;
-    padding: 5px;
+    position: relative;
+    float: right;
 }
 
 
 #main {
     padding: 5%;
+}
+
+#content {
     margin-right: 400px;
 }
 
@@ -171,4 +134,39 @@ End Sell Buttons
 
 .crepe_container {
     border: 1px solid black;
+}
+
+#content {
+    height: calc(100vh - 165px);
+    overflow-y: scroll !important;
+}
+
+#content::-webkit-scrollbar {
+    display: block;
+}
+
+#main {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 15px;
+}
+
+#main::before,
+#main::after {
+    content: none;
+}
+
+/*
+
+Für wenn der Bildschirm zu klein ist:
+
+*/
+
+@media (max-width: 900px) {
+    body {
+        display: none;
+    }
+    html::after {
+        content: "Sorry, zu klein!";
+    }
 }

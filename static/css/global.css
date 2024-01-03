@@ -3,10 +3,6 @@ html, body {
     padding: 0;
 }
 
-::-webkit-scrollbar {
-    display: none;
-}
-
 @media (prefers-color-scheme: dark) {
     div[data-colour='#ffffff'] {
         background-color: #808080;
