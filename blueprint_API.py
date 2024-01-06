@@ -4,9 +4,7 @@ from operator import truediv
 import flask
 from flask import (
     Blueprint,
-    redirect,
-    request,
-    session
+    request
 )
 from flask_cors import cross_origin
 import logging
@@ -172,16 +170,7 @@ def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     return (conn, cur)
 
 
-@api_bp.before_request
-def check_if_authorized():
-    try:
-        if not "secret" in session:
-            return redirect("/einstellungen/login")
-        if session["secret"] in valid_keys():
-            return
-    except:
-        return '', status.HTTP_403_FORBIDDEN
-    return
+
 
 
 hello_str = r"""
