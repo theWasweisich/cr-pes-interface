@@ -38,7 +38,7 @@ function set_settings_up() {
             preis.setAttribute("value", preis_human_value)
             preis.setAttribute("placeholder", preis_human_value)
 
-            crepelist.push(new Crêpe2(id, name, price, 0, crepe))
+            crepelist.push(new Crêpe2(Number(id), name, price, 0, crepe))
         }
     }
 }

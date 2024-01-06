@@ -7,13 +7,6 @@ var Crêpe2 = /** @class */ (function () {
         this.amount = amount;
         this.root_element = root_element;
     }
-    Crêpe2.prototype.return_for_sending = function () {
-        var map = new Map();
-        map.set("name", this.name);
-        map.set("preis", this.preis);
-        map.set("amount", this.amount);
-        return map;
-    };
     return Crêpe2;
 }());
 function set_data(root_element, crepeId, crepeName, crepePreis) {
@@ -22,8 +15,8 @@ function set_data(root_element, crepeId, crepeName, crepePreis) {
         crepePreis = (root_element.getAttribute('data-preis'));
         crepeId = (root_element.getAttribute('data-id'));
     }
-    crepelist.push(new Crêpe2(crepeId, crepeName, crepePreis, 1, root_element));
-    return true;
+    crepelist.push(new Crêpe2(Number(crepeId), crepeName, Number(crepePreis), 0, root_element));
+    return;
 }
 /**
  * For formatting number to currency
