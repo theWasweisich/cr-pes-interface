@@ -1,6 +1,7 @@
 from asyncio import constants
 import sqlite3
 import flask
+import flask_login
 from jinja2 import Undefined
 from werkzeug import exceptions
 from flask import (
@@ -18,6 +19,9 @@ from flask import (
 from flask_cors import cross_origin
 import status
 import waitress
+from user_handler import (
+    User
+)
 
 from datetime import datetime, timedelta
 import logging
@@ -33,6 +37,8 @@ from blueprint_API import api_bp
 
 import json
 
+import user_handler
+
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
 
 
@@ -42,7 +48,6 @@ app.register_blueprint(api_bp, url_prefix="/api")
 
 app.secret_key = secrets.token_hex(100)
 app.permanent_session_lifetime = timedelta(minutes=5)
-
 
 
 con = sqlite3.connect('datenbank.db')
@@ -87,24 +92,18 @@ global sales
 sales: list = []
 
 def valid_keys() -> list[str]:
-    con, cur = get_db()
-    cur.execute("SELECT s_key FROM secret_keys")
-    keys = cur.fetchall()
-    con.close()
-    for i in range(len(keys)):
-        keys[i] = keys[i][0]
-    return keys
+    return user_handler.valid_keys()
 
 @app.route("/")
 def serve_homepage():
-    return render_template("index.jinja", crepes=crêpes)
+    return render_template("index.jinja", crepes=crêpes, shifts=shifts)
 
 
 @app.route("/einstellungen")
 def serve_einstellungen():
     try:
         if not "secret" in session:
-            return redirect("/einstellungen/login", 302)
+            return redirect("/login", 302)
         if session["secret"] in valid_keys():
             return render_template("settings.jinja", crepes=crêpes)
         else:
@@ -113,7 +112,7 @@ def serve_einstellungen():
         return url_for("serve_login")
 
 
-@app.route("/einstellungen/login", methods=("POST", "GET"))
+@app.route("/login", methods=("POST", "GET"))
 def serve_login():
     if request.method == "GET":
         return render_template("login.jinja")
@@ -122,24 +121,28 @@ def serve_login():
         username = request.form["username"]
         password = request.form["password"]
 
-        sql = "SELECT priviledge FROM users WHERE username = ? AND password = ?"
+        sql = "SELECT id, priviledge, current_key FROM users WHERE username = ? AND password = ?"
         cur.execute(sql, (username, password))
 
         try:
-            if cur.fetchone()[0] == 10:
+            entry = cur.fetchone()
+            if entry[2] == None: # entry[2] ist current_key
                 secret_key = secrets.token_hex(100)
 
-                cur.execute("DELETE FROM secret_keys")
-                
-                cur.execute("INSERT INTO secret_keys (s_key) VALUES (?)", (secret_key,))
-                con.commit()
+                user_handler.update_key(entry[0], secret_key)
 
                 resp = redirect("/einstellungen")
                 resp.set_cookie('secret', secret_key, 3600)
                 session["secret"] = secret_key
                 return redirect("/einstellungen")
+            else:
+                if user_handler.is_authorized("Admin", entry[2]):
+
+                    session["secret"] = entry[2]
+                    return redirect("/einstellungen")
+
         except TypeError:
-            return redirect("/einstellungen/login")
+            return redirect("/login")
         finally:
             con.close()
 
@@ -154,7 +157,7 @@ def serve_shifts():
     logging.warning(f"{request.remote_addr} versucht, schichten zu öffnen")
     if not "secret" in session:
         logging.info(session)
-        return redirect("/einstellungen/login", 307)
+        return redirect("/login", 307)
     if session["secret"] in valid_keys():
         return render_template("shifts.jinja", shifts=shifts)
     else:

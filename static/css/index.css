@@ -1,9 +1,5 @@
 @import url(/static/css/header_style.css);
 
-::-webkit-scrollbar {
-    display: block !important;
-}
-
 :root {
     font-family: Arial, Helvetica, sans-serif;
     cursor: unset;
@@ -15,7 +11,7 @@ html, body {
     padding: 0;
     width: 100%;
     min-height: 100%;
-    overflow: auto;
+    overflow: hidden;
 }
 
 
@@ -50,8 +46,7 @@ html, body {
 
 .icon {
     position: relative;
-    top: 5px;
-    left: -8px;
+    height: max-content;
 }
 
 a[href="/einstellungen"] {
@@ -139,10 +134,6 @@ End Sell Buttons
 #content {
     height: calc(100vh - 165px);
     overflow-y: scroll !important;
-}
-
-#content::-webkit-scrollbar {
-    display: block;
 }
 
 #main {

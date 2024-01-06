@@ -4,6 +4,7 @@ header {
     height: 165px;
     overflow: hidden;
     background-color: #707070;
+    user-select: none;
 }
 
 header p {
