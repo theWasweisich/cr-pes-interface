@@ -27,6 +27,13 @@ html, body {
     position: relative;
     float: right;
 }
+#side_nav span {
+    float: right;
+    margin-right: 5%;
+}
+#side_nav h2 {
+    border-bottom: 1px solid;
+}
 
 
 #main {
@@ -62,6 +69,20 @@ a[href="/einstellungen"] {
     position: absolute;
     top: 20px;
     right: 20px;
+}
+
+.crepecontrol {
+    position: relative;
+    float: right;
+    text-align: center;
+}
+
+.crepecontrol p {
+    position: absolute;
+    font-size: 120%;
+    margin: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 @media (width <=  860) {
