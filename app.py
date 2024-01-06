@@ -104,7 +104,7 @@ def serve_homepage():
 def serve_einstellungen():
     try:
         if not "secret" in session:
-            return redirect("/einstellungen/login", 302)
+            return redirect("/login", 302)
         if session["secret"] in valid_keys():
             return render_template("settings.jinja", crepes=crêpes)
         else:
@@ -113,7 +113,7 @@ def serve_einstellungen():
         return url_for("serve_login")
 
 
-@app.route("/einstellungen/login", methods=("POST", "GET"))
+@app.route("/login", methods=("POST", "GET"))
 def serve_login():
     if request.method == "GET":
         return render_template("login.jinja")
@@ -139,7 +139,7 @@ def serve_login():
                 session["secret"] = secret_key
                 return redirect("/einstellungen")
         except TypeError:
-            return redirect("/einstellungen/login")
+            return redirect("/login")
         finally:
             con.close()
 
@@ -154,7 +154,7 @@ def serve_shifts():
     logging.warning(f"{request.remote_addr} versucht, schichten zu öffnen")
     if not "secret" in session:
         logging.info(session)
-        return redirect("/einstellungen/login", 307)
+        return redirect("/login", 307)
     if session["secret"] in valid_keys():
         return render_template("shifts.jinja", shifts=shifts)
     else:
