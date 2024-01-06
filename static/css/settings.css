@@ -19,21 +19,11 @@ img {
     position: absolute;
     max-width: 300px;
     right: 0;
-    z-index: -1;
 }
 
 @media (max-width: 900px) {
     img {
         display: none;
-    }
-}
-@media (max-width: 820px) {
-    html, body {
-        display: none;
-    }
-    body::before {
-        content: "Screen too small";
-        display: block !important;
     }
 }
 
