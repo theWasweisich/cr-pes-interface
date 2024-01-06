@@ -1,0 +1,58 @@
+header {
+    position: relative;
+    border-bottom: 1px solid black;
+    height: 165px;
+    overflow: hidden;
+    background-color: #707070;
+}
+
+header p {
+    display: inline-block;
+}
+
+header h1 {
+    height: 50%;
+    margin: 0 !important;
+    text-align: center;
+}
+
+header ul {
+    width: max-content;
+    position: relative;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    top: 50%;
+    transform: translateY(-100%);
+    overflow: hidden;
+
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+}
+
+li {
+    float: left;
+}
+li a {
+    text-decoration: none;
+    color: black;
+    display: block;
+    padding: 8px;
+    background-color: #575757;
+}
+li:hover a {
+    color: #dddddd;
+    background-color: black;
+}
+
+li a.active {
+    background: repeating-linear-gradient(
+        45deg,
+        #ff0000,
+        #ff0000 10px,
+        #000000 10px,
+        #000000 20px
+    );
+    color: white;
+    font-weight: bolder;
+}
