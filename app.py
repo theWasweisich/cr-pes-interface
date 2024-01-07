@@ -26,12 +26,17 @@ import sys
 from typing import Any
 from ast import literal_eval
 
+from user_handling import get_db
+import user_handling
+
 import werkzeug
 import os
 
 from blueprint_API import api_bp
 
 import json
+
+user_handling.load_users()
 
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
 
@@ -103,46 +108,70 @@ def serve_homepage():
 @app.route("/einstellungen")
 def serve_einstellungen():
     try:
-        if not "secret" in session:
-            return redirect("/login", 302)
-        if session["secret"] in valid_keys():
+        if user_handling.authenticate_user(session, 10):
             return render_template("settings.jinja", crepes=crêpes)
         else:
-            raise Exception
+            flash("settings")
+            return redirect("/login")
+
     except:
+        flash("settings")
         return url_for("serve_login")
 
 
 @app.route("/login", methods=("POST", "GET"))
 def serve_login():
+
     if request.method == "GET":
         return render_template("login.jinja")
+
     elif request.method == "POST":
-        con, cur = get_db()
         username = request.form["username"]
         password = request.form["password"]
+        comming_from = request.form["from"]
 
-        sql = "SELECT priviledge FROM users WHERE username = ? AND password = ?"
-        cur.execute(sql, (username, password))
+        logging.info(f"Username: {username} Password: {password}")
+        user = user_handling.get_user_from_username_and_password(username, password)
+
+        logging.info(str(user))
+
+        if user == None:
+            logging.warning(f"Could not log user {user} in!")
+            return render_template("login.jinja")
 
         try:
-            if cur.fetchone()[0] == 10:
+            if user.current_key == None:
                 secret_key = secrets.token_hex(100)
+                session["secret"] = secret_key
 
-                cur.execute("DELETE FROM secret_keys")
-                
-                cur.execute("INSERT INTO secret_keys (s_key) VALUES (?)", (secret_key,))
-                con.commit()
+                user.set_key(secret_key)
+            else:
+                secret_key = user.get_key()
+                if not secret_key:
+                    return redirect("/login")
 
+
+            if user.priviledge == 10:
+
+                logging.debug("User priviledge is 10")
                 resp = redirect("/einstellungen")
                 resp.set_cookie('secret', secret_key, 3600)
                 session["secret"] = secret_key
+                if comming_from == "shifts":
+                    return redirect("/schichten")
                 return redirect("/einstellungen")
+
+            elif user.priviledge == 5:
+
+                logging.debug("User priviledge is 5")
+                resp = redirect("/schichten")
+                resp.set_cookie('secret', secret_key, 3600)
+                session["secret"] = secret_key
+                return redirect("/schichten")
+
+
         except TypeError:
             return redirect("/login")
-        finally:
-            con.close()
-
 
         return "", status.HTTP_403_FORBIDDEN
     else:
@@ -152,22 +181,12 @@ def serve_login():
 @app.route("/schichten")
 def serve_shifts():
     logging.warning(f"{request.remote_addr} versucht, schichten zu öffnen")
-    if not "secret" in session:
-        logging.info(session)
-        return redirect("/login", 307)
-    if session["secret"] in valid_keys():
+
+    if user_handling.authenticate_user(session, 5):
         return render_template("shifts.jinja", shifts=shifts)
     else:
-
-        con, cur = get_db()
-        cur.execute("DELETE FROM secret_keys WHERE s_key = ?", session["secret"])
-        con.commit(); con.close()
-
-        session.pop("secret")
-
-        con.close()
-
-        return "", status.HTTP_403_FORBIDDEN
+        flash("shifts")
+        return redirect("/login")
 
 
 
@@ -204,19 +223,6 @@ def after_req(e: flask.Response):
     #     return e
     # logging.info(f"{request.remote_addr} -- {request.method} {request.path}")
     return e
-
-def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
-    """Gets variables for the correct database connection.
-    
-    Return: A tuple of the connection and the cursor
-    """
-    try:
-        conn = sqlite3.connect('datenbank.db')
-        cur = conn.cursor()
-        return (conn, cur)
-    except:
-        logging.critical("There has been an error when loading the database!")
-        raise Exception("Hobbala")
 
 
 def bad_request(e):

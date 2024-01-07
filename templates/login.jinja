@@ -18,9 +18,10 @@
 
 
     console.log('Hilfestellung:')
-    console.table([new User('cheffe', 'LassMichRein')])
+    console.table([new User('cheffe', 'LassMichRein'), new User("Schichter", "lalala")])
 </script>
 <body>
+    <p id="flashed" style="position: absolute; top: 0;">{{ get_flashed_messages() }}</p>
 
     <div id="loginForm">
         <div id="form_head">
@@ -31,9 +32,10 @@
         </div>
         <hr>
         <br>
-        <form name="form1" action="/einstellungen/login" onsubmit="return validate_form()" method="post">
+        <form name="form1" action="/login" onsubmit="return validate_form()" method="post">
             <input aria-label="Benutzername" type="text" name="username" id="username" placeholder="Benutzername" required><br>
             <input aria-label="Passwort" type="password" name="password" id="password" placeholder="Passwort" required><br><br>
+            <input type="hidden" name="from" value="{{ get_flashed_messages()[0] }}">
 
             <input type="submit" value="Einloggen">
         </form>
