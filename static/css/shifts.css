@@ -14,3 +14,25 @@ body, html {
 #shift_list {
     margin: 10px;
 }
+
+.shift_card {
+    width: 50%;
+    height: max-content;
+    background-color: gainsboro;
+}
+
+div.elapsed {
+    background-color: darkred;
+    color: wheat;
+}
+
+#open_creator {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+}
+
+::backdrop {
+    background-color: black;
+    opacity: 0.5;
+}

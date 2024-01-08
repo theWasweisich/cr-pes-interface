@@ -24,12 +24,38 @@
         </ul>
 
     </header>
+
+    <button id="open_creator">Neue Schicht erstellen</button>
+
+    <dialog id="shift_creator">
+        <form action="#" onsubmit="dialog_manager(); return false">
+            <table>
+                <tr>
+                    <td><label for="shift_name">Schicht-Name: </label></td>
+                    <td><input type="text" name="shift_name" id="shift_name"></td>
+                </tr>
+                <tr>
+                    <td><label for="time_start">Startzeit: </label></td>
+                    <td><input type="datetime-local" name="time_start" id="time_start"></td>
+                </tr>
+                <tr>
+                    <td><label for="duration">Schicht-Dauer: </label></td>
+                    <td><input type="range" name="duration" id="duration"><output></output></td>
+                </tr>
+                <tr>
+                    <td><button id="dialog_close" type="button">Schließen</button></td>
+                    <td><button id="dialog_create" type="button">Erstellen</button></td>
+                </tr>
+            </table>
+        </form>
+    </dialog>
+
     <div id="shift_list">
         {% for shift in shifts %}
-        <div onclick="ev_Listener(this);">
+        <div class="shift_card" onclick="ev_Listener(this);">
             <p>{{ shift["shift_name"] }}</p>
-            <p data-type="start">{{ shift["time_start"] }}</p>
-            <p data-fill="elapsed"></p>
+            <p data-type="start" hidden>{{ shift["time_start"] }}</p>
+            <p data-type="elapsed">In: </p>
             <hr>
         </div>
         {% endfor %}
