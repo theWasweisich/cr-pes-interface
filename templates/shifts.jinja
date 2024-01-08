@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/external/w3.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/external/googlefonts.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/shifts.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/external/googlefonts.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/external/w3.css')}}">
     <script src="{{ url_for('static', filename='js/shifts.js') }}" defer></script>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Schichten</title>
@@ -30,6 +30,7 @@
     <dialog id="shift_creator">
         <form action="#" onsubmit="dialog_manager(); return false">
             <table>
+                <h2>Neue Schicht erstellen</h2>
                 <tr>
                     <td><label for="shift_name">Schicht-Name: </label></td>
                     <td><input type="text" name="shift_name" id="shift_name"></td>
@@ -40,7 +41,7 @@
                 </tr>
                 <tr>
                     <td><label for="duration">Schicht-Dauer: </label></td>
-                    <td><input type="range" name="duration" id="duration"><output></output></td>
+                    <td><input type="range" name="duration" id="duration" value="5" min="5" max="240"><output><input type="number" name="duration" id="duration_2" min="5", max="240" step="1" /> Minuten</output></td>
                 </tr>
                 <tr>
                     <td><button id="dialog_close" type="button">Schließen</button></td>

@@ -1,4 +1,21 @@
+var dialog = document.getElementById("shift_creator") as HTMLDialogElement
 
+
+function run_on_startup() {
+    var shift_list = document.getElementById("shift_list") as HTMLElement
+    var shift_cards = document.querySelectorAll("div.shift_card") as NodeListOf<HTMLElement>
+
+    var intervals: number[] = [];
+
+    for (let i = 0; i < shift_cards.length; i++) {
+        const shift_card = shift_cards[i] as HTMLElement;
+        
+
+        var x = setInterval(this.update_time, 1000, shift_card)
+    }
+}
+
+run_on_startup()
 
 function update_time(elem: HTMLElement) {
     var elapsed = elem.querySelector('[data-type="elapsed"]');
@@ -47,25 +64,9 @@ function countdown(root_elem: HTMLElement): string {
         time_str = "Beginnt in: " + time_str
     }
     return time_str
-} 
-
-function run_on_startup() {
-    var shift_list = document.getElementById("shift_list") as HTMLElement
-    var shift_cards = document.querySelectorAll("div.shift_card") as NodeListOf<HTMLElement>
-
-    var intervals: number[] = [];
-
-    for (let i = 0; i < shift_cards.length; i++) {
-        const shift_card = shift_cards[i] as HTMLElement;
-        
-
-        var x = setInterval(this.update_time, 1000, shift_card)
-    }
 }
 
-run_on_startup()
 
-var dialog = document.getElementById("shift_creator") as HTMLDialogElement
 
 function dialog_manager() {
     const shift_name = document.getElementById("shift_name") as HTMLInputElement
@@ -92,15 +93,21 @@ function prepare_dialog() {
         dialog.showModal()
     })
     closer.addEventListener('click', function() {
+        dialog.getElementsByTagName("form")[0].reset()
         dialog.close()
     })
     submitter.addEventListener('click', function() {
+        dialog.getElementsByTagName("form")[0].reset()
         dialog_manager();
     })
     const out = duration_range.parentElement.getElementsByTagName("output")[0]
+    const dur_2 = document.getElementById("duration_2") as HTMLInputElement
 
     duration_range.addEventListener('input', function() {
-        out.innerText = duration_range.value
+        dur_2.value = duration_range.value
+    })
+    dur_2.addEventListener('input', function() {
+        duration_range.value = duration_range.value
     })
 }
 prepare_dialog()

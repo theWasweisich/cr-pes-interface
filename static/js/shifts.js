@@ -1,3 +1,14 @@
+var dialog = document.getElementById("shift_creator");
+function run_on_startup() {
+    var shift_list = document.getElementById("shift_list");
+    var shift_cards = document.querySelectorAll("div.shift_card");
+    var intervals = [];
+    for (var i = 0; i < shift_cards.length; i++) {
+        var shift_card = shift_cards[i];
+        var x = setInterval(this.update_time, 1000, shift_card);
+    }
+}
+run_on_startup();
 function update_time(elem) {
     var elapsed = elem.querySelector('[data-type="elapsed"]');
     var in_past = false;
@@ -40,17 +51,6 @@ function countdown(root_elem) {
     }
     return time_str;
 }
-function run_on_startup() {
-    var shift_list = document.getElementById("shift_list");
-    var shift_cards = document.querySelectorAll("div.shift_card");
-    var intervals = [];
-    for (var i = 0; i < shift_cards.length; i++) {
-        var shift_card = shift_cards[i];
-        var x = setInterval(this.update_time, 1000, shift_card);
-    }
-}
-run_on_startup();
-var dialog = document.getElementById("shift_creator");
 function dialog_manager() {
     var shift_name = document.getElementById("shift_name");
     var shift_start = document.getElementById("time_start");
@@ -71,14 +71,20 @@ function prepare_dialog() {
         dialog.showModal();
     });
     closer.addEventListener('click', function () {
+        dialog.getElementsByTagName("form")[0].reset();
         dialog.close();
     });
     submitter.addEventListener('click', function () {
+        dialog.getElementsByTagName("form")[0].reset();
         dialog_manager();
     });
     var out = duration_range.parentElement.getElementsByTagName("output")[0];
+    var dur_2 = document.getElementById("duration_2");
     duration_range.addEventListener('input', function () {
-        out.innerText = duration_range.value;
+        dur_2.value = duration_range.value;
+    });
+    dur_2.addEventListener('input', function () {
+        duration_range.value = duration_range.value;
     });
 }
 prepare_dialog();

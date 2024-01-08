@@ -3,6 +3,10 @@ html, body {
     padding: 0;
 }
 
+html, body {
+    font-family: Roboto, 'Sergoe UI', sans-serif !important;
+}
+
 @media (prefers-color-scheme: dark) {
     div[data-colour='#ffffff'] {
         background-color: #808080;
