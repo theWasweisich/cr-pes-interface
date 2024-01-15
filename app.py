@@ -29,12 +29,10 @@ from ast import literal_eval
 from user_handling import get_db
 import user_handling
 
-import werkzeug
 import os
+from dotenv import load_dotenv
 
 from blueprint_API import api_bp
-
-import json
 
 user_handling.load_users()
 
@@ -45,9 +43,13 @@ app = Flask(__name__)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
-app.secret_key = secrets.token_hex(100)
+load_dotenv(".env")
+
+secret = os.getenv('SECRET_KEY')
+app.secret_key = secret
 app.permanent_session_lifetime = timedelta(minutes=5)
 
+del secret
 
 
 con = sqlite3.connect('datenbank.db')

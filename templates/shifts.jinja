@@ -27,10 +27,10 @@
 
     <button id="open_creator">Neue Schicht erstellen</button>
 
-    <dialog id="shift_creator">
+    <dialog id="shift_editor">
         <form action="#" onsubmit="dialog_manager(); return false">
             <table>
-                <h2>Neue Schicht erstellen</h2>
+                <h2 ctype="header">Neue Schicht erstellen</h2>
                 <tr>
                     <td><label for="shift_name">Schicht-Name: </label></td>
                     <td><input type="text" name="shift_name" id="shift_name"></td>
@@ -46,31 +46,6 @@
                 <tr>
                     <td><button id="dialog_close" type="button">Schließen</button></td>
                     <td><button id="dialog_create" type="button">Erstellen</button></td>
-                </tr>
-            </table>
-        </form>
-    </dialog>
-
-    <dialog id="shift_editor">
-        <form action="#" onsubmit="handleEdit(); return false;">
-            <table>
-                <tr>
-                    <td><label for="editText">Schicht-Name: </label></td>
-                    <td><input id="editText" type="text"></td>
-                </tr>
-                <tr>
-                    <td><label for="editStart">Schicht-Start: </label></td>
-                    <td><input type="datetime" id="editStart"></td>
-                </tr>
-                <tr>
-                    <td><label for="EditDuration">Schicht-Dauer</label></td>
-                    <td><input type="range" name="duration" id="EditDuration" value="5" min="5" max="240" oninput="document.getElementById('EditDuration_2').value = this.value"><output><input oninput="document.getElementById('EditDuration').value = this.value" type="number" name="duration" id="EditDuration_2" min="5", max="240" step="1" /> Minuten</output></td>
-                </tr>
-                <tr aria-rowspan="2">
-                    <td>
-                        <button>A</button>
-                        <button>B</button>
-                    </td>
                 </tr>
             </table>
         </form>

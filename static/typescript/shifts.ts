@@ -146,6 +146,17 @@ function creation_manager() {
 
 }
 
+class PrepareDialog {
+    opener: HTMLButtonElement
+    closer: HTMLButtonElement
+    submitter: HTMLButtonElement
+    duration_range: HTMLInputElement
+
+    constructor(root: HTMLDialogElement) {
+        
+    }
+}
+
 function prepare_dialog() {
     const opener = document.getElementById("open_creator") as HTMLButtonElement
     const closer = document.getElementById("dialog_close") as HTMLButtonElement
@@ -179,26 +190,11 @@ function prepare_dialog() {
 
 prepare_dialog()
 
-function func_editDialog(elem: HTMLElement) {
-    var name_elem = document.querySelector('p[data-type="name"]') as HTMLElement
-    var start_elem = document.querySelector('p[data-type="start"]') as HTMLElement
-
-}
-
-function open_close_edit_dialog(elem: HTMLElement) {
-    if (edit_dialog.open) 
-    {
-        console.log("Handle Input")
-        edit_dialog.close()
-
-    } else 
-    {
-        edit_dialog.showModal();
-    }
-}
-
 const dialogs = document.getElementsByTagName("dialog")
-console.log(dialogs)
+
+/**
+ * Makes Dialogs work
+ */
 for (let i = 0; i < dialogs.length; i++) {
     const dialog = dialogs[i];
     
@@ -215,3 +211,8 @@ for (let i = 0; i < dialogs.length; i++) {
         }
     })
 }
+
+/**
+ * 1 Dialog für erstellen & bearbeiten. C-Type attribute, um den Text / die Funktion
+ * entsprechend zu ändern
+ */

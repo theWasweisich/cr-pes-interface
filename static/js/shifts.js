@@ -155,7 +155,6 @@ function open_close_edit_dialog(elem) {
     }
 }
 var dialogs = document.getElementsByTagName("dialog");
-console.log(dialogs);
 var _loop_1 = function (i) {
     var dialog = dialogs[i];
     dialog.addEventListener('click', function (event) {
@@ -171,6 +170,9 @@ var _loop_1 = function (i) {
         }
     });
 };
+/**
+ * Makes Dialogs work
+ */
 for (var i = 0; i < dialogs.length; i++) {
     _loop_1(i);
 }
