@@ -15,7 +15,7 @@
     <header>
         <h1>
             <span class="icon material-symbols-outlined">settings</span>
-            <p>Einstellungen</p>
+            <p>Schichten</p>
         </h1>
         <ul>
             <li><a href="/">Kasse</a></li>
@@ -51,13 +51,37 @@
         </form>
     </dialog>
 
+    <dialog id="shift_editor">
+        <form action="#" onsubmit="handleEdit(); return false;">
+            <table>
+                <tr>
+                    <td><label for="editText">Schicht-Name: </label></td>
+                    <td><input id="editText" type="text"></td>
+                </tr>
+                <tr>
+                    <td><label for="editStart">Schicht-Start: </label></td>
+                    <td><input type="datetime" id="editStart"></td>
+                </tr>
+                <tr>
+                    <td><label for="EditDuration">Schicht-Dauer</label></td>
+                    <td><input type="range" name="duration" id="EditDuration" value="5" min="5" max="240" oninput="document.getElementById('EditDuration_2').value = this.value"><output><input oninput="document.getElementById('EditDuration').value = this.value" type="number" name="duration" id="EditDuration_2" min="5", max="240" step="1" /> Minuten</output></td>
+                </tr>
+                <tr aria-rowspan="2">
+                    <td>
+                        <button>A</button>
+                        <button>B</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </dialog>
+
     <div id="shift_list">
         {% for shift in shifts %}
-        <div class="shift_card" onclick="ev_Listener(this);">
-            <p>{{ shift["shift_name"] }}</p>
+        <div class="shift_card" onclick="open_close_edit_dialog(this);">
+            <p data-type="name">{{ shift["shift_name"] }}</p>
             <p data-type="start" hidden>{{ shift["time_start"] }}</p>
             <p data-type="elapsed">In: </p>
-            <hr>
         </div>
         {% endfor %}
     </div>

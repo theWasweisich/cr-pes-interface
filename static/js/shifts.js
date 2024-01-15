@@ -1,24 +1,52 @@
-var dialog = document.getElementById("shift_creator");
+var creation_dialog = document.getElementById("shift_creator");
+var edit_dialog = document.getElementById("shift_editor");
 function run_on_startup() {
     var shift_list = document.getElementById("shift_list");
     var shift_cards = document.querySelectorAll("div.shift_card");
     var intervals = [];
     for (var i = 0; i < shift_cards.length; i++) {
         var shift_card = shift_cards[i];
-        var x = setInterval(this.update_time, 1000, shift_card);
+        update_time(shift_card, -1);
+        var x = setInterval(this.update_time, 1000, shift_card, x);
     }
 }
 run_on_startup();
-function update_time(elem) {
+function update_time(elem, interval_id) {
     var elapsed = elem.querySelector('[data-type="elapsed"]');
-    var in_past = false;
-    var elapsed_str = countdown(elem);
-    if (elapsed_str.startsWith("Vergangen")) {
-        in_past = true;
-        elem.style.backgroundColor = "darkred;";
-    }
+    var count_result = countdown(elem);
+    var elapsed_str = count_result[0];
+    var elapsed_num = count_result[1];
     elapsed.innerHTML = elapsed_str;
+    if (elapsed_num == 0 || elapsed_num == 1) {
+        elem.classList.add("ago");
+    }
+    else if (elapsed_num == 2) {
+        elem.classList.add("shortly");
+    }
+    else {
+        elem.classList.add("far");
+    }
+    if (elapsed_num <= 1) {
+        clearInterval(interval_id);
+    }
 }
+/**
+ * times:
+ *
+ *
+ * - `0`: Long ago
+ *
+ * - `1`: Not so long ago
+ *
+ * - `2`: In near future
+ *
+ * - `3`: In far future
+ *
+ * ---
+ *
+ * @param root_elem The element of the shift
+ * @returns 0 [string]: the string to put in || 1 [number]: The relative time to shift
+ */
 function countdown(root_elem) {
     var time = root_elem.querySelector("[data-type=\"start\"]").innerHTML;
     // Set the date we're counting down to
@@ -42,25 +70,51 @@ function countdown(root_elem) {
     else {
         var time_str = "<mark>" + days + "</mark> Tage <mark>" + hours + "</mark> Stunden <mark>" + minutes + "</mark> Minuten und <mark>" + seconds + "</mark> Sekunden ";
     }
+    var time_state = 1;
     // Output the result
+    if (past && days >= 7) {
+        time_str = "Seit längerem Vergangen";
+        time_state = 0;
+        return [time_str, time_state];
+    }
+    else if (!past && days <= 1) {
+        time_state = 2;
+    }
+    else {
+        time_state = 3;
+    }
     if (past) {
         time_str = "Vergangen seit: " + time_str;
     }
     else {
         time_str = "Beginnt in: " + time_str;
     }
-    return time_str;
+    return [time_str, time_state];
 }
-function dialog_manager() {
+function creation_manager() {
     var shift_name = document.getElementById("shift_name");
     var shift_start = document.getElementById("time_start");
-    var duration = document.getElementById("duration");
+    var shift_duration = document.getElementById("duration");
+    var form = creation_dialog.getElementsByTagName("form")[0];
+    var name = shift_name.value;
+    var start = shift_start.value;
+    var duration = shift_duration.value;
+    var abc = new Date(start);
+    var diff = abc.getTime() - new Date().getTime();
+    if (diff <= 0) {
+        console.log("In Past!");
+        shift_start.setCustomValidity("Schicht kann nicht in der Vergangenheit liegen!");
+        shift_start.reportValidity();
+        return;
+    }
     console.group("New Shift");
-    console.log("Shift-Name: ".concat(shift_name.value));
-    console.log("Shift-Start: ".concat(shift_start.value));
-    console.log("Shift-Duration: ".concat(duration.value));
+    console.log("Shift-Name: ".concat(name));
+    console.log("Shift-Start: ".concat(start));
+    console.log("Start-Typ: ".concat(typeof (start)));
+    console.log("Shift-Duration: ".concat(duration));
     console.groupEnd();
-    dialog.close();
+    form.reset();
+    creation_dialog.close();
 }
 function prepare_dialog() {
     var opener = document.getElementById("open_creator");
@@ -68,15 +122,14 @@ function prepare_dialog() {
     var submitter = document.getElementById("dialog_create");
     var duration_range = document.getElementById("duration");
     opener.addEventListener('click', function () {
-        dialog.showModal();
+        creation_dialog.showModal();
     });
     closer.addEventListener('click', function () {
-        dialog.getElementsByTagName("form")[0].reset();
-        dialog.close();
+        creation_dialog.getElementsByTagName("form")[0].reset();
+        creation_dialog.close();
     });
     submitter.addEventListener('click', function () {
-        dialog.getElementsByTagName("form")[0].reset();
-        dialog_manager();
+        creation_manager();
     });
     var out = duration_range.parentElement.getElementsByTagName("output")[0];
     var dur_2 = document.getElementById("duration_2");
@@ -88,3 +141,36 @@ function prepare_dialog() {
     });
 }
 prepare_dialog();
+function func_editDialog(elem) {
+    var name_elem = document.querySelector('p[data-type="name"]');
+    var start_elem = document.querySelector('p[data-type="start"]');
+}
+function open_close_edit_dialog(elem) {
+    if (edit_dialog.open) {
+        console.log("Handle Input");
+        edit_dialog.close();
+    }
+    else {
+        edit_dialog.showModal();
+    }
+}
+var dialogs = document.getElementsByTagName("dialog");
+console.log(dialogs);
+var _loop_1 = function (i) {
+    var dialog = dialogs[i];
+    dialog.addEventListener('click', function (event) {
+        var rect = dialog.getBoundingClientRect();
+        var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+            rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+        console.log("HI");
+        if (!isInDialog) {
+            dialog.classList.add("warn");
+            setTimeout(function () {
+                dialog.classList.remove("warn");
+            }, 500);
+        }
+    });
+};
+for (var i = 0; i < dialogs.length; i++) {
+    _loop_1(i);
+}

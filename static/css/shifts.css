@@ -13,28 +13,34 @@ body, html {
 
 #shift_list {
     margin: 10px;
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 10px;
 }
+
+@media (max-width: 600px) {
+    #shift_list {
+        grid-template-columns: auto;
+    }
+}
+
+@media (max-width: 300px) {
+    body * {
+        display: none;
+    }
+}
+
 
 .shift_card {
-    width: 50%;
+    width: 100%;
     height: max-content;
-    background-color: gainsboro;
-}
-
-div.elapsed {
-    background-color: darkred;
-    color: wheat;
+    padding: 15px;
 }
 
 #open_creator {
     position: absolute;
     bottom: 15px;
     right: 15px;
-}
-
-::backdrop {
-    background-color: black;
-    opacity: 0.5;
 }
 
 #shift_creator {
@@ -54,4 +60,28 @@ tr output {
     width: 10ch;
     -moz-appearance: textfield;
     appearance: textfield;
+}
+
+div.ago {
+    background-color: rgba(139, 0, 0, .4);
+}
+
+div.shortly {
+    background-color: rgba(173, 255, 47, .4);
+}
+
+div.far {
+    background-color: rgba(220, 220, 220, .4);
+}
+
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, .4);
+}
+
+dialog {
+    border-color: black;
+}
+
+dialog.warn {
+    border-color: rgb(127, 0, 0);
 }
