@@ -5,6 +5,7 @@
     --clr-crepe-purple: rgba(91, 55, 87, 0.5);
     --clr-crepe-green: rgba(86, 110, 64, 0.5);
     --clr-crepe-yellow: rgba(236, 239, 64, 0.5);
+    --clr-primary-surface: rgba(127.5, 127.5, 127.5, 0.5);
 }
 
 html, body {

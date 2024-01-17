@@ -1,5 +1,5 @@
 @import url(/static/css/header_style.css);
-@import url(/static/css/crepes_color.css);
+@import url(/static/css/colors.css);
 
 ::-webkit-scrollbar {
     display: block !important;
@@ -21,10 +21,11 @@ html, body {
 
 
 #side_nav {
-    width: 400px !important; /* Wenn das geändert wird, auch bei .content ändern! */
+    width: 25% !important; /* Wenn das geändert wird, auch bei .content ändern! */
     border-left: 5px solid black;
+    padding: 5px;
     border-bottom: 5px solid black;
-    background-color: darkgray;
+    background-color: var(--clr-primary-surface);
     position: relative;
     float: right;
 }
@@ -34,6 +35,10 @@ html, body {
 }
 #side_nav h2 {
     border-bottom: 1px solid;
+}
+
+.side-nav-menu {
+    font-size: x-large;
 }
 
 
@@ -46,7 +51,7 @@ html, body {
 }
 
 #content {
-    margin-right: 400px;
+    margin-right: 25%;
 }
 
 
@@ -58,12 +63,6 @@ html, body {
 
 a[href="/einstellungen"] {
     text-decoration: none;
-}
-
-.collapse_sidemenu {
-    position: absolute;
-    top: 20px;
-    right: 20px;
 }
 
 .crepecontrol {
@@ -123,16 +122,12 @@ table td + td {
 Start Sell Buttons
 */
 
-#sell_buttons * {
-    width: 25%;
+#sell_buttons button {
+    width: fit-content;
     height: 50px;
     display: block;
     margin: 5px;
     text-wrap: pretty;
-}
-
-button[data-function="own_consumption"] {
-    width: 50% !important;
 }
 
 #sell_buttons *:hover {
@@ -142,6 +137,7 @@ button[data-function="own_consumption"] {
 #sell_buttons {
     margin: 5%;
     display: flex;
+    flex-wrap: wrap;
 }
 
 /*
@@ -167,7 +163,7 @@ End Sell Buttons
 #main {
     display: grid;
     grid-template-columns:
-        repeat(auto-fill, minmax(300px, auto));
+        repeat(auto-fit, minmax(350px, auto));
     gap: 15px;
 }
 
