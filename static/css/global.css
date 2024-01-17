@@ -1,3 +1,12 @@
+:root {
+    color-scheme: only dark;
+    --clr-crepe-white: rgba(127.5, 127.5, 127.5, 0.5);
+    --clr-crepe-blue: rgba(0, 157, 255, 0.5);
+    --clr-crepe-purple: rgba(91, 55, 87, 0.5);
+    --clr-crepe-green: rgba(86, 110, 64, 0.5);
+    --clr-crepe-yellow: rgba(236, 239, 64, 0.5);
+}
+
 html, body {
     margin: 0;
     padding: 0;
@@ -5,51 +14,4 @@ html, body {
 
 html, body {
     font-family: Roboto, 'Sergoe UI', sans-serif !important;
-}
-
-@media (prefers-color-scheme: dark) {
-    div[data-colour='#ffffff'] {
-        background-color: #808080;
-    }
-    div[data-colour='#009dff'] {
-        background-color: #170073;
-    }
-    div[data-colour='#5b3757'] {
-        background-color: #2A1818;
-    }
-    div[data-colour='#566e40'] {
-        background-color: #1B3324;
-    }
-    div[data-colour='#ff171b'] {
-        background-color: #63080ae5;
-    }
-    div[data-colour='#22ea88'] {
-        background-color: #0f6d40e5;
-    }
-    div[data-colour='#ecef40'] {
-        background-color: #808122e5;
-    }
-}
-
-
-div[data-colour='white'] {
-    background-color: #ffffffe5;
-}
-div[data-colour='blue'] {
-    background-color: #009dffe5;
-}
-div[data-colour='purple'] {
-    background-color: #5b3757e5;
-}
-div[data-colour='dark_green'] {
-    background-color: #566e40e5;
-}
-div[data-colour='red'] {
-    background-color: #ff171be5;
-}
-div[data-colour='light_green'] {
-    background-color: #22ea88e5;
-}
-div[data-colour='yellow'] {
-    background-color: #ecef40e5;
 }

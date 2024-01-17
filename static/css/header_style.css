@@ -1,7 +1,7 @@
-header {
+/* header {
     position: relative;
     border-bottom: 1px solid black;
-    height: 165px;
+    min-height: 140px;
     overflow: hidden;
     background-color: #707070;
 }
@@ -55,4 +55,35 @@ li a.active {
     );
     color: white;
     font-weight: bolder;
+} */
+
+.header-icon {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+}
+
+header {
+    min-height: 150px;
+}
+
+header h1 {
+    display: flex;
+    margin: 0;
+    text-align: center;
+}
+header h1 p {
+    margin: 0;
+    margin-left: 5px;
+    line-height: 1lh;
+}
+
+.header-nav-bar {
+    display: grid;
+    grid-template-columns: 
+        repeat(auto-fill, 200px);
+}
+
+.header-nav-bar a {
+    float: left;
 }

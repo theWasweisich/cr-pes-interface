@@ -71,7 +71,6 @@ function setup() {
             event_listener(ev);
         }, true);
         set_data(crepe);
-        set_color(crepe);
         (crepe.querySelector('[type="price"]') as HTMLElement).innerHTML = formatter.format(Number(crepe.getAttribute('data-preis')))
     });
 }

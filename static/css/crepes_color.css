@@ -1,0 +1,15 @@
+div[data-color="white"] {
+    background-color: var(--clr-crepe-white);
+}
+div[data-color="blue"] {
+    background-color: var(--clr-crepe-blue);
+}
+div[data-color="purple"] {
+    background-color: var(--clr-crepe-purple);
+}
+div[data-color="green"] {
+    background-color: var(--clr-crepe-green);
+}
+div[data-color="yellow"] {
+    background-color: var(--clr-crepe-yellow);
+}

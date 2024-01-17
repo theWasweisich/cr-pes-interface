@@ -1,4 +1,5 @@
 @import url(/static/css/header_style.css);
+@import url(/static/css/crepes_color.css);
 
 ::-webkit-scrollbar {
     display: block !important;
@@ -40,18 +41,12 @@ html, body {
     padding: 5%;
 }
 
-#content {
-    margin-right: 400px;
-}
-
 #main input[type="number"] {
     background-color: white;
 }
 
-.crepe_container {
-    margin: 5px;
-    padding: 15px;
-    background-color: rgba(0, 0, 0, 0.2);
+#content {
+    margin-right: 400px;
 }
 
 
@@ -155,6 +150,9 @@ End Sell Buttons
 
 .crepe_container {
     border: 1px solid black;
+    margin: 5px;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 #content {
@@ -168,26 +166,12 @@ End Sell Buttons
 
 #main {
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns:
+        repeat(auto-fill, minmax(300px, auto));
     gap: 15px;
 }
 
 #main::before,
 #main::after {
     content: none;
-}
-
-/*
-
-Für wenn der Bildschirm zu klein ist:
-
-*/
-
-@media (max-width: 900px) {
-    body {
-        display: none;
-    }
-    html::after {
-        content: "Sorry, zu klein!";
-    }
 }
