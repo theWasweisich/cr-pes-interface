@@ -1,4 +1,3 @@
-var creation_dialog = document.getElementById("shift_creator");
 var edit_dialog = document.getElementById("shift_editor");
 function run_on_startup() {
     var shift_list = document.getElementById("shift_list");
@@ -95,7 +94,6 @@ function creation_manager() {
     var shift_name = document.getElementById("shift_name");
     var shift_start = document.getElementById("time_start");
     var shift_duration = document.getElementById("duration");
-    var form = creation_dialog.getElementsByTagName("form")[0];
     var name = shift_name.value;
     var start = shift_start.value;
     var duration = shift_duration.value;
@@ -113,20 +111,42 @@ function creation_manager() {
     console.log("Start-Typ: ".concat(typeof (start)));
     console.log("Shift-Duration: ".concat(duration));
     console.groupEnd();
-    form.reset();
-    creation_dialog.close();
 }
+var Dialogs = /** @class */ (function () {
+    function Dialogs() {
+        this.root_dialog = document.getElementById("shift_editor");
+        this.closer = document.getElementById("dialog_close");
+        this.submitter = document.getElementById("dialog_create");
+        this.duration_range = document.getElementById("duration");
+        this.duration_input = document.getElementById("duration_2");
+    }
+    Dialogs.prototype.switch_type = function (dialog_type) {
+        var title = this.root_dialog.querySelector('h2[ctype="header"]');
+        switch (dialog_type) {
+            case "creator": {
+                console.log("Moin");
+                title.innerText = "Neue Schicht erstellen";
+                this.submitter.innerText = "Erstellen";
+            }
+            case "editor": {
+                title.innerText = "Schicht Bearbeiten";
+                this.submitter.innerText = "Bearbeiten";
+            }
+        }
+    };
+    return Dialogs;
+}());
 function prepare_dialog() {
     var opener = document.getElementById("open_creator");
     var closer = document.getElementById("dialog_close");
     var submitter = document.getElementById("dialog_create");
     var duration_range = document.getElementById("duration");
     opener.addEventListener('click', function () {
-        creation_dialog.showModal();
+        edit_dialog.showModal();
     });
     closer.addEventListener('click', function () {
-        creation_dialog.getElementsByTagName("form")[0].reset();
-        creation_dialog.close();
+        edit_dialog.getElementsByTagName("form")[0].reset();
+        edit_dialog.close();
     });
     submitter.addEventListener('click', function () {
         creation_manager();
@@ -141,22 +161,11 @@ function prepare_dialog() {
     });
 }
 prepare_dialog();
-function func_editDialog(elem) {
-    var name_elem = document.querySelector('p[data-type="name"]');
-    var start_elem = document.querySelector('p[data-type="start"]');
-}
-function open_close_edit_dialog(elem) {
-    if (edit_dialog.open) {
-        console.log("Handle Input");
-        edit_dialog.close();
-    }
-    else {
-        edit_dialog.showModal();
-    }
-}
-var dialogs = document.getElementsByTagName("dialog");
-var _loop_1 = function (i) {
-    var dialog = dialogs[i];
+/**
+ * Makes Dialog closing work
+ */
+function dialog_outside_wrapper() {
+    var dialog = edit_dialog;
     dialog.addEventListener('click', function (event) {
         var rect = dialog.getBoundingClientRect();
         var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
@@ -169,10 +178,9 @@ var _loop_1 = function (i) {
             }, 500);
         }
     });
-};
-/**
- * Makes Dialogs work
- */
-for (var i = 0; i < dialogs.length; i++) {
-    _loop_1(i);
 }
+dialog_outside_wrapper();
+/**
+ * 1 Dialog für erstellen & bearbeiten. C-Type attribute, um den Text / die Funktion
+ * entsprechend zu ändern
+ */

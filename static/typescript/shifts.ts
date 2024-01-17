@@ -1,5 +1,5 @@
-var creation_dialog = document.getElementById("shift_creator") as HTMLDialogElement
 var edit_dialog = document.getElementById("shift_editor") as HTMLDialogElement
+type dialogType = "creator" | "editor";
 
 function run_on_startup() {
     var shift_list = document.getElementById("shift_list") as HTMLElement
@@ -118,7 +118,6 @@ function creation_manager() {
     const shift_name = document.getElementById("shift_name") as HTMLInputElement
     const shift_start = document.getElementById("time_start") as HTMLInputElement
     const shift_duration = document.getElementById("duration") as HTMLInputElement
-    var form = creation_dialog.getElementsByTagName("form")[0] as HTMLFormElement
 
     var name = shift_name.value
     var start = shift_start.value
@@ -141,19 +140,37 @@ function creation_manager() {
     console.log(`Shift-Duration: ${duration}`)
     console.groupEnd()
 
-    form.reset()
-    creation_dialog.close()
-
 }
 
-class PrepareDialog {
-    opener: HTMLButtonElement
+
+class Dialogs {
+    root_dialog: HTMLDialogElement
     closer: HTMLButtonElement
     submitter: HTMLButtonElement
     duration_range: HTMLInputElement
+    duration_input: HTMLInputElement
+    
+    constructor() {
+        this.root_dialog = document.getElementById("shift_editor") as HTMLDialogElement
+        this.closer = document.getElementById("dialog_close") as HTMLButtonElement
+        this.submitter = document.getElementById("dialog_create") as HTMLButtonElement
+        this.duration_range = document.getElementById("duration") as HTMLInputElement
+        this.duration_input = document.getElementById("duration_2") as HTMLInputElement
+    }
 
-    constructor(root: HTMLDialogElement) {
-        
+    switch_type(dialog_type: dialogType) {
+        var title = this.root_dialog.querySelector('h2[ctype="header"]') as HTMLElement
+        switch (dialog_type) {
+            case "creator": {
+                console.log("Moin")
+                title.innerText = "Neue Schicht erstellen";
+                this.submitter.innerText = "Erstellen";
+            }
+            case "editor": {
+                title.innerText = "Schicht Bearbeiten";
+                this.submitter.innerText = "Bearbeiten";
+            }
+        }
     }
 }
 
@@ -164,12 +181,12 @@ function prepare_dialog() {
     const duration_range = document.getElementById("duration") as HTMLInputElement
     
     opener.addEventListener('click', function() {
-        creation_dialog.showModal()
+        edit_dialog.showModal()
     })
     
     closer.addEventListener('click', function() {
-        creation_dialog.getElementsByTagName("form")[0].reset()
-        creation_dialog.close()
+        edit_dialog.getElementsByTagName("form")[0].reset()
+        edit_dialog.close()
     })
 
     submitter.addEventListener('click', function() {
@@ -190,13 +207,12 @@ function prepare_dialog() {
 
 prepare_dialog()
 
-const dialogs = document.getElementsByTagName("dialog")
 
 /**
- * Makes Dialogs work
+ * Makes Dialog closing work
  */
-for (let i = 0; i < dialogs.length; i++) {
-    const dialog = dialogs[i];
+function dialog_outside_wrapper() {
+    const dialog = edit_dialog;
     
     dialog.addEventListener('click', function(event) {
         var rect = dialog.getBoundingClientRect()
@@ -211,6 +227,7 @@ for (let i = 0; i < dialogs.length; i++) {
         }
     })
 }
+dialog_outside_wrapper()
 
 /**
  * 1 Dialog für erstellen & bearbeiten. C-Type attribute, um den Text / die Funktion

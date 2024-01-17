@@ -53,7 +53,7 @@
 
     <div id="shift_list">
         {% for shift in shifts %}
-        <div class="shift_card" onclick="open_close_edit_dialog(this);">
+        <div class="shift_card">
             <p data-type="name">{{ shift["shift_name"] }}</p>
             <p data-type="start" hidden>{{ shift["time_start"] }}</p>
             <p data-type="elapsed">In: </p>
