@@ -31,20 +31,20 @@
     
     <header>
         <h1>
-            <span class="icon material-symbols-outlined">settings</span>
+            <span class="header-icon">settings</span>
             <p>Einstellungen</p>
         </h1>
-        <ul>
-            <li><a href="/" class="active">Kasse</a></li>
-            <li><a href="/einstellungen">Einstellungen</a></li>
-            <li><a href="/schichten">Schichten</a></li>
+        <div class="header-nav-bar">
+            <a href="/" class="active">Kasse</a>
+            <a href="/einstellungen">Einstellungen</a>
+            <a href="/schichten">Schichten</a>
         </ul>
 
     </header>
 
-    <div id="side_nav" style="width: 25%">
+    <div id="side_nav">
         
-        <p class="w3-bar-item">Bestellung<span class="collapse_sidemenu w3-button"><a href="/help_page"><span class="material-symbols-outlined">question_mark</span></a></span></p>
+        <p class="side-nav-menu">Bestellung<span class="collapse_sidemenu"><a href="/help_page"><span class="material-symbols-outlined">question_mark</span></a></span></p>
         
         <div id="sell_buttons">
             <button data-function="payed">Bezahlt</button>
@@ -67,7 +67,7 @@
     <div id="content">
         <div id="main" class="w3-container">
             {% for crepe in crepes %}
-            <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-colour="{{ crepe['colour'] }}" data-id="{{ crepe['id'] }}" onload="set_data(this);">
+            <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-color="{{ crepe['colour'] }}" data-id="{{ crepe['id'] }}" onload="set_data(this);">
                 <div class="crepecontrol">
                     <button>-</button>
                     <button>+</button>

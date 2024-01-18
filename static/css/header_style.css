@@ -1,7 +1,49 @@
+.header-icon {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+}
+
 header {
+    background-color: var(--clr-primary-surface);
+    border-bottom: 5px solid black;
+    position: relative;
+    min-height: 150px;
+    align-content: center;
+    padding: 20px 10px;
+}
+
+header h1 {
+    display: flex;
+    margin: 0;
+}
+header h1 p {
+    margin: 0;
+    margin-left: 5px;
+    line-height: 1lh;
+}
+
+.header-nav-bar {
+    /* display: grid;
+    grid-template-columns: 
+        repeat(auto-fit, 200px); */
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.header-nav-bar a {
+    float: left;
+    padding: 15px;
+    text-decoration: none;
+}
+
+
+
+/* header {
     position: relative;
     border-bottom: 1px solid black;
-    height: 165px;
+    min-height: 140px;
     overflow: hidden;
     background-color: #707070;
 }
@@ -55,4 +97,4 @@ li a.active {
     );
     color: white;
     font-weight: bolder;
-}
+} */

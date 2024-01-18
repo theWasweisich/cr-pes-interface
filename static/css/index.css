@@ -1,4 +1,5 @@
 @import url(/static/css/header_style.css);
+@import url(/static/css/colors.css);
 
 ::-webkit-scrollbar {
     display: block !important;
@@ -20,10 +21,11 @@ html, body {
 
 
 #side_nav {
-    width: 400px !important; /* Wenn das geändert wird, auch bei .content ändern! */
+    width: 25% !important; /* Wenn das geändert wird, auch bei .content ändern! */
     border-left: 5px solid black;
+    padding: 5px;
     border-bottom: 5px solid black;
-    background-color: darkgray;
+    background-color: var(--clr-primary-surface);
     position: relative;
     float: right;
 }
@@ -35,23 +37,21 @@ html, body {
     border-bottom: 1px solid;
 }
 
+.side-nav-menu {
+    font-size: x-large;
+}
+
 
 #main {
     padding: 5%;
-}
-
-#content {
-    margin-right: 400px;
 }
 
 #main input[type="number"] {
     background-color: white;
 }
 
-.crepe_container {
-    margin: 5px;
-    padding: 15px;
-    background-color: rgba(0, 0, 0, 0.2);
+#content {
+    margin-right: 25%;
 }
 
 
@@ -63,12 +63,6 @@ html, body {
 
 a[href="/einstellungen"] {
     text-decoration: none;
-}
-
-.collapse_sidemenu {
-    position: absolute;
-    top: 20px;
-    right: 20px;
 }
 
 .crepecontrol {
@@ -128,16 +122,12 @@ table td + td {
 Start Sell Buttons
 */
 
-#sell_buttons * {
-    width: 25%;
+#sell_buttons button {
+    width: fit-content;
     height: 50px;
     display: block;
     margin: 5px;
     text-wrap: pretty;
-}
-
-button[data-function="own_consumption"] {
-    width: 50% !important;
 }
 
 #sell_buttons *:hover {
@@ -147,6 +137,7 @@ button[data-function="own_consumption"] {
 #sell_buttons {
     margin: 5%;
     display: flex;
+    flex-wrap: wrap;
 }
 
 /*
@@ -155,6 +146,9 @@ End Sell Buttons
 
 .crepe_container {
     border: 1px solid black;
+    margin: 5px;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 #content {
@@ -168,26 +162,12 @@ End Sell Buttons
 
 #main {
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns:
+        repeat(auto-fit, minmax(350px, auto));
     gap: 15px;
 }
 
 #main::before,
 #main::after {
     content: none;
-}
-
-/*
-
-Für wenn der Bildschirm zu klein ist:
-
-*/
-
-@media (max-width: 900px) {
-    body {
-        display: none;
-    }
-    html::after {
-        content: "Sorry, zu klein!";
-    }
 }
