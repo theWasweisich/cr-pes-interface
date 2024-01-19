@@ -217,7 +217,7 @@ function create_crepe() {
 /**
  * **Bitte save_changes() benutzen**
  */
-function send_to_server() {
+function send_settings_to_server() {
     return __awaiter(this, void 0, void 0, function () {
         function send_delete() {
             return __awaiter(this, void 0, void 0, function () {
@@ -384,7 +384,7 @@ function save_changes() {
                 case 0:
                     console.warn("Folgendes wird versandt: ");
                     console.warn(send_to_server_list);
-                    return [4 /*yield*/, send_to_server()];
+                    return [4 /*yield*/, send_settings_to_server()];
                 case 1:
                     res = _a.sent();
                     if (res) {

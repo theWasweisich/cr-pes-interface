@@ -15,6 +15,10 @@ class Crêpe2 {
         this.amount = amount;
         this.root_element = root_element;
     }
+
+    public toString() {
+        return `${this.crepeId};${this.name};${this.preis};${this.amount}`
+    }
 }
 
 function set_data(root_element: HTMLElement, crepeId?: string, crepeName?: string, crepePreis?: number) {

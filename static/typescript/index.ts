@@ -105,6 +105,14 @@ class Table {
 
     items: Crêpe2[] = [];
 
+    /**
+     * 
+     * @returns The Crêpes that have been sold
+     */
+    return_for_sending(): Crêpe2[] {
+        return this.items
+    }
+
     private update_total_value() {
         var total_heading = this.table.parentElement.getElementsByTagName("h2")[0]
         var total_elem = total_heading.children[0] as HTMLElement

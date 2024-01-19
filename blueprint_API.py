@@ -1,6 +1,6 @@
 from ast import literal_eval
-from email.policy import strict
-from operator import truediv
+from typing import Any
+import uuid
 import flask
 from flask import (
     Blueprint,
@@ -9,18 +9,156 @@ from flask import (
 from flask_cors import cross_origin
 import logging
 import sqlite3
-
-from numpy import number
 import status
 
-from datetime import date, datetime
+from datetime import datetime
 import json
 import os
 
-changes = {}
-
-
 api_bp = Blueprint('api_bp', __name__)
+
+class Shift_Class():
+    """The Shift Class represents one shift
+    """
+    def __init__(self, id: int, name: str, start: datetime, end: datetime, staff: list[str], shift_uuid: str) -> None:
+        """Create a shift class
+
+        Args:
+            id (int): The ID
+            start (datetime): the start time
+            end (datetime): the end time
+            staff (list[str]): the staff names
+        """
+        self.id = id
+        self.name = name
+        self.start = start
+        self.end = end
+        self.staff = staff
+        self.uuid = shift_uuid
+    
+    def get_staff(self):
+        return self.staff
+    
+    def __repr__(self) -> str:
+        return f"Schicht ID: {self.id}; Schicht Start: {self.start.strftime("%d-%m-%Y %H:%M:%S")}; Schicht Ende: {self.end.strftime("%d-%m-%Y %H:%M:%S")}; Schicht Helfer: {self.staff}"
+
+class Crepes_Class():
+    def __init__(self, id: int, name: str, price: float, ingredients: list[str], color: str) -> None:
+        self.id = id
+        self.name = name
+        self.price = price
+        self.ingredients = ingredients
+        self.color = color
+    
+    def get_in_str(self):
+        data = json.dumps((self.id, self.name, self.price, self.ingredients, self.color))
+        return data
+    
+    def return_as_dict(self):
+        return {"id": self.id,
+         "name": self.name,
+         "price": self.price,
+         "ingredients": json.dumps(self.ingredients),
+         "colour": self.color
+         }
+
+
+
+def get_current_shift() -> Shift_Class | None:
+    now = datetime.now()
+
+    current: Shift_Class | None = None
+
+    shifts = get_shifts()
+
+    if shifts == None:
+        return None
+
+    for shift in shifts:
+        start = datetime.fromisoformat(shift.start.isoformat())
+        end = datetime.fromisoformat(shift.end.isoformat())
+
+        if start <= now <= end:
+            current = shift
+            break
+    return current
+
+def get_shifts() -> list[Shift_Class] | None:
+    con, cur = get_db()
+    cur.execute('SELECT * FROM shifts')
+    shifts_res = cur.fetchall()
+    con.close()
+
+    every_shift: list[Shift_Class] = []
+
+    for shift in shifts_res:
+        shift_id = shift[0]
+        shift_start = datetime.fromisoformat(shift[1])
+        shift_end = datetime.fromisoformat(shift[2])
+        shift_name = str(shift[3])
+        shift_staff = shift[4].split(",")
+
+        every_shift.append(Shift_Class(shift_id, shift_name, shift_start, shift_end, shift_staff, ""))
+
+    if len(every_shift) < 1:
+        return None
+    return every_shift
+
+def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]] | None:
+    con, cur = get_db()
+
+    cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
+    crêpes_res = cur.fetchall()
+    con.close()
+
+    res_crêpes: list[Crepes_Class] | None = []
+    as_dict_list: list[dict[str, str]] | None = []
+
+    if as_dict:
+        for crepe in crêpes_res:
+            as_dict_list.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), literal_eval(crepe[3]), crepe[4]).return_as_dict())
+    else:
+        for crepe in crêpes_res:
+            res_crêpes.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), literal_eval(crepe[3]), crepe[4]))
+
+    if (len(as_dict_list) == 0):
+        as_dict_list = None
+
+    if (len(res_crêpes) == 0):
+        res_crêpes = None
+
+    if (as_dict):
+        return as_dict_list
+    else:
+        return res_crêpes
+
+def create_shift(shift_start: str, shift_end: str, shift_name: str, shift_staff: str):
+    """Creates a new shift
+
+    Args:
+        shift_start (str): ISO Time String of start time
+        shift_end (str): ISO Time String of end time
+        shift_name (str): The Name of the shift (optional)
+        shift_staff (str): A JSON encoded string of a list of all the staff's name
+    """
+    shift_uuid = uuid.UUID().hex
+    con, cur = get_db()
+
+    cur.execute("SELECT (time_start, time_end) FROM shifts")
+    for shift in cur.fetchall():
+        if shift[0] == shift_start or shift[1] == shift_end:
+            raise ShiftAlreadyExists
+    
+    cur.execute("INSERT INTO shifts (time_start, time_end, shift_name, staff, uuid) VALUES (?, ?, ?, ?, ?);", (
+        shift_start,
+        shift_end,
+        shift_name,
+        shift_staff,
+        shift_uuid
+    ))
+
+    con.commit(); con.close()
+
 
 @api_bp.route("/")
 def index():
@@ -170,6 +308,8 @@ def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     return (conn, cur)
 
 
+class ShiftAlreadyExists(Exception):
+    pass
 
 
 

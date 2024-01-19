@@ -205,7 +205,7 @@ function create_crepe(): boolean {
 /**
  * **Bitte save_changes() benutzen**
  */
-async function send_to_server(): Promise<boolean> {
+async function send_settings_to_server(): Promise<boolean> {
     console.log("Speichern");
     
 
@@ -297,7 +297,7 @@ async function send_to_server(): Promise<boolean> {
 async function save_changes(): Promise<boolean> {
     console.warn("Folgendes wird versandt: ");
     console.warn(send_to_server_list)
-    const res = await send_to_server();
+    const res = await send_settings_to_server();
     if (res) {
         setTimeout(function () {
             location.reload()
