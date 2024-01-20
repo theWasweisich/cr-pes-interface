@@ -97,7 +97,6 @@ function setup() {
             event_listener(ev);
         }, true);
         set_data(crepe);
-        set_color(crepe);
         crepe.querySelector('[type="price"]').innerHTML = formatter.format(Number(crepe.getAttribute('data-preis')));
     });
 }
@@ -141,6 +140,13 @@ var Table = /** @class */ (function () {
         this.table = document.getElementById("crepe_table");
         this.items = [];
     }
+    /**
+     *
+     * @returns The Crêpes that have been sold
+     */
+    Table.prototype.return_for_sending = function () {
+        return this.items;
+    };
     Table.prototype.update_total_value = function () {
         var total_heading = this.table.parentElement.getElementsByTagName("h2")[0];
         var total_elem = total_heading.children[0];

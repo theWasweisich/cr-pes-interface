@@ -32,7 +32,8 @@ import user_handling
 import os
 from dotenv import load_dotenv
 
-from blueprint_API import api_bp
+from blueprint_API import (api_bp, get_crepes, Crepes_Class)
+
 
 user_handling.load_users()
 
@@ -43,52 +44,20 @@ app = Flask(__name__)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
-load_dotenv(".env")
+load_dotenv()
 
-secret = os.getenv('SECRET_KEY')
-app.secret_key = secret
+app.secret_key = os.getenv('SECRET_KEY')
 app.permanent_session_lifetime = timedelta(minutes=5)
 
-del secret
 
-
-con = sqlite3.connect('datenbank.db')
-cur = con.cursor()
-del con
-
-cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
-crêpes_res = cur.fetchall()
-
-cur.execute('SELECT * FROM shifts')
-shifts_res = cur.fetchall()
-del cur
-
-
-crêpes: list[dict[str, Any]] = []
+crêpes: list[Crepes_Class] | list[dict[str, str]] | None = get_crepes(as_dict=True)
+if crêpes == None | type(crêpes) == list[Crepes_Class]:
+    crêpes = []
 
 
 
+shifts = []
 
-for crepe in crêpes_res:
-    crêpes.append(
-        {"id": crepe[0],
-         "name": crepe[1],
-         "price": crepe[2],
-         "ingredients": literal_eval(crepe[3]),
-         "colour": crepe[4]
-         }
-    )
-
-shifts: list[dict[str, Any]] = []
-for shift in shifts_res:
-    shifts.append(
-        {"id": shift[0],
-         "time_start": shift[1],
-         "time_end": shift[2],
-         "shift_name": shift[3],
-         "staff": shift[4]
-         }
-    )
 
 global sales
 sales: list = []

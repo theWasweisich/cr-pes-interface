@@ -7,94 +7,36 @@
 header {
     background-color: var(--clr-primary-surface);
     border-bottom: 5px solid black;
-    position: relative;
-    min-height: 150px;
-    align-content: center;
-    padding: 20px 10px;
+    display: grid !important;
+    grid-template-columns: 1fr min-content;
+    padding: 1.5rem;
+
+    > h1 > span , p {
+        float: left;
+    }
+
+    > h1 > p {
+        margin: 0;
+        margin-left: 0.25rem;
+    }
+
+    > .header-nav-bar {
+        display: grid;
+        grid-template-rows: 1fr 1fr 1fr;
+        gap: .5em;
+
+        > a {
+            text-decoration: none;
+            padding-block: 5px;
+            padding-inline: 2px;
+            text-align: center;
+            text-transform: uppercase;
+            
+            outline: rgb(92, 92, 92) solid 2px;
+        }
+    }
 }
 
-header h1 {
-    display: flex;
-    margin: 0;
+#clock {
+    float:none;
 }
-header h1 p {
-    margin: 0;
-    margin-left: 5px;
-    line-height: 1lh;
-}
-
-.header-nav-bar {
-    /* display: grid;
-    grid-template-columns: 
-        repeat(auto-fit, 200px); */
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-
-.header-nav-bar a {
-    float: left;
-    padding: 15px;
-    text-decoration: none;
-}
-
-
-
-/* header {
-    position: relative;
-    border-bottom: 1px solid black;
-    min-height: 140px;
-    overflow: hidden;
-    background-color: #707070;
-}
-
-header p {
-    display: inline-block;
-}
-
-header h1 {
-    height: 50%;
-    margin: 0 !important;
-    text-align: center;
-}
-
-header ul {
-    width: max-content;
-    position: relative;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    top: 50%;
-    transform: translateY(-100%);
-    overflow: hidden;
-
-    border-top: 1px solid black;
-    border-right: 1px solid black;
-}
-
-li {
-    float: left;
-}
-li a {
-    text-decoration: none;
-    color: black;
-    display: block;
-    padding: 8px;
-    background-color: #575757;
-}
-li:hover a {
-    color: #dddddd;
-    background-color: black;
-}
-
-li a.active {
-    background: repeating-linear-gradient(
-        45deg,
-        #ff0000,
-        #ff0000 10px,
-        #000000 10px,
-        #000000 20px
-    );
-    color: white;
-    font-weight: bolder;
-} */

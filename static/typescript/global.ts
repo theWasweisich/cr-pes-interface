@@ -15,6 +15,10 @@ class Crêpe2 {
         this.amount = amount;
         this.root_element = root_element;
     }
+
+    public toString() {
+        return `${this.crepeId};${this.name};${this.preis};${this.amount}`
+    }
 }
 
 function set_data(root_element: HTMLElement, crepeId?: string, crepeName?: string, crepePreis?: number) {
@@ -35,17 +39,3 @@ const formatter = new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR'
 })
-
-
-function set_color(crepe: HTMLElement) {
-    
-    var attr = crepe.getAttribute('data-colour')
-    if (attr == "" || attr == null) {
-        return;
-    }
-    var colors = attr.split(",")
-    var r = colors[0]
-    var g = colors[1]
-    var b = colors[2]
-    crepe.style.backgroundColor = 'rgba(' + r + ',' + g + ',' + b + ', 0.5)'
-}

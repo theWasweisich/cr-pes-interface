@@ -71,7 +71,6 @@ function setup() {
             event_listener(ev);
         }, true);
         set_data(crepe);
-        set_color(crepe);
         (crepe.querySelector('[type="price"]') as HTMLElement).innerHTML = formatter.format(Number(crepe.getAttribute('data-preis')))
     });
 }
@@ -105,6 +104,14 @@ class Table {
     table = document.getElementById("crepe_table") as HTMLTableElement;
 
     items: Crêpe2[] = [];
+
+    /**
+     * 
+     * @returns The Crêpes that have been sold
+     */
+    return_for_sending(): Crêpe2[] {
+        return this.items
+    }
 
     private update_total_value() {
         var total_heading = this.table.parentElement.getElementsByTagName("h2")[0]

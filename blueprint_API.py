@@ -1,6 +1,6 @@
 from ast import literal_eval
-from email.policy import strict
-from operator import truediv
+from typing import Any
+import uuid
 import flask
 from flask import (
     Blueprint,
@@ -9,18 +9,107 @@ from flask import (
 from flask_cors import cross_origin
 import logging
 import sqlite3
-
-from numpy import number
 import status
 
-from datetime import date, datetime
+import datetime
+import pytz
 import json
 import os
 
-changes = {}
-
+time_zone = pytz.timezone("Europe/Berlin")
 
 api_bp = Blueprint('api_bp', __name__)
+
+
+
+class Crepes_Class():
+    def __init__(self, id: int, name: str, price: float, ingredients: list[str], color: str) -> None:
+        self.id = id
+        self.name = name
+        self.price = price
+        self.ingredients = ingredients
+        self.color = color
+    
+    def get_in_str(self):
+        data = json.dumps((self.id, self.name, self.price, self.ingredients, self.color))
+        return data
+    
+    def return_as_dict(self):
+        return {"id": self.id,
+         "name": self.name,
+         "price": self.price,
+         "ingredients": json.dumps(self.ingredients),
+         "colour": self.color
+         }
+
+
+def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]] | None:
+    con, cur = get_db()
+
+    cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
+    crêpes_res = cur.fetchall()
+    con.close()
+
+    res_crêpes: list[Crepes_Class] | None = []
+    as_dict_list: list[dict[str, str]] | None = []
+
+    if as_dict:
+        for crepe in crêpes_res:
+            as_dict_list.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), literal_eval(crepe[3]), crepe[4]).return_as_dict())
+    else:
+        for crepe in crêpes_res:
+            res_crêpes.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), literal_eval(crepe[3]), crepe[4]))
+
+    if (len(as_dict_list) == 0):
+        as_dict_list = None
+
+    if (len(res_crêpes) == 0):
+        res_crêpes = None
+
+    if (as_dict):
+        return as_dict_list
+    else:
+        return res_crêpes
+
+def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: str, shift_staff: str):
+    """Creates a new shift
+
+    Args:
+        shift_date (str): ISO Date String of shift
+        shift_start (str): ISO Time String of start time
+        shift_end (str): ISO Time String of end time
+        shift_name (str): The Name of the shift (optional)
+        shift_staff (str): A JSON encoded string of a list of all the staff's name
+    """
+    shift_uuid = uuid.uuid4()
+    con, cur = get_db()
+
+    # date format: 'jjjj-mm-dd' || time format: 'HH:MM:SS'
+
+    date = datetime.date.fromisoformat(shift_date)
+    s_time = datetime.time.fromisoformat(shift_start)
+    e_time = datetime.time.fromisoformat(shift_end)
+
+    cur.execute("SELECT id FROM shifts WHERE date = ? AND time_start = ? AND time_end = ?", (
+        date.isoformat(),
+        s_time.isoformat(timespec='seconds'),
+        e_time.isoformat(timespec='seconds')
+    ))
+    if cur.fetchone != ():
+        raise ShiftAlreadyExists
+    
+    
+    cur.execute("INSERT INTO shifts (date, time_start, time_end, shift_name, staff, uuid) VALUES (?, ?, ?, ?, ?);", (
+        date.strftime("%Y-%m-%d"),
+        s_time.isoformat(timespec='seconds'),
+        e_time.isoformat(timespec='seconds'),
+        shift_name.strip("\\").strip("'").strip('"'),
+        json.dumps(shift_staff),
+        shift_uuid
+    ))
+
+    con.commit(); con.close()
+
 
 @api_bp.route("/")
 def index():
@@ -141,27 +230,46 @@ def delete_crepe():
     con.close()
     return {"status": "success"}
 
-@api_bp.route("/new_sale", methods=("POST",))
-@cross_origin()
-def receive_sales():
-    logging.info(">> Got sales!")
 
-    data = request.json
-    if type(data) != str:
-        return {"status": "failed"}
 
-    logging.info(f'Data: {data}')
+@cross_origin
+@api_bp.route("/sold", methods=("POST",))
+def crepe_sold():
+    con, cur = get_db()
+    try:
+        data = request.json
+        if (data == None):
+            return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
+        
+        logging.debug(f"New Crêpes: {data}")
 
-    date_today = datetime.now().strftime("%d.%m.%Y")
-    file_path = f'sales/{date_today}.json'
 
-    if os.path.isfile(file_path):
-        with open(file_path, "+", encoding="UTF-8") as f:
-            sales = json.load(f)
-            sales.append({datetime.now().isoformat(): json.loads(data)})
-            json.dump(sales, f)
+        to_db: list[tuple] = []
 
-    return {"status": "success"}
+        now_time = datetime.datetime.now().isoformat()
+
+        for crepe in data:
+
+            cID = crepe["crepeId"]
+            cNAME = crepe["name"]
+            cPREIS = crepe["preis"]
+            cAMOUNT = crepe["amount"]
+
+
+            to_db.append((cNAME, cAMOUNT, cPREIS, now_time))
+
+            logging.info(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
+
+        cur.executemany("INSERT INTO sales (crepe, amount, price, time) VALUES (? ? ? ?)", to_db)
+
+
+        con.commit()
+    except Exception as e:
+        logging.exception(e)
+        con.close()
+        return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+    con.close()
+    return {"status": "success"}, status.HTTP_200_OK
 
 
 def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
@@ -170,6 +278,8 @@ def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     return (conn, cur)
 
 
+class ShiftAlreadyExists(Exception):
+    pass
 
 
 
