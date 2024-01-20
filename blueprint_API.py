@@ -11,36 +11,16 @@ import logging
 import sqlite3
 import status
 
-from datetime import datetime
+import datetime
+import pytz
 import json
 import os
 
+time_zone = pytz.timezone("Europe/Berlin")
+
 api_bp = Blueprint('api_bp', __name__)
 
-class Shift_Class():
-    """The Shift Class represents one shift
-    """
-    def __init__(self, id: int, name: str, start: datetime, end: datetime, staff: list[str], shift_uuid: str) -> None:
-        """Create a shift class
 
-        Args:
-            id (int): The ID
-            start (datetime): the start time
-            end (datetime): the end time
-            staff (list[str]): the staff names
-        """
-        self.id = id
-        self.name = name
-        self.start = start
-        self.end = end
-        self.staff = staff
-        self.uuid = shift_uuid
-    
-    def get_staff(self):
-        return self.staff
-    
-    def __repr__(self) -> str:
-        return f"Schicht ID: {self.id}; Schicht Start: {self.start.strftime("%d-%m-%Y %H:%M:%S")}; Schicht Ende: {self.end.strftime("%d-%m-%Y %H:%M:%S")}; Schicht Helfer: {self.staff}"
 
 class Crepes_Class():
     def __init__(self, id: int, name: str, price: float, ingredients: list[str], color: str) -> None:
@@ -62,47 +42,6 @@ class Crepes_Class():
          "colour": self.color
          }
 
-
-
-def get_current_shift() -> Shift_Class | None:
-    now = datetime.now()
-
-    current: Shift_Class | None = None
-
-    shifts = get_shifts()
-
-    if shifts == None:
-        return None
-
-    for shift in shifts:
-        start = datetime.fromisoformat(shift.start.isoformat())
-        end = datetime.fromisoformat(shift.end.isoformat())
-
-        if start <= now <= end:
-            current = shift
-            break
-    return current
-
-def get_shifts() -> list[Shift_Class] | None:
-    con, cur = get_db()
-    cur.execute('SELECT * FROM shifts')
-    shifts_res = cur.fetchall()
-    con.close()
-
-    every_shift: list[Shift_Class] = []
-
-    for shift in shifts_res:
-        shift_id = shift[0]
-        shift_start = datetime.fromisoformat(shift[1])
-        shift_end = datetime.fromisoformat(shift[2])
-        shift_name = str(shift[3])
-        shift_staff = shift[4].split(",")
-
-        every_shift.append(Shift_Class(shift_id, shift_name, shift_start, shift_end, shift_staff, ""))
-
-    if len(every_shift) < 1:
-        return None
-    return every_shift
 
 def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]] | None:
     con, cur = get_db()
@@ -132,28 +71,40 @@ def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str
     else:
         return res_crêpes
 
-def create_shift(shift_start: str, shift_end: str, shift_name: str, shift_staff: str):
+def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: str, shift_staff: str):
     """Creates a new shift
 
     Args:
+        shift_date (str): ISO Date String of shift
         shift_start (str): ISO Time String of start time
         shift_end (str): ISO Time String of end time
         shift_name (str): The Name of the shift (optional)
         shift_staff (str): A JSON encoded string of a list of all the staff's name
     """
-    shift_uuid = uuid.UUID().hex
+    shift_uuid = uuid.uuid4()
     con, cur = get_db()
 
-    cur.execute("SELECT (time_start, time_end) FROM shifts")
-    for shift in cur.fetchall():
-        if shift[0] == shift_start or shift[1] == shift_end:
-            raise ShiftAlreadyExists
+    # date format: 'jjjj-mm-dd' || time format: 'HH:MM:SS'
+
+    date = datetime.date.fromisoformat(shift_date)
+    s_time = datetime.time.fromisoformat(shift_start)
+    e_time = datetime.time.fromisoformat(shift_end)
+
+    cur.execute("SELECT id FROM shifts WHERE date = ? AND time_start = ? AND time_end = ?", (
+        date.isoformat(),
+        s_time.isoformat(timespec='seconds'),
+        e_time.isoformat(timespec='seconds')
+    ))
+    if cur.fetchone != ():
+        raise ShiftAlreadyExists
     
-    cur.execute("INSERT INTO shifts (time_start, time_end, shift_name, staff, uuid) VALUES (?, ?, ?, ?, ?);", (
-        shift_start,
-        shift_end,
-        shift_name,
-        shift_staff,
+    
+    cur.execute("INSERT INTO shifts (date, time_start, time_end, shift_name, staff, uuid) VALUES (?, ?, ?, ?, ?);", (
+        date.strftime("%Y-%m-%d"),
+        s_time.isoformat(timespec='seconds'),
+        e_time.isoformat(timespec='seconds'),
+        shift_name.strip("\\").strip("'").strip('"'),
+        json.dumps(shift_staff),
         shift_uuid
     ))
 
@@ -279,27 +230,46 @@ def delete_crepe():
     con.close()
     return {"status": "success"}
 
-@api_bp.route("/new_sale", methods=("POST",))
-@cross_origin()
-def receive_sales():
-    logging.info(">> Got sales!")
 
-    data = request.json
-    if type(data) != str:
-        return {"status": "failed"}
 
-    logging.info(f'Data: {data}')
+@cross_origin
+@api_bp.route("/sold", methods=("POST",))
+def crepe_sold():
+    con, cur = get_db()
+    try:
+        data = request.json
+        if (data == None):
+            return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
+        
+        logging.debug(f"New Crêpes: {data}")
 
-    date_today = datetime.now().strftime("%d.%m.%Y")
-    file_path = f'sales/{date_today}.json'
 
-    if os.path.isfile(file_path):
-        with open(file_path, "+", encoding="UTF-8") as f:
-            sales = json.load(f)
-            sales.append({datetime.now().isoformat(): json.loads(data)})
-            json.dump(sales, f)
+        to_db: list[tuple] = []
 
-    return {"status": "success"}
+        now_time = datetime.datetime.now().isoformat()
+
+        for crepe in data:
+
+            cID = crepe["crepeId"]
+            cNAME = crepe["name"]
+            cPREIS = crepe["preis"]
+            cAMOUNT = crepe["amount"]
+
+
+            to_db.append((cNAME, cAMOUNT, cPREIS, now_time))
+
+            logging.info(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
+
+        cur.executemany("INSERT INTO sales (crepe, amount, price, time) VALUES (? ? ? ?)", to_db)
+
+
+        con.commit()
+    except Exception as e:
+        logging.exception(e)
+        con.close()
+        return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+    con.close()
+    return {"status": "success"}, status.HTTP_200_OK
 
 
 def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:

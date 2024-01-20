@@ -32,12 +32,7 @@ import user_handling
 import os
 from dotenv import load_dotenv
 
-from blueprint_API import (api_bp, 
-                           get_crepes, 
-                           get_shifts, 
-                           get_current_shift,
-                           Crepes_Class,
-                           Shift_Class)
+from blueprint_API import (api_bp, get_crepes, Crepes_Class)
 
 
 user_handling.load_users()
@@ -60,9 +55,8 @@ if crêpes == None | type(crêpes) == list[Crepes_Class]:
     crêpes = []
 
 
-shifts: list[Shift_Class] | None = get_shifts()
-if shifts == None:
-    shifts = []
+
+shifts = []
 
 
 global sales

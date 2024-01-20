@@ -32,56 +32,82 @@
     
     <header>
         <h1>
-            <span class="header-icon">settings</span>
-            <p>Einstellungen</p>
+            <span class="header-icon">point_of_sale</span>
+            <p>Kasse</p>
         </h1>
         <div class="header-nav-bar">
-            <a href="/" class="active">Kasse</a>
-            <a href="/einstellungen">Einstellungen</a>
-            <a href="/schichten">Schichten</a>
-        </ul>
+            <a class="crepe-button" href="/" class="active">Kasse</a>
+            <a class="crepe-button" href="/einstellungen">Einstellungen</a>
+            <a class="crepe-button" href="/schichten">Schichten</a>
+        </div>
+        <p id="clock"></p>
+        <script>
+            const clock = document.getElementById("clock");
+
+            function setTime() {
+                var date = new Date();
+    
+                var hours = date.getHours();
+                var mins = date.getMinutes();
+    
+                if (hours < 10) {
+                    var hours = "0" + String(hours);
+                }
+                if (mins < 10) {
+                    var mins = "0" + String(mins);
+                }
+    
+                clock.innerText = `${hours}:${mins} Uhr`;
+            }
+
+            setTime()
+            setInterval(setTime(), 5000)
+        </script>
 
     </header>
 
-    <div id="side_nav">
-        
-        <p class="side-nav-menu">Bestellung<span class="collapse_sidemenu"><a href="/help_page"><span class="material-symbols-outlined">question_mark</span></a></span></p>
-        
-        <div id="sell_buttons">
-            <button data-function="payed">Bezahlt</button>
-            <button data-function="pay_back">Rückgeld</button>
-            <button data-function="own_consumption">Eigenverbrauch</button>
+    <div id="main">
+        <div id="content">
+            <div id="main-content" class="w3-container">
+                {% for crepe in crepes %}
+                <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-color="{{ crepe['colour'] }}" data-id="{{ crepe['id'] }}" onload="set_data(this);">
+                    <div class="crepecontrol">
+                        <button>-</button>
+                        <button>+</button>
+                        <p class="crepes_counter"></p>
+                    </div>
+                    <h4 type="name">{{ crepe['name'] }}</h4>
+                    
+                    <p type="price">[PREIS]</p>
+                </div>
+                {% endfor %}
+            </div>
+    
         </div>
 
-        <h2>Gesamt: <span>0 €</span>
-        </h2>
-        <table id="crepe_table">
-            <tr data-id="XXX">
-                <th>Anzahl</th>
-                <th style="width: 60%;">Art</th>
-                <th>Preis</th>
-            </tr>
-        </table>
-
+        <div id="side_nav">
+            
+            <p class="side-nav-menu">Bestellung<span class="collapse_sidemenu"><a href="/help_page"><span class="material-symbols-outlined">question_mark</span></a></span></p>
+            
+            <div id="sell_buttons">
+                <button data-function="payed">Bezahlt</button>
+                <button data-function="pay_back">Rückgeld</button>
+                <button data-function="own_consumption">Eigenverbrauch</button>
+            </div>
+    
+            <h2>Gesamt: <span>0 €</span>
+            </h2>
+            <table id="crepe_table">
+                <tr data-id="XXX">
+                    <th>Anzahl</th>
+                    <th style="width: 60%;">Art</th>
+                    <th>Preis</th>
+                </tr>
+            </table>
+    
+        </div>
     </div>
     
-    <div id="content">
-        <div id="main" class="w3-container">
-            {% for crepe in crepes %}
-            <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-color="{{ crepe['colour'] }}" data-id="{{ crepe['id'] }}" onload="set_data(this);">
-                <div class="crepecontrol">
-                    <button>-</button>
-                    <button>+</button>
-                    <p class="crepes_counter"></p>
-                </div>
-                <h4 type="name">{{ crepe['name'] }}</h4>
-                
-                <p type="price">[PREIS]</p>
-            </div>
-            {% endfor %}
-        </div>
-
-    </div>
     
 </body>
 
