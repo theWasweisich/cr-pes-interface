@@ -187,39 +187,41 @@ class Table {
      * @returns The new amount of the crêpes
      */
     remove_one_crepe(crepe: Crêpe2) {
+        console.info(`Removing: ${crepe}`)
         if (crepe.amount == 0) {
-            // console.error("Es gibt keinen Crêpe zu entfernen!");
             this.update_total_value()
             return crepe.amount;
+        } else {
+
+            for (let i = 0; i < this.items.length; i++) {
+                const item = this.items[i];
+                
+                if (item != crepe) {
+                    continue;
+                }
+                
+                if (crepe.amount > 1) {
+                    var row = this.table.querySelector(`[data-id="${String(crepe.crepeId)}"]`) // Problems
+                    crepe.amount -= 1;
+                    row.querySelector(`[data-type="amount"]`).innerHTML = crepe.amount.toString()
+                    this.update_total_value()
+                    return crepe.amount;
+                } 
+                else if (crepe.amount == 1) {
+                    this.remove_table_entry(crepe)
+                    crepe.amount = 0;
+                    this.update_total_value()
+                    return crepe.amount;
+                }
+                else {
+                    // console.error("There is no crêpe to remove!");
+                    this.update_total_value()
+                    return;
+                }
+            };
+            // console.error("Da ist wohl was schiefgelaufen")
+            throw Error("Hmm. Da ist wohl was schiefgelaufen")
         }
-        for (let i = 0; i < this.items.length; i++) {
-            const item = this.items[i];
-            
-            if (item != crepe) {
-                continue;
-            }
-            
-            if (crepe.amount > 1) {
-                var row = this.table.querySelector(`[data-id="${String(crepe.crepeId)}"]`) // Problems
-                crepe.amount -= 1;
-                row.querySelector(`[data-type="amount"]`).innerHTML = crepe.amount.toString()
-                this.update_total_value()
-                return crepe.amount;
-            } 
-            else if (crepe.amount == 1) {
-                this.remove_table_entry(crepe)
-                crepe.amount = 0;
-                this.update_total_value()
-                return crepe.amount;
-            }
-            else {
-                // console.error("There is no crêpe to remove!");
-                this.update_total_value()
-                return;
-            }
-        };
-        // console.error("Da ist wohl was schiefgelaufen")
-        throw Error("Hmm. Da ist wohl was schiefgelaufen")
     }
 
     private remove_table_entry(crêpe: Crêpe2) {
@@ -229,11 +231,9 @@ class Table {
     }
 
     remove_all_table_entries() {
-        for (let i = 0; i < this.items.length; i++) {
-            const item = this.items[i];
-
-            this.remove_one_crepe(item)
-        }
+        this.items.forEach(crepe => {
+            document.querySelector(`[data-id="${crepe.crepeId}"]`).remove();
+        })
     }
 }
 

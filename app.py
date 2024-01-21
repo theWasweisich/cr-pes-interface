@@ -184,15 +184,20 @@ def not_found(*args, **kwargs):
     return redirect("/")
 
 @app.before_request
-def make_session_permanent():
+def do_before_request_stuff():
     session.permanent = True
+
+    logger = logging.getLogger("werkzeug")
+    if request.path.startswith("/static"):
+        logger.setLevel(logging.ERROR)
+    else:
+        logger.setLevel(logging.DEBUG)
+
+
 
 @app.after_request
 def after_req(e: flask.Response):
-    # if "static" in request.path:
-    #     logging.debug(f"{request.remote_addr} -- {request.method} {request.path}")
-    #     return e
-    # logging.info(f"{request.remote_addr} -- {request.method} {request.path}")
+
     return e
 
 

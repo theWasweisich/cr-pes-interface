@@ -73,7 +73,7 @@ def authenticate_user(session: SessionMixin, required_level: int)  -> bool:
         bool: If the user has been authenticated
     """
     if 'secret' in session:
-        logging.info("Secret in session")
+        # logging.info("Secret in session")
         user = get_user_from_key(session["secret"])
         if not user:
             return False
@@ -83,6 +83,6 @@ def authenticate_user(session: SessionMixin, required_level: int)  -> bool:
         else:
             return False
     else:
-        logging.info("Secret NOT in session")
+        # logging.info("Secret NOT in session")
         return False
 

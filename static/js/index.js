@@ -207,8 +207,8 @@ var Table = /** @class */ (function () {
      * @returns The new amount of the crêpes
      */
     Table.prototype.remove_one_crepe = function (crepe) {
+        console.info("Removing: ".concat(crepe));
         if (crepe.amount == 0) {
-            // console.error("Es gibt keinen Crêpe zu entfernen!");
             this.update_total_value();
             return crepe.amount;
         }
@@ -246,21 +246,12 @@ var Table = /** @class */ (function () {
         row.remove();
     };
     Table.prototype.remove_all_table_entries = function () {
-        var rows = this.table.getElementsByTagName("tr");
-        console.info(rows);
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            console.debug("Deleting: ".concat(row.innerHTML));
-            if (!(row.hasAttribute("data-id") && row.getAttribute("data-id") == "XXX")) {
-                row.remove();
-            }
-        }
         for (var i = 0; i < this.items.length; i++) {
-            var item = this.items[i];
-            handle_amount_counter(item.root_element, 0);
+            var item = this.items.pop();
+            console.info("Popped Item: ".concat(item));
+            this.remove_table_entry(item);
+            this.update_total_value();
         }
-        this.items = [];
-        this.update_total_value();
     };
     return Table;
 }());
