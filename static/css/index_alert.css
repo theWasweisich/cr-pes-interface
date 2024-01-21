@@ -1,0 +1,17 @@
+#popup-alert {
+    position: absolute;
+    opacity: 0;
+    transition: all 1s ease;
+    bottom: 1em;
+    right: 1em;
+    transform: translateY(2em);
+    border-radius: 1rem;
+    padding-inline: 1em;
+    z-index: 99;
+    background-color: #660000;    
+}
+
+#popup-alert.activate {
+    transform: translateX(0);
+    opacity: 1;
+}
