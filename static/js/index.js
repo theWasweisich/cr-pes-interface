@@ -49,17 +49,15 @@ function button_pressed_action(target, crepes_class, button) {
             var new_value = table.remove_one_crepe(crepes_class);
         }
     }
-    if (button == undefined) {
-        var amount_counter = target.querySelector(".crepecontrol .crepes_counter");
+    handle_amount_counter(target, new_value);
+}
+function handle_amount_counter(root, new_value) {
+    var counter = root.querySelector(".crepecontrol .crepes_counter");
+    if (new_value == 0) {
+        counter.innerHTML = "";
     }
     else {
-        var amount_counter = button.parentElement.getElementsByTagName("p")[0];
-    }
-    if (new_value != 0) {
-        amount_counter.innerHTML = String(new_value) + "x";
-    }
-    else {
-        amount_counter.innerHTML = "";
+        counter.innerHTML = String(new_value) + "x";
     }
 }
 function event_listener(ev) {
@@ -249,14 +247,17 @@ var Table = /** @class */ (function () {
     };
     Table.prototype.remove_all_table_entries = function () {
         var rows = this.table.getElementsByTagName("tr");
+        console.info(rows);
         for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
-            if (row.hasAttribute("data-id") && row.getAttribute("data-id") == "XXX") {
-                continue;
-            }
-            else {
+            console.debug("Deleting: ".concat(row.innerHTML));
+            if (!(row.hasAttribute("data-id") && row.getAttribute("data-id") == "XXX")) {
                 row.remove();
             }
+        }
+        for (var i = 0; i < this.items.length; i++) {
+            var item = this.items[i];
+            handle_amount_counter(item.root_element, 0);
         }
         this.items = [];
         this.update_total_value();

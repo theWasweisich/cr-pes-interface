@@ -14,17 +14,15 @@ function button_pressed_action(target: HTMLElement, crepes_class: Crêpe2, butto
             var new_value = table.remove_one_crepe(crepes_class)
         }
     }
-    
+    handle_amount_counter(target, new_value);
+}
 
-    if (button == undefined) {
-        var amount_counter = target.querySelector(".crepecontrol .crepes_counter") as HTMLElement
+function handle_amount_counter(root: HTMLElement, new_value: number) {
+    const counter = root.querySelector(".crepecontrol .crepes_counter") as HTMLElement
+    if (new_value == 0) {
+        counter.innerHTML = ""
     } else {
-        var amount_counter = button.parentElement.getElementsByTagName("p")[0] as HTMLElement
-    }
-    if (new_value != 0) {
-        amount_counter.innerHTML = String(new_value) + "x"
-    } else {
-        amount_counter.innerHTML = ""
+        counter.innerHTML = String(new_value) + "x"
     }
 }
 
@@ -114,7 +112,7 @@ class Table {
     }
 
     private update_total_value() {
-        var total_heading = this.table.parentElement.getElementsByTagName("h2")[0]
+    var total_heading = this.table.parentElement.getElementsByTagName("h2")[0]
         var total_elem = total_heading.children[0] as HTMLElement
 
         var total_value: number = 0
@@ -231,19 +229,11 @@ class Table {
     }
 
     remove_all_table_entries() {
-        var rows = this.table.getElementsByTagName("tr")
+        for (let i = 0; i < this.items.length; i++) {
+            const item = this.items[i];
 
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-
-            if (row.hasAttribute("data-id") && row.getAttribute("data-id") == "XXX") {
-                continue
-            } else {
-                row.remove()
-            }
+            this.remove_one_crepe(item)
         }
-        this.items = []
-        this.update_total_value()
     }
 }
 

@@ -258,9 +258,9 @@ def crepe_sold():
 
             to_db.append((cNAME, cAMOUNT, cPREIS, now_time))
 
-            logging.info(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
+            logging.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
 
-        cur.executemany("INSERT INTO sales (crepe, amount, price, time) VALUES (? ? ? ?)", to_db)
+        cur.executemany("INSERT INTO sales (crepe, amount, price, time) VALUES (?, ?, ?, ?)", to_db)
 
 
         con.commit()

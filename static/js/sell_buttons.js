@@ -43,16 +43,18 @@ function send_sell_to_server(sale) {
         var response;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("/api/sold", {
-                        method: "POST",
-                        mode: "cors",
-                        cache: "no-cache",
-                        credentials: "same-origin",
-                        headers: { "Content-Type": "application/json" },
-                        redirect: "manual",
-                        referrerPolicy: "no-referrer",
-                        body: JSON.stringify(sale)
-                    })];
+                case 0:
+                    console.log("SENDING");
+                    return [4 /*yield*/, fetch("/api/sold", {
+                            method: "POST",
+                            mode: "cors",
+                            cache: "no-cache",
+                            credentials: "same-origin",
+                            headers: { "Content-Type": "application/json" },
+                            redirect: "manual",
+                            referrerPolicy: "no-referrer",
+                            body: JSON.stringify(sale)
+                        })];
                 case 1:
                     response = _a.sent();
                     if (response.ok) {
@@ -69,26 +71,54 @@ function send_sell_to_server(sale) {
     });
 }
 function payed_func() {
-    var crepes = table.return_for_sending();
-    send_sell_to_server(crepes);
-    var current_sold = localStorage.getItem("sold");
-    var to_storage = [];
-    var to_storage_str;
-    for (var i = 0; i < crepes.length; i++) {
-        var crepe = crepes[i];
-        to_storage.push(crepe.toString());
-    }
-    to_storage_str = to_storage.join("|");
-    if (current_sold == null) {
-        localStorage.setItem("sold: ", to_storage_str);
-    }
-    else {
-        localStorage.setItem("sold: ", current_sold += to_storage_str);
-    }
+    return __awaiter(this, void 0, void 0, function () {
+        var crepes, current_sold, to_storage, to_storage_str, i, crepe, response;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    crepes = table.return_for_sending();
+                    if (crepes.length == 0) {
+                        return [2 /*return*/];
+                    }
+                    current_sold = localStorage.getItem("sold");
+                    to_storage = [];
+                    for (i = 0; i < crepes.length; i++) {
+                        crepe = crepes[i];
+                        to_storage.push(crepe.toString());
+                    }
+                    to_storage_str = to_storage.join("|");
+                    if (current_sold == null) {
+                        localStorage.setItem("sold: ", to_storage_str);
+                    }
+                    else {
+                        localStorage.setItem("sold: ", current_sold += to_storage_str);
+                    }
+                    return [4 /*yield*/, send_sell_to_server(crepes)];
+                case 1:
+                    response = _a.sent();
+                    if (response) {
+                        table.remove_all_table_entries(); // wohnt in ./index.ts
+                        return [2 /*return*/, true];
+                    }
+                    else {
+                        return [2 /*return*/, false];
+                    }
+                    ;
+                    return [2 /*return*/];
+            }
+        });
+    });
 }
 function payback_func() {
 }
 function own_consumption_func() {
+}
+function trigger_alarm() {
+    var alert = document.getElementById("popup-alert");
+    alert.classList.add("activate");
+    setTimeout(function () {
+        alert.classList.remove("activate");
+    }, 5000);
 }
 function set_listeners_up() {
     payed.addEventListener('click', payed_func);

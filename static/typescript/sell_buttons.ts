@@ -27,41 +27,56 @@ async function send_sell_to_server(sale: Crêpe2[]) {
     }
 }
 
-function payed_func() {
+async function payed_func() {
     var crepes: Crêpe2[] = table.return_for_sending();
 
     if (crepes.length == 0) {
         return
     }
 
-    send_sell_to_server(crepes);
-
+    
     var current_sold = localStorage.getItem("sold")
-
+    
     var to_storage: string[] = []
     var to_storage_str: string;
-
+    
     for (let i = 0; i < crepes.length; i++) {
         const crepe = crepes[i];
         
         to_storage.push(crepe.toString())
     }
-
+    
     to_storage_str = to_storage.join("|")
-
+    
     if (current_sold == null) {
         localStorage.setItem("sold: ", to_storage_str);        
     } else {
         localStorage.setItem("sold: ", current_sold += to_storage_str);
     }
+    let response = await send_sell_to_server(crepes);
+
+    if (response) {
+        table.remove_all_table_entries(); // wohnt in ./index.ts
+        return true;
+    } else {
+        return false;
+    };
 }
 
 function payback_func() {
-
+    
 }
 
 function own_consumption_func() {
+    
+}
 
+function trigger_alarm() {
+    const alert = document.getElementById("popup-alert")
+    alert.classList.add("activate")
+    setTimeout(() => {
+        alert.classList.remove("activate")
+    }, 5000);
 }
 
 function set_listeners_up() {

@@ -1,5 +1,6 @@
 @import url(/static/css/header_style.css);
 @import url(/static/css/colors.css);
+@import url(/static/css/index_alert.css);
 
 ::-webkit-scrollbar {
     display: block !important;
