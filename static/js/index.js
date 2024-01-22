@@ -133,6 +133,34 @@ function send_crepes(data) {
 /**
  * Daten in der Tabelle verändern
 */
+var TableEntry = /** @class */ (function () {
+    function TableEntry(id, crepe, row) {
+        this.id = id;
+        this.crepe = crepe;
+        this.row = row;
+    }
+    TableEntry.prototype.add_to_table = function (table) {
+        var tr = table.insertRow();
+        tr.setAttribute("data-id", String(this.crepe.crepeId));
+        var amount = tr.insertCell(0);
+        var name = tr.insertCell(1);
+        var price = tr.insertCell(2);
+        amount.setAttribute("data-type", "amount");
+        name.setAttribute("data-type", "name");
+        price.setAttribute("data-type", "price");
+        amount.setAttribute("data-type", "amount");
+        name.setAttribute("data-type", "name");
+        price.setAttribute("data-type", "price");
+        amount.innerHTML = this.crepe.amount.toString();
+        name.innerHTML = this.crepe.name;
+        price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.crepe.preis);
+        this.row = tr; // The row that this TableEntry lives in. Needed for deletion
+    };
+    TableEntry.prototype.delete_entry = function () {
+        this.row.remove();
+    };
+    return TableEntry;
+}());
 var Table = /** @class */ (function () {
     function Table() {
         this.table = document.getElementById("crepe_table");
@@ -143,14 +171,18 @@ var Table = /** @class */ (function () {
      * @returns The Crêpes that have been sold
      */
     Table.prototype.return_for_sending = function () {
-        return this.items;
+        var to_return = [];
+        this.items.forEach(function (item) {
+            to_return.push(item.crepe);
+        });
+        return to_return;
     };
     Table.prototype.update_total_value = function () {
         var total_heading = this.table.parentElement.getElementsByTagName("h2")[0];
         var total_elem = total_heading.children[0];
         var total_value = 0;
         for (var i = 0; i < this.items.length; i++) {
-            var item = this.items[i];
+            var item = this.items[i].crepe;
             total_value += item.preis * item.amount;
         }
         total_elem.innerHTML = formatter.format(total_value);
@@ -163,7 +195,7 @@ var Table = /** @class */ (function () {
     Table.prototype.add_one_crepe = function (crepe) {
         if (crepe.amount >= 1) {
             for (var i = 0; i < this.items.length; i++) {
-                var item = this.items[i];
+                var item = this.items[i].crepe;
                 if (item == crepe) {
                     crepe.amount += 1;
                     this.edit_table_entry(crepe);
@@ -186,19 +218,9 @@ var Table = /** @class */ (function () {
         return true;
     };
     Table.prototype.create_new_entry = function (crepes) {
-        var tr = this.table.insertRow();
-        var amount = tr.insertCell(0);
-        var name = tr.insertCell(1);
-        var price = tr.insertCell(2);
-        amount.setAttribute("data-type", "amount");
-        name.setAttribute("data-type", "name");
-        price.setAttribute("data-type", "price");
-        amount.innerHTML = crepes.amount.toString();
-        name.innerHTML = crepes.name;
-        price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(crepes.preis);
-        var index = tr.rowIndex;
-        tr.setAttribute("data-id", String(crepes.crepeId));
-        this.items.push(crepes);
+        var entry = new TableEntry(crepes.crepeId, crepes, undefined);
+        entry.add_to_table(this.table);
+        this.items.push(entry);
     };
     ;
     /**
@@ -212,46 +234,53 @@ var Table = /** @class */ (function () {
             this.update_total_value();
             return crepe.amount;
         }
-        for (var i = 0; i < this.items.length; i++) {
-            var item = this.items[i];
-            if (item != crepe) {
-                continue;
+        else {
+            for (var i = 0; i < this.items.length; i++) {
+                var item = this.items[i].crepe;
+                if (item != crepe) {
+                    continue;
+                }
+                if (crepe.amount > 1) {
+                    var row = this.table.querySelector("[data-id=\"".concat(String(crepe.crepeId), "\"]")); // Problems
+                    crepe.amount -= 1;
+                    row.querySelector("[data-type=\"amount\"]").innerHTML = crepe.amount.toString();
+                    this.update_total_value();
+                    return crepe.amount;
+                }
+                else if (crepe.amount == 1) {
+                    this.remove_table_entry(crepe);
+                    crepe.amount = 0;
+                    this.update_total_value();
+                    return crepe.amount;
+                }
+                else {
+                    // console.error("There is no crêpe to remove!");
+                    this.update_total_value();
+                    return;
+                }
             }
-            if (crepe.amount > 1) {
-                var row = this.table.querySelector("[data-id=\"".concat(String(crepe.crepeId), "\"]")); // Problems
-                crepe.amount -= 1;
-                row.querySelector("[data-type=\"amount\"]").innerHTML = crepe.amount.toString();
-                this.update_total_value();
-                return crepe.amount;
-            }
-            else if (crepe.amount == 1) {
-                this.remove_table_entry(crepe);
-                crepe.amount = 0;
-                this.update_total_value();
-                return crepe.amount;
-            }
-            else {
-                // console.error("There is no crêpe to remove!");
-                this.update_total_value();
-                return;
-            }
+            ;
+            // console.error("Da ist wohl was schiefgelaufen")
+            throw Error("Hmm. Da ist wohl was schiefgelaufen");
         }
-        ;
-        // console.error("Da ist wohl was schiefgelaufen")
-        throw Error("Hmm. Da ist wohl was schiefgelaufen");
     };
     Table.prototype.remove_table_entry = function (crêpe) {
-        var row = this.table.querySelector("[data-id=\"".concat(crêpe.crepeId, "\"]"));
-        this.items.splice(this.items.indexOf(crêpe));
-        row.remove();
+        for (var i = 0; i < this.items.length; i++) {
+            var entry = this.items[i];
+            if (crêpe == entry.crepe) {
+                entry.delete_entry();
+                var index = this.items.indexOf(entry);
+                if (index > -1) {
+                    this.items.slice();
+                }
+                else {
+                    throw new Error("Tabelleneintrag nicht gefunden!");
+                }
+            }
+        }
     };
     Table.prototype.remove_all_table_entries = function () {
-        for (var i = 0; i < this.items.length; i++) {
-            var item = this.items.pop();
-            console.info("Popped Item: ".concat(item));
-            this.remove_table_entry(item);
-            this.update_total_value();
-        }
+        // Stuff
     };
     return Table;
 }());

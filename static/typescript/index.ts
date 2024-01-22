@@ -98,17 +98,63 @@ async function send_crepes(data) {
  * Daten in der Tabelle verändern
 */
 
+class TableEntry {
+    id: number | undefined
+    crepe: Crêpe2 | undefined
+    row: HTMLTableRowElement | undefined
+
+    constructor(id: number | undefined, crepe: Crêpe2 | undefined, row: HTMLTableRowElement | undefined) {
+        this.id = id
+        this.crepe = crepe
+        this.row = row
+    }
+
+    add_to_table(table: HTMLTableElement) {
+        var tr = table.insertRow()
+        tr.setAttribute("data-id", String(this.crepe.crepeId))
+        
+        var amount = tr.insertCell(0)
+        var name = tr.insertCell(1)
+        var price = tr.insertCell(2)
+        
+        amount.setAttribute("data-type", "amount")
+        name.setAttribute("data-type", "name")
+        price.setAttribute("data-type", "price")
+        
+        amount.setAttribute("data-type", "amount")
+        name.setAttribute("data-type", "name")
+        price.setAttribute("data-type", "price")
+        
+        amount.innerHTML = this.crepe.amount.toString()
+        name.innerHTML = this.crepe.name
+        price.innerHTML = Intl.NumberFormat('de-DE', {style: 'currency', currency: 'EUR'}).format(this.crepe.preis)
+        
+        
+        this.row = tr; // The row that this TableEntry lives in. Needed for deletion
+    }
+
+    delete_entry() {
+        this.row.remove();
+    }
+    
+
+}
+
 class Table {
     table = document.getElementById("crepe_table") as HTMLTableElement;
-
-    items: Crêpe2[] = [];
-
+    
+    items: TableEntry[] = [];
+    
     /**
      * 
      * @returns The Crêpes that have been sold
      */
     return_for_sending(): Crêpe2[] {
-        return this.items
+        var to_return: Crêpe2[] = [];
+        this.items.forEach(item => {
+            to_return.push(item.crepe);
+        })
+        return to_return
     }
 
     private update_total_value() {
@@ -118,7 +164,7 @@ class Table {
         var total_value: number = 0
 
         for (let i = 0; i < this.items.length; i++) {
-            const item = this.items[i];
+            const item = this.items[i].crepe;
             
             total_value += item.preis * item.amount
         }
@@ -134,7 +180,7 @@ class Table {
     add_one_crepe(crepe: Crêpe2): number {
         if (crepe.amount >= 1) {
             for (let i = 0; i < this.items.length; i++) {
-                const item = this.items[i];
+                const item = this.items[i].crepe;
                 
                 if (item == crepe) {
                     crepe.amount += 1
@@ -161,24 +207,10 @@ class Table {
     }
     
     private create_new_entry(crepes: Crêpe2) {
-        var tr = this.table.insertRow()
+        var entry = new TableEntry(crepes.crepeId, crepes, undefined)
+        entry.add_to_table(this.table)
         
-        var amount = tr.insertCell(0)
-        var name = tr.insertCell(1)
-        var price = tr.insertCell(2)
-        
-        amount.setAttribute("data-type", "amount")
-        name.setAttribute("data-type", "name")
-        price.setAttribute("data-type", "price")
-        
-        amount.innerHTML = crepes.amount.toString()
-        name.innerHTML = crepes.name
-        price.innerHTML = Intl.NumberFormat('de-DE', {style: 'currency', currency: 'EUR'}).format(crepes.preis)
-        
-        var index = tr.rowIndex
-        tr.setAttribute("data-id", String(crepes.crepeId))
-        
-        this.items.push(crepes)
+        this.items.push(entry)
     };
 
     /**
@@ -194,7 +226,7 @@ class Table {
         } else {
 
             for (let i = 0; i < this.items.length; i++) {
-                const item = this.items[i];
+                const item = this.items[i].crepe;
                 
                 if (item != crepe) {
                     continue;
@@ -225,15 +257,24 @@ class Table {
     }
 
     private remove_table_entry(crêpe: Crêpe2) {
-        var row = this.table.querySelector(`[data-id="${crêpe.crepeId}"]`) as HTMLTableRowElement;
-        this.items.splice(this.items.indexOf(crêpe));
-        row.remove();
+        for (let i = 0; i < this.items.length; i++) {
+            const entry = this.items[i];
+
+            if (crêpe == entry.crepe) {
+                entry.delete_entry()
+                let index = this.items.indexOf(entry)
+                if (index > -1) {
+                    this.items.slice()
+                } else {
+                    throw new Error("Tabelleneintrag nicht gefunden!")
+                }
+            }
+            
+        }
     }
 
     remove_all_table_entries() {
-        this.items.forEach(crepe => {
-            document.querySelector(`[data-id="${crepe.crepeId}"]`).remove();
-        })
+        // Stuff
     }
 }
 
