@@ -272,9 +272,25 @@ class Table {
             
         }
     }
-
+    
     remove_all_table_entries() {
-        // Stuff
+        for (let i = 0; i < this.items.length; i++) {
+            const item = this.items[i];
+            
+            item.delete_entry()
+
+            let crepe = item.crepe
+
+            let root_elem = crepe.root_element
+
+            console.log(root_elem)
+
+            root_elem.querySelector(".crepes_counter").innerHTML = "";
+
+            crepe.amount = 0;
+
+            this.items.splice(i, 1);
+        }
     }
 }
 

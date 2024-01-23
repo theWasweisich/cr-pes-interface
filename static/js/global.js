@@ -12,6 +12,14 @@ var Crêpe2 = /** @class */ (function () {
     };
     return Crêpe2;
 }());
+/**
+ * Adds all crêpes to the crepelist
+ * @param root_element The root element of the crepe
+ * @param crepeId The id of the crepe
+ * @param crepeName The name of the crepe
+ * @param crepePreis the Price of the crepe
+ * @returns Nothing
+ */
 function set_data(root_element, crepeId, crepeName, crepePreis) {
     if (crepeName == undefined && crepePreis == undefined && crepeId == undefined) {
         crepeName = root_element.getAttribute('data-name');

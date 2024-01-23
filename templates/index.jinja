@@ -45,6 +45,7 @@
             const clock = document.getElementById("clock");
 
             function setTime() {
+                // console.log("Clock test")
                 var date = new Date();
     
                 var hours = date.getHours();
@@ -61,7 +62,7 @@
             }
 
             setTime()
-            setInterval(setTime(), 5000)
+            setInterval(setTime, 30000)
         </script>
 
     </header>

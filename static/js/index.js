@@ -280,7 +280,16 @@ var Table = /** @class */ (function () {
         }
     };
     Table.prototype.remove_all_table_entries = function () {
-        // Stuff
+        for (var i = 0; i < this.items.length; i++) {
+            var item = this.items[i];
+            item.delete_entry();
+            var crepe = item.crepe;
+            var root_elem = crepe.root_element;
+            console.log(root_elem);
+            root_elem.querySelector(".crepes_counter").innerHTML = "";
+            crepe.amount = 0;
+            this.items.splice(i, 1);
+        }
     };
     return Table;
 }());

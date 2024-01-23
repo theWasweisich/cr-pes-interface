@@ -148,6 +148,7 @@ Start Sell Buttons
     margin: 5%;
     display: flex;
     flex-wrap: wrap;
+    gap: 15px;
 }
 
 /*
