@@ -3,6 +3,30 @@
 @import url(/static/css/index_alert.css);
 
 
+#test_eck {
+    display: block;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    outline: 5px solid red;
+}
+
+#test_eck_deux {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background-color: lime;
+}
+
+
+
 * {
     user-select: none;
 }
@@ -11,8 +35,8 @@ html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    overflow-x: hidden;
-    height: 100;
+    overflow: hidden;
+    height: 100%;
 }
 
 #main {
@@ -25,7 +49,7 @@ html, body {
     border-left: 5px solid var(--clr-primary-border);
     padding: 5px;
     background-color: var(--clr-primary-surface);
-    position: relative;
+    /* position: relative; */
     span {
         float: right;
     margin-right: 5%;
@@ -48,10 +72,8 @@ html, body {
     table td + td {
         border-left: 1px solid black;
     }
-
-    /* #crepe_table {
-        overflow-y: scroll;
-    } */
+;
+    /* height: 59%; */
 }
 
 .side-nav-menu {
@@ -64,14 +86,14 @@ html, body {
     grid-template-columns:
         repeat(auto-fit, minmax(400px, 1fr));
     gap: 15px;
-    position: sticky;
+    /* position: sticky;
     top: 230px;
-    z-index: 100;
+    z-index: 100; */
     padding: 1em;
     input[type="number"] {
         background-color: white;
     }
-    height: calc(100% - 230px);
+    max-height: inherit;
     overflow-y: scroll;
 
     > div {

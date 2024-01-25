@@ -115,7 +115,20 @@
         </div>
     </div>
     
-    
+    <div id="test_eck"></div>
+    <div id="test_eck_deux"></div>
+
+    <script defer>
+        const main_elem = document.getElementById('main');
+        const main_content_elem = document.getElementById('main-content');
+
+        function reset_main_content() {
+            console.log("HI")
+            main_content_elem.style.maxWidth = main_elem.clientWidth;
+        }
+
+        window.onresize = reset_main_content
+    </script>
 </body>
 
 </html>
