@@ -9,11 +9,12 @@
     
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     
+    <link rel="stylesheet" href="/static/css/external/w3.css">
+    
     <link rel="stylesheet" href="/static/css/index.css">
 
     <link rel="stylesheet" href="/static/css/index_crepecontrol.css">
     
-    <link rel="stylesheet" href="/static/css/external/w3.css">
     
     <link rel="stylesheet" href="/static/css/global.css">
     
@@ -36,9 +37,9 @@
             <p>Kasse</p>
         </h1>
         <div class="header-nav-bar">
-            <a class="crepe-button" href="/" class="active">Kasse</a>
-            <a class="crepe-button" href="/einstellungen">Einstellungen</a>
-            <a class="crepe-button" href="/schichten">Schichten</a>
+            <button type="button" class="crepe-button" href="/" class="active">Kasse</button>
+            <button type="button" class="crepe-button" href="/einstellungen">Einstellungen</button>
+            <button type="button" class="crepe-button disabled" href="/schichten" disabled>Schichten</button>
         </div>
         <p id="clock"></p>
         <script>
@@ -73,12 +74,12 @@
 
     <div id="main">
         <div id="content">
-            <div id="main-content" class="w3-container">
+            <div id="main-content">
                 {% for crepe in crepes %}
                 <div class="crepe_container" data-name="{{ crepe['name'] }}" data-preis="{{ crepe['price'] }}" data-color="{{ crepe['colour'] }}" data-id="{{ crepe['id'] }}" onload="set_data(this);">
                     <div class="crepecontrol">
-                        <button>-</button>
-                        <button>+</button>
+                        <button class="remove">-</button>
+                        <button class="add">+</button>
                         <p class="crepes_counter"></p>
                     </div>
                     <h4 type="name">{{ crepe['name'] }}</h4>
@@ -98,6 +99,7 @@
                 <button data-function="payed">Bezahlt</button>
                 <button data-function="pay_back">Rückgeld</button>
                 <button data-function="own_consumption">Eigenverbrauch</button>
+                <button data-function="reset">Zurücksetzen</button>
             </div>
     
             <h2>Gesamt: <span>0 €</span>

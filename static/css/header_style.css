@@ -7,12 +7,15 @@
 header {
     background-color: var(--clr-primary-surface);
     border-bottom: 5px solid black;
-    display: grid !important;
+    display: grid;
     grid-template-columns: 1fr min-content;
     padding: 1.5rem;
 
+    height: 230px;
+
     > h1 > span , p {
         float: left;
+        font-weight: 900;
     }
 
     > h1 > p {
@@ -25,7 +28,7 @@ header {
         grid-template-rows: 1fr 1fr 1fr;
         gap: .5em;
 
-        > a {
+        > button {
             text-decoration: none;
             padding-block: 5px;
             padding-inline: 2px;

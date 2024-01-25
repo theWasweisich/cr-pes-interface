@@ -11,7 +11,8 @@ function button_pressed_action(target: HTMLElement, crepes_class: Crêpe2, butto
         if (button.innerText == "+") {
             var new_value = table.add_one_crepe(crepes_class)
         } else if (button.innerText == "-") {
-            var new_value = table.remove_one_crepe(crepes_class)
+            table.remove_one_crepe(crepes_class) // FIXME
+            var new_value = crepes_class.amount
         }
     }
     handle_amount_counter(target, new_value);
@@ -26,8 +27,17 @@ function handle_amount_counter(root: HTMLElement, new_value: number) {
     }
 }
 
+/**
+ * The global event listener
+ * @param ev The mouse event
+ */
 function event_listener(ev: MouseEvent) {
 
+    /**
+     * Returns the Crêpes as a Class when given the HTML Root Element
+     * @param root_div The Crepes root element
+     * @returns The `Crêpe2`-Class of set crepe
+     */
     function get_crepes_class(root_div: HTMLElement): Crêpe2 {
         var target_crêpes_class: Crêpe2;
         for (let i = 0; i < crepelist.length; i++) {
@@ -53,7 +63,7 @@ function event_listener(ev: MouseEvent) {
         button_pressed_action(target, id, original_target)
     } else if (original_target.tagName == "DIV") {
         if (id.amount == 0) {
-            button_pressed_action(target, id)
+            // button_pressed_action(target, id) // Currently disabled
         }
     }
 }
@@ -219,41 +229,20 @@ class Table {
      * @returns The new amount of the crêpes
      */
     remove_one_crepe(crepe: Crêpe2) {
-        console.info(`Removing: ${crepe}`)
-        if (crepe.amount == 0) {
-            this.update_total_value()
-            return crepe.amount;
-        } else {
+        console.info(`Removing: ${crepe}`);
 
-            for (let i = 0; i < this.items.length; i++) {
-                const item = this.items[i].crepe;
-                
-                if (item != crepe) {
-                    continue;
+        for (let i = 0; i < this.items.length; i++) {
+            const item = this.items[i];
+            
+            if (item.crepe == crepe) {
+                console.log("Removing Crêpe: " + crepe.toString())
+
+                if (crepe.crepeId) {
+
                 }
-                
-                if (crepe.amount > 1) {
-                    var row = this.table.querySelector(`[data-id="${String(crepe.crepeId)}"]`) // Problems
-                    crepe.amount -= 1;
-                    row.querySelector(`[data-type="amount"]`).innerHTML = crepe.amount.toString()
-                    this.update_total_value()
-                    return crepe.amount;
-                } 
-                else if (crepe.amount == 1) {
-                    this.remove_table_entry(crepe)
-                    crepe.amount = 0;
-                    this.update_total_value()
-                    return crepe.amount;
-                }
-                else {
-                    // console.error("There is no crêpe to remove!");
-                    this.update_total_value()
-                    return;
-                }
-            };
-            // console.error("Da ist wohl was schiefgelaufen")
-            throw Error("Hmm. Da ist wohl was schiefgelaufen")
+            }
         }
+
     }
 
     private remove_table_entry(crêpe: Crêpe2) {
@@ -269,28 +258,25 @@ class Table {
                     throw new Error("Tabelleneintrag nicht gefunden!")
                 }
             }
-            
         }
+        this.update_total_value()
     }
     
     remove_all_table_entries() {
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
-            
-            item.delete_entry()
-
             let crepe = item.crepe
-
             let root_elem = crepe.root_element
-
-            console.log(root_elem)
-
+            item.delete_entry()
+            // console.log(root_elem)
             root_elem.querySelector(".crepes_counter").innerHTML = "";
-
             crepe.amount = 0;
-
             this.items.splice(i, 1);
         }
+        if (this.items.length > 0) {
+            this.remove_all_table_entries();
+        }
+        this.update_total_value();
     }
 }
 
@@ -326,6 +312,6 @@ function get_crepe_from_elem(elem: HTMLElement): Crêpe2 {
 function reset_crepeslist() {
     for (let index = 0; index < crepelist.length; index++) {
         const element = crepelist[index];
-        element.amount = 1;
+        element.amount = 0;
     }
 }

@@ -1,18 +1,16 @@
 :root {
     color-scheme: only dark;
-    --clr-crepe-white: rgba(127.5, 127.5, 127.5, 0.5);
-    --clr-crepe-blue: rgba(0, 157, 255, 0.5);
-    --clr-crepe-purple: rgba(91, 55, 87, 0.5);
-    --clr-crepe-green: rgba(86, 110, 64, 0.5);
-    --clr-crepe-yellow: rgba(236, 239, 64, 0.5);
-    --clr-primary-surface: rgba(165, 165, 165, 0.5);
+    --clr-crepe-white: rgb(127.5, 127.5, 127.5);
+    --clr-crepe-blue: rgb(0, 157, 255);
+    --clr-crepe-purple: rgb(91, 55, 87);
+    --clr-crepe-green: rgb(86, 110, 64);
+    --clr-crepe-yellow: rgb(177, 179.25, 48);
+    --clr-primary-surface: rgb(44, 44, 44);
+    --clr-secondary-surface: rgb(88, 88, 88);
+    --clr-ok: rgb(0, 54, 0);
+    --clr-caution: rgb(77, 0, 0);
 }
 
-html, body {
-    margin: 0;
-    padding: 0;
-}
-
-html, body {
-    font-family: Roboto, 'Sergoe UI', sans-serif !important;
+* {
+    font-family: 'Noto Sans', 'Sergoe UI', sans-serif;
 }

@@ -83,7 +83,8 @@ function event_listener(ev) {
     }
     else if (original_target.tagName == "DIV") {
         if (id.amount == 0) {
-            button_pressed_action(target, id);
+            // button_pressed_action(target, id)
+            // Currently disabled for testing
         }
     }
 }
@@ -263,6 +264,7 @@ var Table = /** @class */ (function () {
             // console.error("Da ist wohl was schiefgelaufen")
             throw Error("Hmm. Da ist wohl was schiefgelaufen");
         }
+        this.update_total_value();
     };
     Table.prototype.remove_table_entry = function (crêpe) {
         for (var i = 0; i < this.items.length; i++) {
@@ -278,18 +280,23 @@ var Table = /** @class */ (function () {
                 }
             }
         }
+        this.update_total_value();
     };
     Table.prototype.remove_all_table_entries = function () {
         for (var i = 0; i < this.items.length; i++) {
             var item = this.items[i];
-            item.delete_entry();
             var crepe = item.crepe;
             var root_elem = crepe.root_element;
-            console.log(root_elem);
+            item.delete_entry();
+            // console.log(root_elem)
             root_elem.querySelector(".crepes_counter").innerHTML = "";
             crepe.amount = 0;
             this.items.splice(i, 1);
         }
+        if (this.items.length > 0) {
+            this.remove_all_table_entries();
+        }
+        this.update_total_value();
     };
     return Table;
 }());
@@ -319,6 +326,6 @@ function get_crepe_from_elem(elem) {
 function reset_crepeslist() {
     for (var index = 0; index < crepelist.length; index++) {
         var element = crepelist[index];
-        element.amount = 1;
+        element.amount = 0;
     }
 }
