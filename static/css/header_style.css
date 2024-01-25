@@ -6,7 +6,7 @@
 
 header {
     background-color: var(--clr-primary-surface);
-    border-bottom: 5px solid black;
+    border-bottom: 5px solid var(--clr-primary-border);
     display: grid;
     grid-template-columns: 1fr min-content;
     padding: 1.5rem;

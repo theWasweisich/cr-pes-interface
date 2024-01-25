@@ -10,46 +10,41 @@
 html, body {
     margin: 0;
     padding: 0;
-    /* overflow: hidden; */
+    width: 100%;
+    overflow-x: hidden;
+    height: 100;
 }
 
 #main {
     display: grid;
     grid-template-columns: 1fr 25%;
-    height: 100%;
+    height: inherit;
 }
 
 #side_nav {
-    border-left: 5px solid black;
+    border-left: 5px solid var(--clr-primary-border);
     padding: 5px;
     background-color: var(--clr-primary-surface);
     position: relative;
-    height: 100%;
-
     span {
         float: right;
-        margin-right: 5%;
+    margin-right: 5%;
     }
-
     h2 {
         border-bottom: 1px solid;
     }
-
     table {
         margin-left: 5%;
-        margin-right: 5%;
-        width: 90%;
+    margin-right: 5%;
+    width: 90%;
     }
-    
     th {
         padding-bottom: 15px;
-        text-align: right;
+    text-align: right;
     }
-    
     td {
         text-align: right;
     }
-    
     table td + td {
         border-left: 1px solid black;
     }
@@ -75,6 +70,12 @@ html, body {
     padding: 1em;
     input[type="number"] {
         background-color: white;
+    }
+    height: calc(100% - 230px);
+    overflow-y: scroll;
+
+    > div {
+        min-height: 120px;
     }
 }
 
@@ -135,12 +136,8 @@ html, body {
 #content {
     
     .crepe_container {
-        border: 1px solid black;
+        border: 1px solid var(--clr-primary-border);
         padding: 15px;
         /* background-color: rgba(0, 0, 0, 0.2); */
     }
-}
-
-::-webkit-scrollbar {
-    display: block;
 }
