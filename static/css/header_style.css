@@ -6,40 +6,42 @@
 
 header {
     background-color: var(--clr-primary-surface);
-    border-bottom: 5px solid black;
+    border-bottom: 5px solid var(--clr-primary-border);
+    grid-column: span 2;
     display: grid;
     grid-template-columns: 1fr min-content;
     padding: 1.5rem;
 
-    height: 230px;
-
-    > h1 > span , p {
+    >
+    h1 > span , p {
         float: left;
-        font-weight: 900;
+    font-weight: 900;
     }
 
-    > h1 > p {
+    >
+    h1 > p {
         margin: 0;
-        margin-left: 0.25rem;
+    margin-left: 0.25rem;
     }
 
     > .header-nav-bar {
-        display: grid;
-        grid-template-rows: 1fr 1fr 1fr;
-        gap: .5em;
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: .5em;
 
-        > button {
+        >
+    button {
             text-decoration: none;
-            padding-block: 5px;
-            padding-inline: 2px;
-            text-align: center;
-            text-transform: uppercase;
-            
-            outline: rgb(92, 92, 92) solid 2px;
+    padding-block: 5px;
+    padding-inline: 2px;
+    text-align: center;
+    text-transform: uppercase;
+    outline: rgb(92, 92, 92) solid 2px;
         }
     }
 }
 
 #clock {
     float:none;
+    grid-column-start: 2;
 }
