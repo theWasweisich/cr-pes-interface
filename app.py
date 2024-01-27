@@ -146,13 +146,11 @@ def serve_login():
 
         return "", status.HTTP_403_FORBIDDEN
     else:
-        return "", status.HTTP_405_METHOD_NOT_ALLOWED
+        return '', status.HTTP_405_METHOD_NOT_ALLOWED
 
 
 @app.route("/schichten")
 def serve_shifts():
-    logging.warning(f"{request.remote_addr} versucht, schichten zu öffnen")
-
     if user_handling.authenticate_user(session, 5):
         return render_template("shifts.jinja", shifts=shifts)
     else:
@@ -162,7 +160,7 @@ def serve_shifts():
 
 
 
-@app.route("/help_page")
+@app.route("/help")
 def rick_roll():
     resp = redirect("https://youtu.be/dQw4w9WgXcQ?si=7sPxh0li5uSBE3rr")
     resp.headers.add("Du bist ein", "l'opfl")
@@ -170,6 +168,7 @@ def rick_roll():
 
 @app.route("/favicon.ico")
 def serve_favicon():
+    logging.warning("Favicon loaded!")
     with open("favicon.ico", "rb") as f:
         data = f.read()
     resp = make_response(data)

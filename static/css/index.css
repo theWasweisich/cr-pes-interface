@@ -3,77 +3,69 @@
 @import url(/static/css/index_alert.css);
 
 
-#test_eck {
-    display: block;
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    width: 50px;
-    height: 50px;
-    background-color: white;
-    outline: 5px solid red;
-}
-
-#test_eck_deux {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: -1;
-    background-color: lime;
-}
-
 
 
 * {
     user-select: none;
 }
 
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     width: 100%;
-    overflow: hidden;
-    height: 100%;
+    max-height: 100%;
 }
 
-#main {
+#grid-main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: grid;
     grid-template-columns: 1fr 25%;
-    height: inherit;
+
+    grid-template-areas:
+        "header links"
+        "crepes sidenav";
 }
 
 #side_nav {
+
     border-left: 5px solid var(--clr-primary-border);
-    padding: 5px;
+
     background-color: var(--clr-primary-surface);
-    /* position: relative; */
+
     span {
         float: right;
-    margin-right: 5%;
     }
+
     h2 {
         border-bottom: 1px solid;
     }
+
     table {
         margin-left: 5%;
-    margin-right: 5%;
-    width: 90%;
+
+        margin-right: 5%;
+
+        width: 90%;
     }
+
     th {
         padding-bottom: 15px;
-    text-align: right;
+
+        text-align: right;
     }
+
     td {
         text-align: right;
     }
-    table td + td {
+
+    table td+td {
         border-left: 1px solid black;
     }
-;
-    /* height: 59%; */
 }
 
 .side-nav-menu {
@@ -82,21 +74,23 @@ html, body {
 
 #main-content {
     display: grid;
-
     grid-template-columns:
-        repeat(auto-fit, minmax(400px, 1fr));
+        repeat(auto-fit, minmax(350px, 1fr));
     gap: 15px;
     /* position: sticky;
     top: 230px;
     z-index: 100; */
     padding: 1em;
+
     input[type="number"] {
         background-color: white;
     }
-    max-height: inherit;
-    overflow-y: scroll;
 
-    > div {
+    ;
+    max-height: 100%;
+    /* overflow-y: scroll; */
+
+    >div {
         min-height: 120px;
     }
 }
@@ -127,9 +121,11 @@ html, body {
         border-width: 0.5px;
         border-style: solid;
     }
+
     .add {
         border-color: var(--clr-ok);
     }
+
     .remove {
         border-color: var(--clr-caution);
     }
@@ -141,25 +137,25 @@ html, body {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
-    
+
     *:hover {
         background-color: grey;
     }
-    
+
     button {
         width: fit-content;
         height: 50px;
         display: block;
-        margin: 5px;
         text-wrap: pretty;
     }
 }
 
 #content {
-    
+
     .crepe_container {
         border: 1px solid var(--clr-primary-border);
         padding: 15px;
-        /* background-color: rgba(0, 0, 0, 0.2); */
     }
+
+    overflow-y: scroll;
 }
