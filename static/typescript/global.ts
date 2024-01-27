@@ -7,17 +7,19 @@ class Crêpe {
     crepeId: number;
     amount: number;
     root_element: HTMLElement;
+    table_element: HTMLTableElement | undefined = undefined;
 
-    constructor(id: number, name: string, preis: number, amount: number, root_element: HTMLElement) {
+    constructor(id: number, name: string, preis: number, amount: number, root_element: HTMLElement, table_root_element?: HTMLTableElement) {
         this.crepeId = id;
         this.name = name;
         this.preis = preis;
         this.amount = amount;
         this.root_element = root_element;
+        this.table_element = table_root_element;
     }
 
     public toString() {
-        return `${this.crepeId};${this.name};${this.preis};${this.amount}`
+        return `\n${this.crepeId}\n${this.name}\n${this.preis}\n${this.amount}\n`
     }
 }
 

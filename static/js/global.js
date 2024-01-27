@@ -1,14 +1,16 @@
 var crepelist = [];
 var Crêpe = /** @class */ (function () {
-    function Crêpe(id, name, preis, amount, root_element) {
+    function Crêpe(id, name, preis, amount, root_element, table_root_element) {
+        this.table_element = undefined;
         this.crepeId = id;
         this.name = name;
         this.preis = preis;
         this.amount = amount;
         this.root_element = root_element;
+        this.table_element = table_root_element;
     }
     Crêpe.prototype.toString = function () {
-        return "".concat(this.crepeId, ";").concat(this.name, ";").concat(this.preis, ";").concat(this.amount);
+        return "\n".concat(this.crepeId, "\n").concat(this.name, "\n").concat(this.preis, "\n").concat(this.amount, "\n");
     };
     return Crêpe;
 }());

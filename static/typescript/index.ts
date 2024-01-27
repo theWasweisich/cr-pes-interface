@@ -15,11 +15,17 @@ function button_pressed_action(target: HTMLElement, crepes_class: Crêpe, button
         var new_amount = table.add_one_crepe(crepes_class);
     } else 
     {
-        if (button.innerText == "+") {
+        if (button.classList.contains('add')) {
             var new_amount = table.add_one_crepe(crepes_class)
         } 
-        else if (button.innerText == "-") {
-            table.remove_one_crepe(crepes_class) // FIXME
+        else if (button.classList.contains('remove')) {
+            console.groupCollapsed("Removing");
+            console.log("Removing!")
+            console.log(crepes_class)
+            console.groupEnd()
+            
+            var res = table.remove_one_crepe(crepes_class) // FIXME
+            console.debug(res)
             var new_amount = crepes_class.amount
         }
     }
@@ -73,6 +79,8 @@ function event_listener(ev: MouseEvent) {
     var id = get_crepes_class(target)
 
     if (original_target.tagName == "BUTTON") {
+        console.debug("Got Button: ")
+        console.debug(original_target)
         button_pressed_action(target, id, original_target)
     } else if (original_target.tagName == "DIV") {
         if (id.amount == 0) {
@@ -117,54 +125,6 @@ async function send_crepes(data) {
 
 
 
-class TableEntry {
-    id: number | undefined
-    crepe: Crêpe | undefined
-    row: HTMLTableRowElement | undefined
-
-    constructor(id: number | undefined, crepe: Crêpe | undefined, row: HTMLTableRowElement | undefined) {
-        this.id = id
-        this.crepe = crepe
-        this.row = row
-    }
-
-    add_to_table(table: HTMLTableElement) {
-        var tr = table.insertRow()
-        tr.setAttribute("data-id", String(this.crepe.crepeId))
-
-        var amount = tr.insertCell(0)
-        var name = tr.insertCell(1)
-        var price = tr.insertCell(2)
-
-        amount.setAttribute("data-type", "amount")
-        name.setAttribute("data-type", "name")
-        price.setAttribute("data-type", "price")
-
-        // amount.setAttribute("data-type", "amount")
-        // name.setAttribute("data-type", "name")
-        // price.setAttribute("data-type", "price")
-
-        amount.innerHTML = this.crepe.amount.toString()
-        name.innerHTML = this.crepe.name
-        price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.crepe.preis)
-
-
-        this.row = tr; // The row that this TableEntry lives in. Needed for deletion
-    }
-
-    /**
-     * Removes the Crêpe's row in the table
-     */
-    delete_entry() {
-        console.warn(`Deleting: ${this.crepe} Entry!`)
-        this.row.remove();
-    }
-
-
-}
-
-
-
 var table = new Table()
 
 /**
@@ -185,7 +145,6 @@ function get_crepe_from_elem(elem: HTMLElement): Crêpe {
         console.groupEnd()
 
         if (crepe.crepeId == id) {
-            console.log("Ja")
             return crepe;
         }
     }

@@ -1,3 +1,86 @@
+class TableEntry {
+    id: number | undefined
+    crepe: Crêpe | undefined
+    row: HTMLTableRowElement | undefined
+
+    constructor(id: number | undefined, crepe: Crêpe | undefined, row: HTMLTableRowElement | undefined) {
+        this.id = id
+        this.crepe = crepe
+        this.row = row
+    }
+
+    setRow(row: HTMLTableRowElement) {
+        this.row = row
+        if (this.row === undefined) {
+            throw Error("Nein 😩")
+        }
+    }
+
+    /**
+     * A function to Add the html row to a table, it returns the newly created row.
+     * @param table The table to add the crepe to
+     * @returns The new row
+     */
+    add_to_table(table: HTMLTableElement): HTMLTableRowElement {
+        var tr = table.insertRow()
+        tr.setAttribute("data-id", String(this.crepe.crepeId))
+
+        var amount = tr.insertCell(0)
+        var name = tr.insertCell(1)
+        var price = tr.insertCell(2)
+
+        amount.setAttribute("data-type", "amount")
+        name.setAttribute("data-type", "name")
+        price.setAttribute("data-type", "price")
+
+        // amount.setAttribute("data-type", "amount")
+        // name.setAttribute("data-type", "name")
+        // price.setAttribute("data-type", "price")
+
+        amount.innerHTML = this.crepe.amount.toString()
+        name.innerHTML = this.crepe.name
+        price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.crepe.preis)
+
+
+        this.row = tr; // The row that this TableEntry lives in. Needed for deletion
+        return tr;
+    }
+
+    /**
+     * Removes the Crêpe's row in the table
+     */
+    delete_entry() {
+        console.warn(`Deleting: ${this.crepe} Entry!`)
+        this.row.remove();
+    }
+
+
+}
+
+class TableRow {
+    amount: HTMLElement;
+    name: HTMLElement;
+    price: HTMLElement;
+
+    constructor (entry: TableEntry) {
+        this.amount = entry.row.querySelector('[data-type="amount"]') as HTMLElement;
+        this.name = entry.row.querySelector('[data-type="name"]') as HTMLElement;
+        this.price = entry.row.querySelector('[data-type="price"]') as HTMLElement;
+    }
+
+    updateAmount(new_value: number) {
+        this.amount.innerText = `${new_value}x`;
+    }
+
+    updateName(new_name: string) {
+        this.name.innerText = new_name;
+    }
+
+    updatePrice(new_price: number) {
+        this.price.innerText = formatter.format(new_price);
+    }
+}
+
 class Table {
     table = document.getElementById("crepe_table") as HTMLTableElement;
 
@@ -42,11 +125,13 @@ class Table {
     add_one_crepe(crepe: Crêpe): number {
         if (crepe.amount >= 1) {
             for (let i = 0; i < this.items.length; i++) {
+                console.assert(typeof(this.items[i]) === "undefined", "ALARM: " + i + "| " + this.items[i].crepe.toString() + " " + this.items[i].row)
                 const item = this.items[i].crepe;
 
                 if (item == crepe) {
                     crepe.amount += 1
-                    this.edit_table_entry(crepe)
+                    var res = this.edit_table_entry(crepe)
+                    console.assert(res, "huh?")
                 }
             }
         } else {
@@ -71,49 +156,44 @@ class Table {
 
     protected create_new_entry(crepes: Crêpe) {
         var entry = new TableEntry(crepes.crepeId, crepes, undefined)
-        entry.add_to_table(this.table)
+        const row = entry.add_to_table(this.table)
+        console.assert(entry.row === undefined, "WARUM? 😭")
+        entry.setRow(row);
+        console.assert(entry.row === undefined, "HÄÄÄÄÄÄÄÄÄÄÄÄÄ 😭")
 
         this.items.push(entry)
     };
 
     /**
-     * Bla
+     * Removes all units of the given `Crêpe`
      * @param crepe The Crêpes to remove
      * @returns The new amount of the crêpes or undefined, if there was an error
      */
-    remove_one_crepe(crepe: Crêpe): number | undefined {
-        var crepeEntry: TableEntry;
+    protected remove_table_entry(crepe: Crêpe): number | undefined {
+        // console.trace()
+        // console.log("Removing crepe from table")
+        // var crepeEntry: TableEntry;
 
-        for (let i = 0; i < this.items.length; i++) {
-            const item = this.items[i];
+        // for (let i = 0; i < this.items.length; i++) {
+        //     const item = this.items[i];
 
-            if (item.crepe == crepe) {
-                crepeEntry = item;
-            }
-        }
-        crepe = crepeEntry.crepe;
+        //     if (item.crepe == crepe) {
+        //         crepeEntry = item;
+        //     }
+        // }
 
-        crepe.amount -= 1
+        // console.assert(crepeEntry.crepe === crepe, "Ooopps")
+        // crepe = crepeEntry.crepe;
 
-        this.update_total_value();
+        // this.remove_table_entry(crepe)
 
-        return crepe.amount;
+        // crepe.amount -= 1
 
-    }
+        // this.update_total_value();
 
-    protected remove_table_entry(item: TableEntry) {
-        if (item.crepe.amount != 0) {
-            console.error("Anzahl sollte bereits auf 0 gesetzt worden sein!")
-            item.crepe.amount = 0; // sollte eigentlich schon passiert sein!
-        }
-        
-        item.delete_entry()
+        // return crepe.amount;
+        return
 
-        const id = this.items.findIndex(x => x === item)
-
-        delete this.items[id]
-
-        this.update_total_value()
     }
 
 
@@ -153,5 +233,20 @@ class Table {
             return elem.crepe === crepe
         })
         return found_crepe
+    }
+
+    remove_one_crepe(crepe: Crêpe) {
+        var entry = this.find_crepe_in_items(crepe);
+        var crepe = entry.crepe;
+
+        if (crepe.amount > 1) {
+            crepe.amount -= 1;
+            console.assert(crepe.amount === entry.crepe.amount, "Nicht se same!")
+            const row = entry.row
+            if (row === undefined) { console.error("Row is not defined!"); return; }
+            const entry_row = new TableRow(entry)
+
+            entry_row.updatePrice(crepe.amount);
+        }
     }
 }
