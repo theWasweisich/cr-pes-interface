@@ -64,7 +64,7 @@ function set_settings_up() {
             var preis_human_value = formatter.format(preis_machine_value);
             preis.setAttribute("value", preis_human_value);
             preis.setAttribute("placeholder", preis_human_value);
-            crepelist.push(new Crêpe2(Number(id), name, price, 0, crepe));
+            crepelist.push(new Crêpe(Number(id), name, price, 0, crepe));
         }
     }
 }

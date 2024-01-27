@@ -1,6 +1,6 @@
-var crepelist: Crêpe2[] = []
+var crepelist: Crêpe[] = []
 
-class Crêpe2 {
+class Crêpe {
     id: number;
     name: string;
     preis: number;
@@ -36,7 +36,7 @@ function set_data(root_element: HTMLElement, crepeId?: string, crepeName?: strin
         crepeId = (root_element.getAttribute('data-id'))
     }
 
-    crepelist.push(new Crêpe2(Number(crepeId), crepeName, Number(crepePreis), 0, root_element))
+    crepelist.push(new Crêpe(Number(crepeId), crepeName, Number(crepePreis), 0, root_element))
     return;
 }
 

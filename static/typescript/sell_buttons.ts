@@ -3,8 +3,9 @@ const btns_container = document.getElementById("sell_buttons") as HTMLElement
 const payed = btns_container.querySelector('[data-function="payed"]') as HTMLButtonElement
 const payback = btns_container.querySelector('[data-function="pay_back"]') as HTMLButtonElement
 const own_consumption = btns_container.querySelector('[data-function="own_consumption"]') as HTMLButtonElement
+const reset_button = btns_container.querySelector('[data-function="reset"]') as HTMLButtonElement
 
-async function send_sell_to_server(sale: Crêpe2[]) {
+async function send_sell_to_server(sale: Crêpe[]) {
     console.log("SENDING");
     
     var response = await fetch("/api/sold", {
@@ -28,13 +29,12 @@ async function send_sell_to_server(sale: Crêpe2[]) {
 }
 
 async function payed_func() {
-    var crepes: Crêpe2[] = table.return_for_sending();
 
-    if (crepes.length == 0) {
-        return
+    function localStorageHandler() {
+
     }
 
-    
+    var crepes: Crêpe[] = table.return_for_sending();
     var current_sold = localStorage.getItem("sold")
     
     var to_storage: string[] = []
@@ -53,6 +53,11 @@ async function payed_func() {
     } else {
         localStorage.setItem("sold: ", current_sold += to_storage_str);
     }
+
+    if (crepes.length == 0) {
+        return
+    }
+
     let response = await send_sell_to_server(crepes);
 
     if (response) {
@@ -71,6 +76,10 @@ function own_consumption_func() {
     
 }
 
+function reset_list_func() {
+    table.remove_all_table_entries();
+}
+
 function trigger_alarm() {
     const alert = document.getElementById("popup-alert")
     alert.classList.add("activate")
@@ -83,6 +92,7 @@ function set_listeners_up() {
     payed.addEventListener('click', payed_func)
     payback.addEventListener('click', payback_func)
     own_consumption.addEventListener('click', own_consumption_func)
+    reset_button.addEventListener('click', reset_list_func)
 }
 
 set_listeners_up();

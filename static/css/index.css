@@ -155,7 +155,9 @@ body {
     .crepe_container {
         border: 1px solid var(--clr-primary-border);
         padding: 15px;
+        border-radius: 1rem;
     }
 
     overflow-y: scroll;
+    padding-bottom: 5rem;
 }

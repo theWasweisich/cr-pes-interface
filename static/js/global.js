@@ -1,16 +1,16 @@
 var crepelist = [];
-var Crêpe2 = /** @class */ (function () {
-    function Crêpe2(id, name, preis, amount, root_element) {
+var Crêpe = /** @class */ (function () {
+    function Crêpe(id, name, preis, amount, root_element) {
         this.crepeId = id;
         this.name = name;
         this.preis = preis;
         this.amount = amount;
         this.root_element = root_element;
     }
-    Crêpe2.prototype.toString = function () {
+    Crêpe.prototype.toString = function () {
         return "".concat(this.crepeId, ";").concat(this.name, ";").concat(this.preis, ";").concat(this.amount);
     };
-    return Crêpe2;
+    return Crêpe;
 }());
 /**
  * Adds all crêpes to the crepelist
@@ -26,7 +26,7 @@ function set_data(root_element, crepeId, crepeName, crepePreis) {
         crepePreis = (root_element.getAttribute('data-preis'));
         crepeId = (root_element.getAttribute('data-id'));
     }
-    crepelist.push(new Crêpe2(Number(crepeId), crepeName, Number(crepePreis), 0, root_element));
+    crepelist.push(new Crêpe(Number(crepeId), crepeName, Number(crepePreis), 0, root_element));
     return;
 }
 /**

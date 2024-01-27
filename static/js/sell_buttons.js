@@ -38,6 +38,7 @@ var btns_container = document.getElementById("sell_buttons");
 var payed = btns_container.querySelector('[data-function="payed"]');
 var payback = btns_container.querySelector('[data-function="pay_back"]');
 var own_consumption = btns_container.querySelector('[data-function="own_consumption"]');
+var reset_button = btns_container.querySelector('[data-function="reset"]');
 function send_sell_to_server(sale) {
     return __awaiter(this, void 0, void 0, function () {
         var response;
@@ -72,14 +73,13 @@ function send_sell_to_server(sale) {
 }
 function payed_func() {
     return __awaiter(this, void 0, void 0, function () {
+        function localStorageHandler() {
+        }
         var crepes, current_sold, to_storage, to_storage_str, i, crepe, response;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     crepes = table.return_for_sending();
-                    if (crepes.length == 0) {
-                        return [2 /*return*/];
-                    }
                     current_sold = localStorage.getItem("sold");
                     to_storage = [];
                     for (i = 0; i < crepes.length; i++) {
@@ -92,6 +92,9 @@ function payed_func() {
                     }
                     else {
                         localStorage.setItem("sold: ", current_sold += to_storage_str);
+                    }
+                    if (crepes.length == 0) {
+                        return [2 /*return*/];
                     }
                     return [4 /*yield*/, send_sell_to_server(crepes)];
                 case 1:
@@ -113,6 +116,9 @@ function payback_func() {
 }
 function own_consumption_func() {
 }
+function reset_list_func() {
+    table.remove_all_table_entries();
+}
 function trigger_alarm() {
     var alert = document.getElementById("popup-alert");
     alert.classList.add("activate");
@@ -124,5 +130,6 @@ function set_listeners_up() {
     payed.addEventListener('click', payed_func);
     payback.addEventListener('click', payback_func);
     own_consumption.addEventListener('click', own_consumption_func);
+    reset_button.addEventListener('click', reset_list_func);
 }
 set_listeners_up();
