@@ -25,8 +25,8 @@ function button_pressed_action(target: HTMLElement, crepes_class: Crêpe, button
             console.groupEnd()
             
             var res = table.remove_one_crepe(crepes_class) // FIXME
-            console.debug(res)
-            var new_amount = crepes_class.amount
+            console.debug(res);
+            var new_amount = crepes_class.amount;
         }
     }
     handle_amount_counter(target, new_amount);
