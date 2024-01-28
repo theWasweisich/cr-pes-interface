@@ -56,8 +56,7 @@ function button_pressed_action(target, crepes_class, button) {
             console.log("Removing!");
             console.log(crepes_class);
             console.groupEnd();
-            var res = table.remove_one_crepe(crepes_class); // FIXME
-            console.debug(res);
+            table.remove_one_crepe(crepes_class); // FIXME
             var new_amount = crepes_class.amount;
         }
     }
@@ -105,8 +104,6 @@ function event_listener(ev) {
     var target = ev.currentTarget; // target = DIV .crepecontainer
     var id = get_crepes_class(target);
     if (original_target.tagName == "BUTTON") {
-        console.debug("Got Button: ");
-        console.debug(original_target);
         button_pressed_action(target, id, original_target);
     }
     else if (original_target.tagName == "DIV") {

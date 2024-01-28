@@ -37,7 +37,7 @@ var TableEntry = /** @class */ (function () {
      * Removes the Crêpe's row in the table
      */
     TableEntry.prototype.delete_entry = function () {
-        console.warn("Deleting: ".concat(this.crepe, " Entry!"));
+        // console.warn(`Deleting: ${this.crepe} Entry!`)
         this.row.remove();
     };
     return TableEntry;
@@ -48,8 +48,13 @@ var TableRow = /** @class */ (function () {
         this.name = entry.row.querySelector('[data-type="name"]');
         this.price = entry.row.querySelector('[data-type="price"]');
     }
-    TableRow.prototype.updateAmount = function (new_value) {
-        this.amount.innerText = "".concat(new_value, "x");
+    TableRow.prototype.updateAmount = function (new_amount) {
+        console.groupCollapsed("Updating Price");
+        console.log("Updating Price Element:");
+        console.log(this.amount);
+        console.log("to: ".concat(new_amount));
+        console.groupEnd();
+        this.amount.innerText = "".concat(new_amount, "x");
     };
     TableRow.prototype.updateName = function (new_name) {
         this.name.innerText = new_name;
@@ -98,7 +103,7 @@ var Table = /** @class */ (function () {
     Table.prototype.add_one_crepe = function (crepe) {
         if (crepe.amount >= 1) {
             for (var i = 0; i < this.items.length; i++) {
-                console.assert(typeof (this.items[i]) === "undefined", "ALARM: " + i + "| " + this.items[i].crepe.toString() + " " + this.items[i].row);
+                console.assert(typeof (this.items[i]) !== "undefined", "ALARM: " + i + "| " + this.items[i].crepe.toString() + " " + this.items[i].row);
                 var item = this.items[i].crepe;
                 if (item == crepe) {
                     crepe.amount += 1;
@@ -125,34 +130,31 @@ var Table = /** @class */ (function () {
     Table.prototype.create_new_entry = function (crepes) {
         var entry = new TableEntry(crepes.crepeId, crepes, undefined);
         var row = entry.add_to_table(this.table);
-        console.assert(entry.row === undefined, "WARUM? 😭");
+        console.assert(entry.row !== undefined, "WARUM? 😭"); // das muss !== sein, weil assert ist wenn false
         entry.setRow(row);
-        console.assert(entry.row === undefined, "HÄÄÄÄÄÄÄÄÄÄÄÄÄ 😭");
         this.items.push(entry);
     };
     ;
     /**
      * Removes all units of the given `Crêpe`
      * @param crepe The Crêpes to remove
-     * @returns The new amount of the crêpes or undefined, if there was an error
+     * @returns true on success, false on error
      */
     Table.prototype.remove_table_entry = function (crepe) {
-        // console.trace()
-        // console.log("Removing crepe from table")
-        // var crepeEntry: TableEntry;
-        // for (let i = 0; i < this.items.length; i++) {
-        //     const item = this.items[i];
-        //     if (item.crepe == crepe) {
-        //         crepeEntry = item;
-        //     }
-        // }
-        // console.assert(crepeEntry.crepe === crepe, "Ooopps")
-        // crepe = crepeEntry.crepe;
-        // this.remove_table_entry(crepe)
-        // crepe.amount -= 1
-        // this.update_total_value();
-        // return crepe.amount;
-        return;
+        var entry = this.find_crepe_in_items(crepe);
+        entry.delete_entry();
+        entry.crepe.amount = 0;
+        var id = this.items.findIndex(function (item) {
+            item === entry;
+        });
+        var returned = this.items.splice(id, 1);
+        if (!(returned[0] === entry)) {
+            console.error("ALARM 🚨");
+            return false;
+        }
+        else {
+            return true;
+        }
     };
     Table.prototype.remove_all_table_entries = function () {
         var _loop_1 = function (i) {
@@ -176,11 +178,6 @@ var Table = /** @class */ (function () {
     };
     /**
      * Finds the `TableEntry` corresponding to the inputted `Crêpe`
-     *
-     * ---
-     *
-     * &nbsp;
-     *
      * @param crepe The Crêpe one is looking for
      * @returns Either the `TableEntry`, if the crepe has been found and `undefined` if none has been found.
      */
@@ -190,6 +187,11 @@ var Table = /** @class */ (function () {
         });
         return found_crepe;
     };
+    /**
+     * Removes (substracts) one crepe from the table
+     * @param crepe The Crêpe of which to remove one unit
+     * @returns The new number of Crêpes there are
+     */
     Table.prototype.remove_one_crepe = function (crepe) {
         var entry = this.find_crepe_in_items(crepe);
         var crepe = entry.crepe;
@@ -202,8 +204,13 @@ var Table = /** @class */ (function () {
                 return;
             }
             var entry_row = new TableRow(entry);
-            entry_row.updatePrice(crepe.amount);
+            entry_row.updateAmount(crepe.amount);
         }
+        else if (crepe.amount == 1) {
+            this.remove_table_entry(crepe);
+        }
+        this.update_total_value();
+        return crepe.amount;
     };
     return Table;
 }());
