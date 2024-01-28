@@ -157,6 +157,9 @@ def serve_shifts():
         flash("shifts")
         return redirect("/login")
 
+@app.route("/development")
+def serve_dev():
+    return render_template("development.jinja")
 
 
 

@@ -12,36 +12,41 @@ header {
     grid-template-columns: 1fr min-content;
     padding: 1.5rem;
 
-    >
-    h1 > span , p {
+    >h1>span,
+    p {
         float: left;
-    font-weight: 900;
+        font-weight: 900;
     }
 
-    >
-    h1 > p {
+    >h1>p {
         margin: 0;
-    margin-left: 0.25rem;
+        margin-left: 0.25rem;
     }
 
-    > .header-nav-bar {
-    display: grid;
-    grid-template-rows: 1fr 1fr 1fr;
-    gap: .5em;
+    >.header-nav-bar {
+        display: grid;
+        grid-template-rows: 1fr 1fr 1fr;
+        gap: .5em;
 
-        >
-    button {
-            text-decoration: none;
-    padding-block: 5px;
-    padding-inline: 2px;
-    text-align: center;
-    text-transform: uppercase;
-    outline: rgb(92, 92, 92) solid 2px;
+        >button {
+            padding-block: 5px;
+            padding-inline: 2px;
+            text-align: center;
+            text-transform: uppercase;
+            outline: rgb(92, 92, 92) solid 2px;
+
+            >a {
+                text-decoration: none;
+                color: white;
+            }
+            >a.disabled {
+                color: rgb(146, 146, 146) !important;
+            }
         }
     }
 }
 
 #clock {
-    float:none;
+    float: none;
     grid-column-start: 2;
 }

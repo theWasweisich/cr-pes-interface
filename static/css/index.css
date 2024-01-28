@@ -2,7 +2,15 @@
 @import url(/static/css/colors.css);
 @import url(/static/css/index_alert.css);
 
-
+@media (max-width: 660px) {
+    body * {
+        display: none;
+    }
+    html::before {
+        content: 'Device width too small!';
+        font-size: xxx-large;
+    }
+}
 
 
 * {
@@ -24,7 +32,7 @@ body {
     right: 0;
     bottom: 0;
     display: grid;
-    grid-template-columns: 1fr 25%;
+    grid-template-columns: 1fr max(25%, 270px);
 
     grid-template-areas:
         "header links"
@@ -32,6 +40,8 @@ body {
 }
 
 #side_nav {
+
+    min-width: 270px;
 
     border-left: 5px solid var(--clr-primary-border);
 

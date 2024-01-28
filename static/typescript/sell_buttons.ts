@@ -30,29 +30,30 @@ async function send_sell_to_server(sale: Crêpe[]) {
 
 async function payed_func() {
 
-    function localStorageHandler() {
-
+    function appendToLocalStorage() {
+        var current_sold = localStorage.getItem("sold")
+        
+        var to_storage: string[] = []
+        var to_storage_str: string;
+        
+        for (let i = 0; i < crepes.length; i++) {
+            const crepe = crepes[i];
+            
+            to_storage.push(crepe.toString())
+        }
+        
+        to_storage_str = to_storage.join("|")
+        
+        if (current_sold == null) {
+            localStorage.setItem("sold: ", to_storage_str);        
+        } else {
+            localStorage.setItem("sold: ", current_sold += to_storage_str);
+        }
     }
 
     var crepes: Crêpe[] = table.return_for_sending();
-    var current_sold = localStorage.getItem("sold")
-    
-    var to_storage: string[] = []
-    var to_storage_str: string;
-    
-    for (let i = 0; i < crepes.length; i++) {
-        const crepe = crepes[i];
-        
-        to_storage.push(crepe.toString())
-    }
-    
-    to_storage_str = to_storage.join("|")
-    
-    if (current_sold == null) {
-        localStorage.setItem("sold: ", to_storage_str);        
-    } else {
-        localStorage.setItem("sold: ", current_sold += to_storage_str);
-    }
+
+    appendToLocalStorage();
 
     if (crepes.length == 0) {
         return
@@ -61,7 +62,7 @@ async function payed_func() {
     let response = await send_sell_to_server(crepes);
 
     if (response) {
-        table.remove_all_table_entries(); // wohnt in ./index.ts
+        table.remove_all_table_entries();
         return true;
     } else {
         return false;
