@@ -48,6 +48,16 @@
             <p id="clock"></p>
             <script>
                 const clock = document.getElementById("clock");
+                function alignClock() {
+                    var interval = setInterval(() => {
+                        var secs = new Date().getUTCSeconds();
+                        if (secs == 1) {
+                            console.log("First second!")
+                            clearInterval(secs);
+                            setInterval(setTime, 30_000) // Call setTime every 30 seconds
+                        }
+                    }, 10)
+                }
                 function setTime() {
                     // console.log("Clock test")
                     var date = new Date();
@@ -65,7 +75,7 @@
                     clock.innerText = `${hours}:${mins} Uhr`;
                 }
                 setTime()
-                setInterval(setTime, 30000)
+                alignClock()
             </script>
         </header>
         <div id="popup-alert"> <!-- Add class activate to show! -->

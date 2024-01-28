@@ -45,12 +45,12 @@ class TableEntry {
         this.row = tr; // The row that this TableEntry lives in. Needed for deletion
         return tr;
     }
-
+ 
     /**
      * Removes the Crêpe's row in the table
      */
     delete_entry() {
-        console.warn(`Deleting: ${this.crepe} Entry!`)
+        // console.warn(`Deleting: ${this.crepe} Entry!`)
         this.row.remove();
     }
 
@@ -68,8 +68,13 @@ class TableRow {
         this.price = entry.row.querySelector('[data-type="price"]') as HTMLElement;
     }
 
-    updateAmount(new_value: number) {
-        this.amount.innerText = `${new_value}x`;
+    updateAmount(new_amount: number) {
+        console.groupCollapsed("Updating Price")
+        console.log("Updating Price Element:")
+        console.log(this.amount)
+        console.log(`to: ${new_amount}`)
+        console.groupEnd()
+        this.amount.innerText = `${new_amount}x`;
     }
 
     updateName(new_name: string) {
@@ -125,7 +130,7 @@ class Table {
     add_one_crepe(crepe: Crêpe): number {
         if (crepe.amount >= 1) {
             for (let i = 0; i < this.items.length; i++) {
-                console.assert(typeof(this.items[i]) === "undefined", "ALARM: " + i + "| " + this.items[i].crepe.toString() + " " + this.items[i].row)
+                console.assert(typeof(this.items[i]) !== "undefined", "ALARM: " + i + "| " + this.items[i].crepe.toString() + " " + this.items[i].row)
                 const item = this.items[i].crepe;
 
                 if (item == crepe) {
@@ -157,42 +162,31 @@ class Table {
     protected create_new_entry(crepes: Crêpe) {
         var entry = new TableEntry(crepes.crepeId, crepes, undefined)
         const row = entry.add_to_table(this.table)
-        console.assert(entry.row === undefined, "WARUM? 😭")
+        console.assert(entry.row !== undefined, "WARUM? 😭") // das muss !== sein, weil assert ist wenn false
         entry.setRow(row);
-        console.assert(entry.row === undefined, "HÄÄÄÄÄÄÄÄÄÄÄÄÄ 😭")
-
         this.items.push(entry)
     };
 
     /**
      * Removes all units of the given `Crêpe`
      * @param crepe The Crêpes to remove
-     * @returns The new amount of the crêpes or undefined, if there was an error
+     * @returns true on success, false on error
      */
-    protected remove_table_entry(crepe: Crêpe): number | undefined {
-        // console.trace()
-        // console.log("Removing crepe from table")
-        // var crepeEntry: TableEntry;
+    protected remove_table_entry(crepe: Crêpe): boolean | undefined {
+        var entry = this.find_crepe_in_items(crepe)
+        entry.delete_entry()
+        entry.crepe.amount = 0;
 
-        // for (let i = 0; i < this.items.length; i++) {
-        //     const item = this.items[i];
-
-        //     if (item.crepe == crepe) {
-        //         crepeEntry = item;
-        //     }
-        // }
-
-        // console.assert(crepeEntry.crepe === crepe, "Ooopps")
-        // crepe = crepeEntry.crepe;
-
-        // this.remove_table_entry(crepe)
-
-        // crepe.amount -= 1
-
-        // this.update_total_value();
-
-        // return crepe.amount;
-        return
+        const id = this.items.findIndex((item) => {
+            item === entry;
+        })
+        const returned = this.items.splice(id, 1);
+        if (!(returned[0] === entry)) {
+            console.error("ALARM 🚨");
+            return false;
+        } else {
+            return true;
+        }
 
     }
 
@@ -220,22 +214,22 @@ class Table {
 
     /**
      * Finds the `TableEntry` corresponding to the inputted `Crêpe`
-     * 
-     * ---
-     * 
-     * &nbsp;
-     * 
      * @param crepe The Crêpe one is looking for
      * @returns Either the `TableEntry`, if the crepe has been found and `undefined` if none has been found.
      */
-    find_crepe_in_items(crepe: Crêpe) {
+    find_crepe_in_items(crepe: Crêpe): TableEntry {
         const found_crepe = this.items.find((elem, index, array) => {
             return elem.crepe === crepe
         })
         return found_crepe
     }
 
-    remove_one_crepe(crepe: Crêpe) {
+    /**
+     * Removes (substracts) one crepe from the table
+     * @param crepe The Crêpe of which to remove one unit
+     * @returns The new number of Crêpes there are
+     */
+    remove_one_crepe(crepe: Crêpe): number {
         var entry = this.find_crepe_in_items(crepe);
         var crepe = entry.crepe;
 
@@ -246,7 +240,11 @@ class Table {
             if (row === undefined) { console.error("Row is not defined!"); return; }
             const entry_row = new TableRow(entry)
 
-            entry_row.updatePrice(crepe.amount);
+            entry_row.updateAmount(crepe.amount);
+        } else if (crepe.amount == 1) {
+            this.remove_table_entry(crepe);
         }
+        this.update_total_value();
+        return crepe.amount;
     }
 }
