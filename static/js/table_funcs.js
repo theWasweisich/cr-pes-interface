@@ -1,21 +1,21 @@
-var TableEntry = /** @class */ (function () {
-    function TableEntry(id, crepe, row) {
+class TableEntry {
+    constructor(id, crepe, row) {
         this.id = id;
         this.crepe = crepe;
         this.row = row;
     }
-    TableEntry.prototype.setRow = function (row) {
+    setRow(row) {
         this.row = row;
         if (this.row === undefined) {
             throw Error("Nein 😩");
         }
-    };
+    }
     /**
      * A function to Add the html row to a table, it returns the newly created row.
      * @param table The table to add the crepe to
      * @returns The new row
      */
-    TableEntry.prototype.add_to_table = function (table) {
+    add_to_table(table) {
         var tr = table.insertRow();
         tr.setAttribute("data-id", String(this.crepe.crepeId));
         var amount = tr.insertCell(0);
@@ -32,83 +32,77 @@ var TableEntry = /** @class */ (function () {
         price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.crepe.preis);
         this.row = tr; // The row that this TableEntry lives in. Needed for deletion
         return tr;
-    };
+    }
     /**
      * Removes the Crêpe's row in the table
      */
-    TableEntry.prototype.delete_entry = function () {
+    delete_entry() {
         // console.warn(`Deleting: ${this.crepe} Entry!`)
         this.row.remove();
-    };
-    return TableEntry;
-}());
-var TableRow = /** @class */ (function () {
-    function TableRow(entry) {
+    }
+}
+class TableRow {
+    constructor(entry) {
         this.amount = entry.row.querySelector('[data-type="amount"]');
         this.name = entry.row.querySelector('[data-type="name"]');
         this.price = entry.row.querySelector('[data-type="price"]');
     }
-    TableRow.prototype.updateAmount = function (new_amount) {
+    updateAmount(new_amount) {
         console.groupCollapsed("Updating Price");
         console.log("Updating Price Element:");
         console.log(this.amount);
-        console.log("to: ".concat(new_amount));
+        console.log(`to: ${new_amount}`);
         console.groupEnd();
-        this.amount.innerText = "".concat(new_amount, "x");
-    };
-    TableRow.prototype.updateName = function (new_name) {
+        this.amount.innerText = `${new_amount}x`;
+    }
+    updateName(new_name) {
         this.name.innerText = new_name;
-    };
-    TableRow.prototype.updatePrice = function (new_price) {
+    }
+    updatePrice(new_price) {
         this.price.innerText = formatter.format(new_price);
-    };
-    return TableRow;
-}());
-var Table = /** @class */ (function () {
-    function Table() {
+    }
+}
+class Table {
+    constructor() {
         this.table = document.getElementById("crepe_table");
-        this.items = [];
+        this.items = new Set();
     }
     /**
      *
      * @returns The Crêpes that have been sold
      */
-    Table.prototype.return_for_sending = function () {
+    return_for_sending() {
         var to_return = [];
-        this.items.forEach(function (item) {
+        this.items.forEach(item => {
             to_return.push(item.crepe);
         });
         return to_return;
-    };
+    }
     /**
      * Iterates over each crepe and adds
      */
-    Table.prototype.update_total_value = function (override) {
-        if (override === void 0) { override = false; }
+    update_total_value(override = false) {
         var total_heading = this.table.parentElement.getElementsByTagName("h2")[0];
         var total_elem = total_heading.children[0];
         var total_value = 0;
-        for (var i = 0; i < this.items.length; i++) {
-            var item = this.items[i].crepe;
-            total_value += item.preis * item.amount;
+        for (let item of this.items) {
+            total_value += item.crepe.amount * item.crepe.preis;
         }
         total_elem.innerHTML = formatter.format(total_value);
         return total_value;
-    };
+    }
     /**
      * Bla
      * @param crepe The Crêpes to addd
      * @returns The new amount
      */
-    Table.prototype.add_one_crepe = function (crepe) {
+    add_one_crepe(crepe) {
         if (crepe.amount >= 1) {
-            for (var i = 0; i < this.items.length; i++) {
-                console.assert(typeof (this.items[i]) !== "undefined", "ALARM: " + i + "| " + this.items[i].crepe.toString() + " " + this.items[i].row);
-                var item = this.items[i].crepe;
-                if (item == crepe) {
+            for (let item of this.items) {
+                console.assert(typeof (item) !== "undefined", "ALARM: " + "| " + item.crepe.toString() + " " + item.row);
+                if (item.crepe == crepe) {
                     crepe.amount += 1;
-                    var res = this.edit_table_entry(crepe);
-                    console.assert(res, "huh?");
+                    this.updateTableEntry(crepe);
                 }
             }
         }
@@ -118,99 +112,107 @@ var Table = /** @class */ (function () {
         }
         this.update_total_value();
         return crepe.amount;
-    };
-    Table.prototype.edit_table_entry = function (crepe) {
-        var row = this.table.querySelector("[data-id=\"".concat(crepe.crepeId, "\"]"));
-        var amount_elem = row.querySelector("[data-type=\"amount\"]");
-        var price_elem = row.querySelector("[data-type=\"price\"]");
+    }
+    /**
+     * Takes a crepe as input and updates the corresponding table entry
+     * @param crepe The crêpe to update
+     */
+    updateTableEntry(crepe) {
+        var row = this.table.querySelector(`[data-id="${crepe.crepeId}"]`);
+        var amount_elem = row.querySelector(`[data-type="amount"]`);
+        var price_elem = row.querySelector(`[data-type="price"]`);
         amount_elem.innerHTML = crepe.amount.toString();
         price_elem.innerHTML = Intl.NumberFormat("de-DE", { style: 'currency', currency: 'EUR' }).format(crepe.preis * crepe.amount);
-        return true;
-    };
-    Table.prototype.create_new_entry = function (crepes) {
+        return;
+    }
+    /**
+     * Creates a new Table Entry for a crepe
+     * ! Does not check if there is already an entry!
+     * @param crepes The Crêpe for which to create a new entry
+     */
+    create_new_entry(crepes) {
         var entry = new TableEntry(crepes.crepeId, crepes, undefined);
-        var row = entry.add_to_table(this.table);
+        const row = entry.add_to_table(this.table);
         console.assert(entry.row !== undefined, "WARUM? 😭"); // das muss !== sein, weil assert ist wenn false
         entry.setRow(row);
-        this.items.push(entry);
-    };
+        this.items.add(entry);
+    }
     ;
     /**
      * Removes all units of the given `Crêpe`
      * @param crepe The Crêpes to remove
      * @returns true on success, false on error
      */
-    Table.prototype.remove_table_entry = function (crepe) {
+    remove_table_entry(crepe) {
         var entry = this.find_crepe_in_items(crepe);
         entry.delete_entry();
         entry.crepe.amount = 0;
-        var id = this.items.findIndex(function (item) {
-            item === entry;
-        });
-        var returned = this.items.splice(id, 1);
-        if (!(returned[0] === entry)) {
+        const returned = this.items.delete(entry);
+        if (returned != true) {
+            console.groupCollapsed("ALARM 🚨");
             console.error("ALARM 🚨");
+            console.log(entry);
+            console.groupEnd();
             return false;
         }
         else {
             return true;
         }
-    };
-    Table.prototype.remove_all_table_entries = function () {
-        var _loop_1 = function (i) {
-            var item = this_1.items[i]; // The TableEntry class
-            var item_id = this_1.items.findIndex(function (x) { return x == item; });
-            var crepe = item.crepe; // The Crêpe
-            var root_elem = crepe.root_element;
-            item.delete_entry();
-            root_elem.querySelector(".crepes_counter").innerHTML = "";
-            crepe.amount = 0;
-            delete this_1.items[item_id];
-        };
-        var this_1 = this;
-        for (var i = 0; i < this.items.length; i++) {
-            _loop_1(i);
+    }
+    remove_all_table_entries() {
+        var iterations = 0;
+        for (let item of this.items) {
+            iterations++;
+            let crepe = item.crepe; // The Crêpe
+            let expected_amount = this.remove_one_crepe(crepe); // Already removes crepe from this.items
+            console.assert(expected_amount == crepe.amount, "🚨 FEHLER! " + expected_amount + " != " + String(crepe.amount));
         }
-        if (this.items.length != 0) {
+        if (this.items.size != 0) {
             this.remove_all_table_entries();
         }
         this.update_total_value();
-    };
+    }
     /**
      * Finds the `TableEntry` corresponding to the inputted `Crêpe`
      * @param crepe The Crêpe one is looking for
      * @returns Either the `TableEntry`, if the crepe has been found and `undefined` if none has been found.
      */
-    Table.prototype.find_crepe_in_items = function (crepe) {
-        var found_crepe = this.items.find(function (elem, index, array) {
-            return elem.crepe === crepe;
-        });
-        return found_crepe;
-    };
+    find_crepe_in_items(crepe) {
+        var found_entry;
+        for (let item of this.items) {
+            if (item.crepe === crepe) {
+                found_entry = item;
+            }
+        }
+        return found_entry;
+    }
     /**
      * Removes (substracts) one crepe from the table
+     * Does the following:
+     *  + Subtracts one crepe
+     *
      * @param crepe The Crêpe of which to remove one unit
      * @returns The new number of Crêpes there are
      */
-    Table.prototype.remove_one_crepe = function (crepe) {
+    remove_one_crepe(crepe) {
         var entry = this.find_crepe_in_items(crepe);
         var crepe = entry.crepe;
         if (crepe.amount > 1) {
             crepe.amount -= 1;
             console.assert(crepe.amount === entry.crepe.amount, "Nicht se same!");
-            var row = entry.row;
+            const row = entry.row;
             if (row === undefined) {
                 console.error("Row is not defined!");
                 return;
             }
-            var entry_row = new TableRow(entry);
+            const entry_row = new TableRow(entry);
             entry_row.updateAmount(crepe.amount);
         }
         else if (crepe.amount == 1) {
             this.remove_table_entry(crepe);
         }
+        handle_amount_counter(crepe.root_element, crepe.amount);
         this.update_total_value();
         return crepe.amount;
-    };
-    return Table;
-}());
+    }
+}

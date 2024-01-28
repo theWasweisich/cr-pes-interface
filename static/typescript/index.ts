@@ -19,10 +19,10 @@ function button_pressed_action(target: HTMLElement, crepes_class: Crêpe, button
             var new_amount = table.add_one_crepe(crepes_class)
         } 
         else if (button.classList.contains('remove')) {
-            console.groupCollapsed("Removing");
-            console.log("Removing!")
-            console.log(crepes_class)
-            console.groupEnd()
+            // console.groupCollapsed("Removing");
+            // console.log("Removing!")
+            // console.log(crepes_class)
+            // console.groupEnd()
             
             table.remove_one_crepe(crepes_class) // FIXME
             var new_amount = crepes_class.amount;
@@ -31,19 +31,6 @@ function button_pressed_action(target: HTMLElement, crepes_class: Crêpe, button
     handle_amount_counter(target, new_amount);
 }
 
-/**
- * Updates the small amount hint below the crepecontrol
- * @param root The Crêpes' root element
- * @param new_amount The value to update to
- */
-function handle_amount_counter(root: HTMLElement, new_amount: number) {
-    const counter = root.querySelector(".crepecontrol .crepes_counter") as HTMLElement
-    if (new_amount == 0) {
-        counter.innerHTML = ""
-    } else {
-        counter.innerHTML = String(new_amount) + "x"
-    }
-}
 
 /**
  * The global event listener

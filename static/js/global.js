@@ -1,6 +1,23 @@
 var crepelist = [];
-var Crêpe = /** @class */ (function () {
-    function Crêpe(id, name, preis, amount, root_element, table_root_element) {
+var crepemap = new Map();
+var connectionError = false;
+/**
+ * either true or false
+ */
+class CrepeConError {
+    constructor(value) {
+        this.value = value;
+    }
+    get() {
+        return this.value;
+    }
+    setFavicon() {
+        if (this.value) {
+        }
+    }
+}
+class Crêpe {
+    constructor(id, name, preis, amount, root_element, table_root_element) {
         this.table_element = undefined;
         this.crepeId = id;
         this.name = name;
@@ -9,11 +26,10 @@ var Crêpe = /** @class */ (function () {
         this.root_element = root_element;
         this.table_element = table_root_element;
     }
-    Crêpe.prototype.toString = function () {
-        return "\n".concat(this.crepeId, "\n").concat(this.name, "\n").concat(this.preis, "\n").concat(this.amount, "\n");
-    };
-    return Crêpe;
-}());
+    toString() {
+        return `\n${this.crepeId} ; ${this.name} ; ${this.preis} ; ${this.amount}\n`;
+    }
+}
 /**
  * Adds all crêpes to the crepelist
  * @param root_element The root element of the crepe
@@ -34,7 +50,21 @@ function set_data(root_element, crepeId, crepeName, crepePreis) {
 /**
  * For formatting number to currency
  */
-var formatter = new Intl.NumberFormat('de-DE', {
+const formatter = new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR'
 });
+/**
+ * Updates the small amount hint below the crepecontrol
+ * @param root The Crêpes' root element
+ * @param new_amount The value to update to
+ */
+function handle_amount_counter(root, new_amount) {
+    const counter = root.querySelector(".crepecontrol .crepes_counter");
+    if (new_amount == 0) {
+        counter.innerHTML = "";
+    }
+    else {
+        counter.innerHTML = String(new_amount) + "x";
+    }
+}

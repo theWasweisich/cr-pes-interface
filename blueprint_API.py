@@ -230,7 +230,13 @@ def delete_crepe():
     con.close()
     return {"status": "success"}
 
-
+@cross_origin
+@api_bp.route("/sold/failresistor", methods=("POST",))
+def crepe_sold_failresistor():
+    data = request.json
+    with open("failResistance.txt", "w", encoding="UTF-8") as f:
+        json.dump(data, f)
+    return {"status": "success"}
 
 @cross_origin
 @api_bp.route("/sold", methods=("POST",))
