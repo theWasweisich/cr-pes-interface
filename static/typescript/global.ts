@@ -1,6 +1,29 @@
 var crepelist: Crêpe[] = []
 var crepemap: Map<Crêpe, Map<unknown, unknown>> = new Map();
 
+var connectionError: boolean = false;
+
+/**
+ * either true or false
+ */
+class CrepeConError {
+    value: boolean;
+
+    constructor(value?: boolean) {
+        this.value = value;
+    }
+
+    get () {
+        return this.value;
+    }
+
+    setFavicon() {
+        if (this.value) {
+
+        }
+    }
+}
+
 class Crêpe {
     id: number;
     name: string;
@@ -20,7 +43,7 @@ class Crêpe {
     }
 
     public toString() {
-        return `\n${this.crepeId}\n${this.name}\n${this.preis}\n${this.amount}\n`
+        return `\n${this.crepeId} ; ${this.name} ; ${this.preis} ; ${this.amount}\n`
     }
 }
 

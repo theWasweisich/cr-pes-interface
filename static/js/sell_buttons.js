@@ -47,10 +47,10 @@ function payed_func() {
             }
             to_storage_str = to_storage.join("|");
             if (current_sold == null) {
-                localStorage.setItem("sold: ", to_storage_str);
+                localStorage.setItem("sold", to_storage_str);
             }
             else {
-                localStorage.setItem("sold: ", current_sold += to_storage_str);
+                localStorage.setItem("sold", current_sold += to_storage_str);
             }
         }
         var crepes = table.return_for_sending();
@@ -60,14 +60,30 @@ function payed_func() {
         }
         let response = yield send_sell_to_server(crepes);
         if (response) {
-            table.remove_all_table_entries();
+            reset_list_func();
             return true;
         }
         else {
+            connectionError = true;
+            reset_list_func();
             return false;
         }
         ;
     });
+}
+/**
+ *
+ * @param state TRUE: normal favicon || FALSE: red favicon
+ */
+function setFavicon(state) {
+    var link = document.querySelector("link[rel~='icon']");
+    if (state) // If state == true, show normal Favicon
+     {
+        link.href = "./favicon.ico";
+    }
+    else // else, show red favicon
+     {
+    }
 }
 function payback_func() {
 }
@@ -75,6 +91,14 @@ function own_consumption_func() {
 }
 function reset_list_func() {
     table.remove_all_table_entries();
+}
+function fail_resistor() {
+    var stored = localStorage.getItem('sold');
+    var res = send_sell_to_server(stored);
+    if (res) {
+        connectionError = false;
+        localStorage.removeItem('sold');
+    }
 }
 function trigger_alarm() {
     const alert = document.getElementById("popup-alert");

@@ -1,5 +1,21 @@
 var crepelist = [];
 var crepemap = new Map();
+var connectionError = false;
+/**
+ * either true or false
+ */
+class CrepeConError {
+    constructor(value) {
+        this.value = value;
+    }
+    get() {
+        return this.value;
+    }
+    setFavicon() {
+        if (this.value) {
+        }
+    }
+}
 class Crêpe {
     constructor(id, name, preis, amount, root_element, table_root_element) {
         this.table_element = undefined;
@@ -11,7 +27,7 @@ class Crêpe {
         this.table_element = table_root_element;
     }
     toString() {
-        return `\n${this.crepeId}\n${this.name}\n${this.preis}\n${this.amount}\n`;
+        return `\n${this.crepeId} ; ${this.name} ; ${this.preis} ; ${this.amount}\n`;
     }
 }
 /**
