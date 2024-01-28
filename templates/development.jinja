@@ -17,6 +17,10 @@
             margin: 0;
             padding: 0;
         }
+
+        #storageButton {
+            border-radius: 1em;
+        }
     </style>
 
 </head>
@@ -27,44 +31,36 @@
             <p>DEVELOPMENT</p>
         </h1>
         <div class="header-nav-bar">
-            <button type="button" class="crepe-button"><a href="/">Kasse</a></button>
-            <button type="button" class="crepe-button"><a href="/einstellungen">Einstellungen</a></button>
-            <button type="button" class="crepe-button disabled" disabled><a href="/schichten">Schichten</a></button>
+            <a href="/"><button type="button" class="crepe-button">Kasse</button></a>
+            <a href="/einstellungen"><button type="button" class="crepe-button">Einstellungen</button></a>
+            <a href="/schichten"><button type="button" class="crepe-button disabled" disabled>Schichten</button></a>
         </div>
         <p id="clock"></p>
         <script>
-            const clock = document.getElementById("clock");
-            function alignClock() {
-                var interval = setInterval(() => {
-                    var secs = new Date().getUTCSeconds();
-                    if (secs == 1) {
-                        // console.log("First second!")
-                        clearInterval(secs);
-                        setInterval(setTime, 30_000) // Call setTime every 30 seconds
-                    }
-                }, 10)
-            }
-            function setTime() {
-                // console.log("Clock test")
-                var date = new Date();
-
-                var hours = date.getHours();
-                var mins = date.getMinutes();
-
-                if (hours < 10) {
-                    var hours = "0" + String(hours);
-                }
-                if (mins < 10) {
-                    var mins = "0" + String(mins);
-                }
-
-                clock.innerText = `${hours}:${mins} Uhr`;
-            }
-            setTime()
-            alignClock()
+        const clock=document.getElementById("clock");function alignClock(){setInterval((()=>{var e=(new Date).getUTCSeconds();1==e&&(clearInterval(e),setInterval(setTime,3e4))}),10)}function setTime(){var e=new Date,t=e.getHours(),n=e.getMinutes();if(t<10)t="0"+String(t);if(n<10)n="0"+String(n);clock.innerText=`${t}:${n} Uhr`}setTime(),alignClock();
         </script>
     </header>
 
 
+    <div>
+        <fieldset>
+            <legend>Get LocalStorage</legend>
+            <button id="storageButton" onclick="outputStorage();">Output Local Storage</button>
+            <p>
+                <output id="storageOut"></output>
+            </p>
+        </fieldset>
+    </div>
+
+    <script defer>
+        const out = document.getElementById('storageOut');
+        function outputStorage() {
+            
+            var content = localStorage.getItem('sold: ');
+
+            out.innerHTML = content;
+
+        }
+    </script>
 </body>
 </html>

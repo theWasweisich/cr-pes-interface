@@ -28,20 +28,24 @@ header {
         grid-template-rows: 1fr 1fr 1fr;
         gap: .5em;
 
-        >button {
+        a {
+            text-decoration: none;
+            color: white;
+        }
+        a.disabled {
+            color: rgb(146, 146, 146) !important;
+        }
+
+        a>button {
+            width: 100%;
+        }
+
+        button {
             padding-block: 5px;
             padding-inline: 2px;
             text-align: center;
             text-transform: uppercase;
             outline: rgb(92, 92, 92) solid 2px;
-
-            >a {
-                text-decoration: none;
-                color: white;
-            }
-            >a.disabled {
-                color: rgb(146, 146, 146) !important;
-            }
         }
     }
 }
