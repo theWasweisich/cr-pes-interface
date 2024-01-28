@@ -4,9 +4,9 @@ Made with best intent, nothing promised
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.x     |     :x:            |
+| Version | Supported          | Working |
+| ------- | ------------------ | ------- |
+| 0.x     |     :x:            | :x:     |
 
 ## Reporting a Vulnerability
 
