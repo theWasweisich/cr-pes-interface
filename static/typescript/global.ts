@@ -1,5 +1,6 @@
 const urls = {
-    newSale: "/api/sold"
+    newSale: "/api/sold",
+    resistor: "/api/sold/failresistor",
 }
 
 var crepelist: Crêpe[] = []

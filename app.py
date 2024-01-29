@@ -179,6 +179,17 @@ def serve_favicon():
     resp.status_code = status.HTTP_200_OK
     return resp
 
+@app.route("/favicon_warn.ico")
+def serve_warning_favicon():
+    with open('favicon_warning.ico', "rb") as f:
+        data = f.read()
+    resp = make_response(data)
+    resp.headers.set("Content-Type", "image/x-icon")
+    resp.status_code = status.HTTP_200_OK
+    return resp
+
+
+
 @app.errorhandler(status.HTTP_404_NOT_FOUND)
 def not_found(*args, **kwargs):
     flash("NotFound", category="error")

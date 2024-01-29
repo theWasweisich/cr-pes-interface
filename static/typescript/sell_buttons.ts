@@ -5,10 +5,25 @@ const payback = btns_container.querySelector('[data-function="pay_back"]') as HT
 const own_consumption = btns_container.querySelector('[data-function="own_consumption"]') as HTMLButtonElement
 const reset_button = btns_container.querySelector('[data-function="reset"]') as HTMLButtonElement
 
+function set_listeners_up() {
+    payed.addEventListener('click', payed_func)
+    payback.addEventListener('click', payback_func)
+    own_consumption.addEventListener('click', own_consumption_func)
+    reset_button.addEventListener('click', reset_list_func)
+}
+
+set_listeners_up();
+
 async function send_sell_to_server(sale: Crêpe[] | string) {
     console.log("SENDING");
-    
-    var response = await fetch(urls["newSale"], { // url defined in global
+    let url: string = urls.newSale;
+
+    if (typeof (sale) == "string") {
+        url = urls.resistor;
+    }
+
+
+    var response = await fetch(url, { // url defined in global
         method: "POST",
         mode: "cors",
         cache: "no-cache",
@@ -32,20 +47,20 @@ async function payed_func() {
 
     function appendToLocalStorage() {
         var current_sold = localStorage.getItem("sold")
-        
+
         var to_storage: string[] = []
         var to_storage_str: string;
-        
+
         for (let i = 0; i < crepes.length; i++) {
             const crepe = crepes[i];
-            
+
             to_storage.push(crepe.toString())
         }
-        
+
         to_storage_str = to_storage.join("|")
-        
+
         if (current_sold == null) {
-            localStorage.setItem("sold", to_storage_str);        
+            localStorage.setItem("sold", to_storage_str);
         } else {
             localStorage.setItem("sold", current_sold += to_storage_str);
         }
@@ -79,20 +94,22 @@ function setFavicon(state: boolean) {
     var link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
     if (state) // If state == true, show normal Favicon
     {
-        link.href = "./favicon.ico"
+        link.href = "/favicon.ico"
     }
     else // else, show red favicon
     {
-
+        link.href = "/favicon_warn.ico";
     }
 }
 
+
+
 function payback_func() {
-    
+
 }
 
 function own_consumption_func() {
-    
+
 }
 
 function reset_list_func() {
@@ -115,12 +132,3 @@ function trigger_alarm() {
         alert.classList.remove("activate")
     }, 5000);
 }
-
-function set_listeners_up() {
-    payed.addEventListener('click', payed_func)
-    payback.addEventListener('click', payback_func)
-    own_consumption.addEventListener('click', own_consumption_func)
-    reset_button.addEventListener('click', reset_list_func)
-}
-
-set_listeners_up();
