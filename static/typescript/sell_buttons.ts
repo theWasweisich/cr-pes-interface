@@ -8,7 +8,7 @@ const reset_button = btns_container.querySelector('[data-function="reset"]') as 
 async function send_sell_to_server(sale: Crêpe[] | string) {
     console.log("SENDING");
     
-    var response = await fetch("/api/sold", {
+    var response = await fetch(urls["newSale"], { // url defined in global
         method: "POST",
         mode: "cors",
         cache: "no-cache",

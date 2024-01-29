@@ -15,7 +15,7 @@ const reset_button = btns_container.querySelector('[data-function="reset"]');
 function send_sell_to_server(sale) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("SENDING");
-        var response = yield fetch("/api/sold", {
+        var response = yield fetch(urls["newSale"], {
             method: "POST",
             mode: "cors",
             cache: "no-cache",
