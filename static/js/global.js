@@ -1,3 +1,7 @@
+const urls = {
+    newSale: "/api/sold",
+    resistor: "/api/sold/failresistor",
+};
 var crepelist = [];
 var crepemap = new Map();
 var connectionError = false;

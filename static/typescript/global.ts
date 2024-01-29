@@ -1,3 +1,8 @@
+const urls = {
+    newSale: "/api/sold",
+    resistor: "/api/sold/failresistor",
+}
+
 var crepelist: Crêpe[] = []
 var crepemap: Map<Crêpe, Map<unknown, unknown>> = new Map();
 

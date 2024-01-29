@@ -12,10 +12,21 @@ const payed = btns_container.querySelector('[data-function="payed"]');
 const payback = btns_container.querySelector('[data-function="pay_back"]');
 const own_consumption = btns_container.querySelector('[data-function="own_consumption"]');
 const reset_button = btns_container.querySelector('[data-function="reset"]');
+function set_listeners_up() {
+    payed.addEventListener('click', payed_func);
+    payback.addEventListener('click', payback_func);
+    own_consumption.addEventListener('click', own_consumption_func);
+    reset_button.addEventListener('click', reset_list_func);
+}
+set_listeners_up();
 function send_sell_to_server(sale) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("SENDING");
-        var response = yield fetch("/api/sold", {
+        let url = urls.newSale;
+        if (typeof (sale) == "string") {
+            url = urls.resistor;
+        }
+        var response = yield fetch(url, {
             method: "POST",
             mode: "cors",
             cache: "no-cache",
@@ -79,10 +90,11 @@ function setFavicon(state) {
     var link = document.querySelector("link[rel~='icon']");
     if (state) // If state == true, show normal Favicon
      {
-        link.href = "./favicon.ico";
+        link.href = "/favicon.ico";
     }
     else // else, show red favicon
      {
+        link.href = "/favicon_warn.ico";
     }
 }
 function payback_func() {
@@ -107,10 +119,3 @@ function trigger_alarm() {
         alert.classList.remove("activate");
     }, 5000);
 }
-function set_listeners_up() {
-    payed.addEventListener('click', payed_func);
-    payback.addEventListener('click', payback_func);
-    own_consumption.addEventListener('click', own_consumption_func);
-    reset_button.addEventListener('click', reset_list_func);
-}
-set_listeners_up();
