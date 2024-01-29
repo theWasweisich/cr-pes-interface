@@ -87,27 +87,6 @@ function setup() {
 }
 setup();
 
-// sending the crepes data (in dictionary format) to the server (localhost)
-async function send_crepes(data) {
-    try {
-        const response = await fetch(
-            "http://localhost:80", {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
-
-        const result = await response.json();
-        console.log(result);
-
-    } catch (error) {
-        console.log("Error: " + error);
-    }
-}
-
-
 
 var table = new Table()
 

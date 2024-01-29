@@ -47,8 +47,13 @@ body {
 
     background-color: var(--clr-primary-surface);
 
+    >p.side-nav-menu {
+        margin-inline: 0.5%;
+    }
+
     span {
         float: right;
+        margin-right: 5px;
     }
 
     h2 {
