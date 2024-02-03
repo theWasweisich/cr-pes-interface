@@ -1,6 +1,63 @@
+:root {
+    --table-primary: rgb(69, 72, 75);
+    --table-secondary: rgb(45, 47, 49);
+    --table-row-height: 30px;
+}
+
 html,
 body {
     margin: 0;
     padding: 0;
-    width: 100%;
 }
+
+fieldset {
+    margin: 10px;
+    padding: 15px;
+}
+
+table {
+    padding-inline: 5px;
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-style: hidden;
+    outline: 0.5px solid;
+
+
+    th {
+        background-color: rgb(82, 86, 89);
+        border-bottom: 1px solid black;
+    }
+
+    tr {
+        text-align: right;
+    }
+
+    tr[data-sale] {
+        background-color: var(--table-primary);
+        height: var(--table-row-height);
+    }
+
+    tr.padding-row {
+        line-height: 5px;
+    }
+
+    /* td {
+        border: 1px solid black;
+    } */
+
+    tr:nth-child(even):not([class]) {
+        background-color: var(--table-secondary);
+    }
+
+    .endOfSale {
+        vertical-align: top;
+        height: calc(var(--table-row-height) * 1.5);
+
+        td {
+            text-decoration: double underline;
+            text-underline-offset: 1ex;
+        }
+    }
+}
+

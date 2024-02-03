@@ -3,6 +3,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@types/jquery": "^3.5.29"
+    "@types/jquery": "^3.5.29",
+    "chart.js": "^4.4.1"
   }
 }

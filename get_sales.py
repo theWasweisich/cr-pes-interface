@@ -1,7 +1,11 @@
 from typing import Any, Optional, Type, Union, overload
 
 from jinja2 import Undefined
-from blueprint_API import get_db
+
+def import_db():
+    from blueprint_API import get_db
+    return get_db
+
 import datetime
 
 class CrepeSale():
@@ -15,6 +19,8 @@ class CrepeSale():
     
     def __str__(self) -> str:
         return f"ID: {self.id}; SaleID: {self.saleID}; Name: {self.name}; Amount: {self.amount}; Preis: {self.price}; Zeit: {self.time.strftime("%d-%m-%Y, %H:%M:%S")}"
+
+sales_complete: list[CrepeSale] = []
 
 @overload
 def get_data(as_string = None) -> list[CrepeSale]: ...
@@ -32,7 +38,7 @@ def get_data(as_string: Optional[bool] = None) -> Union[list[CrepeSale], list[st
     Returns:
         list[CrepeSale | str]: A list containing either the CrepeSales or strings (see parameter as_string)
     """
-    con, cur = get_db()
+    con, cur = import_db()()
 
     return_list = []
 
@@ -47,6 +53,7 @@ def get_data(as_string: Optional[bool] = None) -> Union[list[CrepeSale], list[st
             return_list.append(str(CrepeSale(id=int(data[0]), saleID=int(data[1]), name=data[2], amount=int(data[3]), price=float(data[4]), time=time_)))
         else:
             return_list.append(CrepeSale(id=int(data[0]), saleID=int(data[1]), name=data[2], amount=int(data[3]), price=float(data[4]), time=time_))
+        sales_complete.extend(return_list)
     return return_list
 
 def get_highest_sale_id(data: list[CrepeSale]) -> int:
@@ -86,17 +93,14 @@ def get_sales_with_id(data: list[CrepeSale], id: int) -> list[CrepeSale]:
     return return_list
 
 
-def get_dict() -> dict[int, Any] | None:
+def get_dict() -> dict[int, dict[int, dict[str, Any]]]:
+    """Result to be sent to jinja
+
+    Returns:
+        dict[int, dict[int, dict[str, Any]]]: The data
+    """
     data_start = get_data()
 
-    to_return: dict[
-        int, dict[str, list | str | float]
-        ]
-    """For dictionary please see so_sollte_das_für_das_dashboard_aussehen.json in personal notes
-    """
-
-
-    highest_sale_id = get_highest_sale_id(data_start)
     tmp_data = {}
     
     ids: dict[int, CrepeSale] = {}
@@ -113,6 +117,23 @@ def get_dict() -> dict[int, Any] | None:
             })
     return tmp_data
 
+def get_heatmap() -> list[int]:
+    """Returns the amount of sales that has been made for each hour of the day
+
+    Returns:
+        list[int]: The hours and how many sales have been made
+    """
+
+    if (sales_complete == []):
+        get_data()
+    to_return = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    saleIDs_done = []
+    for sale in sales_complete:
+        if sale.saleID in saleIDs_done:
+            continue
+        to_return[sale.time.time().hour] += 1
+        saleIDs_done.append(sale.saleID)
+    return to_return
+
 if __name__ == "__main__":
-    from pprint import pprint
-    pprint(get_dict())
+    print(get_heatmap())
