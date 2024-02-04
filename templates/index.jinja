@@ -39,46 +39,15 @@
     <div id="grid-main">
         <header>
             <h1>
-                <span class="header-icon">point_of_sale</span>
-                <p>Kasse</p>
+                <span class="header-icon">settings</span>
+                <p>Einstellungen</p>
             </h1>
             <div class="header-nav-bar">
-                <button type="button" class="crepe-button active"><a href="/">Kasse</a></button>
-                <button type="button" class="crepe-button"><a href="/einstellungen">Einstellungen</a></button>
-                <button type="button" class="crepe-button disabled" disabled><a href="#" disabled>Schichten</a></button>
+                <a href="/"><button type="button" class="crepe-button active">Kasse</button></a>
+                <a href="/einstellungen"><button type="button" class="crepe-button">Einstellungen</button></a>
+                <p id="clock"></p>
             </div>
-            <p id="clock"></p>
-            <script>
-                const clock = document.getElementById("clock");
-                function alignClock() {
-                    var interval = setInterval(() => {
-                        var secs = new Date().getUTCSeconds();
-                        if (secs == 1) {
-                            // console.log("First second!")
-                            clearInterval(secs);
-                            setInterval(setTime, 30_000) // Call setTime every 30 seconds
-                        }
-                    }, 10)
-                }
-                function setTime() {
-                    // console.log("Clock test")
-                    var date = new Date();
-
-                    var hours = date.getHours();
-                    var mins = date.getMinutes();
-
-                    if (hours < 10) {
-                        var hours = "0" + String(hours);
-                    }
-                    if (mins < 10) {
-                        var mins = "0" + String(mins);
-                    }
-
-                    clock.innerText = `${hours}:${mins} Uhr`;
-                }
-                setTime()
-                alignClock()
-            </script>
+            <script src="/static/js/handwritten/clock.js" defer></script>
         </header>
         <div id="popup-alert"> <!-- Add class activate to show! -->
             <p>Es gab einen Fehler! Bitte erneut versuchen!</p>

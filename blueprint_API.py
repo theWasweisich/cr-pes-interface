@@ -287,12 +287,12 @@ def crepe_sold():
     return {"status": "success"}, status.HTTP_200_OK
 
 
-@api_bp.route("/getsales/sales", methods=("GET",))
+@api_bp.route("/sales/get", methods=("GET",))
 def serve_sales():
     data = get_sales.get_dict()
     return json.dumps(data)
 
-@api_bp.route("/getsales/heatmap", methods=("GET",))
+@api_bp.route("/sales/heatmap", methods=("GET",))
 def serve_heatmap():
     data = get_sales.get_heatmap()
     return json.dumps(data)

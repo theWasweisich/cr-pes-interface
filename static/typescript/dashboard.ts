@@ -48,7 +48,7 @@ async function get_data(url: string) {
 }
 
 async function load_sales() {
-    var answer = await get_data("/api/getsales/sales");
+    var answer = await get_data("/api/sales/get");
     console.log(answer)
     if (answer == false) {
         throw Error("Das hat leider nicht funktioniert! (Fehler #1)")

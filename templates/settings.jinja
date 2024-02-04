@@ -11,23 +11,19 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Einstellungen</title>
 </head>
-<script>
-    function return_crepes() {
-        return {{ crepes|safe }};
-    }
-</script>
 <body>
     <header>
         <h1>
-            <span class="icon material-symbols-outlined">settings</span>
+            <span class="header-icon">settings</span>
             <p>Einstellungen</p>
         </h1>
-        <ul>
-            <li><a href="/">Kasse</a></li>
-            <li><a href="#" class="active">Einstellungen</a></li>
-            <li><a href="/schichten">Schichten</a></li>
-        </ul>
-
+        <div class="header-nav-bar">
+            <a href="/"><button type="button" class="crepe-button">Kasse</button></a>
+            <a href="/einstellungen" disabled><button type="button" class="crepe-button active">Einstellungen</button></a>
+            <a href="/dashboard"><button type="button" class="crepe-button">Dashboard</button></a>
+            <p id="clock"></p>
+        </div>
+        <script src="/static/js/handwritten/clock.js" defer></script>
     </header>
     <img src="/static/assets/settings_hundi.jpg" alt="Hundihundihundihundi ja FAIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIN">
 

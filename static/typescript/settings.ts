@@ -393,6 +393,17 @@ function input_changed(elem: HTMLInputElement) {
     }
 }
 
+function validate_all() {
+    var elems = document.getElementsByTagName("input") as HTMLCollectionOf<HTMLInputElement>
+    for (let elem of Object(elems)) {
+        validate_input(elem)
+    }
+}
+
+/**
+ * Validates set element and reports the validity afterwards
+ * @param elem The Input element to check against
+ */
 function validate_input(elem: HTMLInputElement) {
     const validity = elem.validity
     const value = elem.value;
@@ -404,8 +415,6 @@ function validate_input(elem: HTMLInputElement) {
     } else if (validity.valid) {
         elem.setCustomValidity("");
     }
-
-
     elem.reportValidity()
 }
 /**

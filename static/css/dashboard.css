@@ -61,3 +61,6 @@ table {
     }
 }
 
+canvas {
+    filter: invert(1) hue-rotate(180deg); /* Macht die darstellung des Graphen etwas mehr lesbar */
+}
