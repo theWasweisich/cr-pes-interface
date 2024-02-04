@@ -4,6 +4,7 @@ import uuid
 import flask
 from flask import (
     Blueprint,
+    render_template,
     request
 )
 from flask_cors import cross_origin
@@ -15,6 +16,7 @@ import datetime
 import pytz
 import json
 import os
+import get_sales
 
 time_zone = pytz.timezone("Europe/Berlin")
 
@@ -284,6 +286,16 @@ def crepe_sold():
     con.close()
     return {"status": "success"}, status.HTTP_200_OK
 
+
+@api_bp.route("/sales/get", methods=("GET",))
+def serve_sales():
+    data = get_sales.get_dict()
+    return json.dumps(data)
+
+@api_bp.route("/sales/heatmap", methods=("GET",))
+def serve_heatmap():
+    data = get_sales.get_heatmap()
+    return json.dumps(data)
 
 def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     conn = sqlite3.connect("datenbank.db")

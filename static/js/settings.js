@@ -374,6 +374,16 @@ function input_changed(elem) {
         check_if_need_to_speichern();
     }
 }
+function validate_all() {
+    var elems = document.getElementsByTagName("input");
+    for (let elem of Object(elems)) {
+        validate_input(elem);
+    }
+}
+/**
+ * Validates set element and reports the validity afterwards
+ * @param elem The Input element to check against
+ */
 function validate_input(elem) {
     const validity = elem.validity;
     const value = elem.value;

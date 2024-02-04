@@ -161,6 +161,12 @@ def serve_shifts():
 def serve_dev():
     return render_template("development.jinja")
 
+@app.route("/dashboard")
+def serve_dashboard():
+    if request.method != "GET":
+        return '', status.HTTP_405_METHOD_NOT_ALLOWED
+    
+    return render_template("dashboard.jinja")
 
 
 @app.route("/help")
