@@ -8,30 +8,28 @@ body, html {
 }
 
 body {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
     justify-content: center;
     height: 100vh;
+    width: 100vw;
 }
 
-#form_head a {
-    text-decoration: none;
-    display: flex;
-    height: fit-content;
-    width: fit-content;
-    float: right;
+#form_head {
+    display: grid;
+    grid-auto-flow: row;
+
+    a {
+        text-decoration: none;
+    }
 }
 
 #loginForm {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px;
-    height: min-content;
     background-color: grey;
     margin: auto;
     padding: 10px;
+    min-width: 500px;
     border: 5px dashed black;
 }
 
