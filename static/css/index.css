@@ -176,3 +176,24 @@ body {
     overflow-y: scroll;
     padding-bottom: 5rem;
 }
+
+#cashback-dialog-main {
+    >.preselecter {
+        >[data-value="5"] {background-image: url("/static/assets/5_euro.jpg");}
+        
+        >[data-value="10"] {background-image: url("/static/assets/10_euro.jpg");}
+        
+        >[data-value="20"] {background-image: url("/static/assets/20_euro.jpg");}
+        
+        >[data-value="50"] {background-image: url("/static/assets/50_euro.jpg");}
+        
+        >[data-value="100"] {background-image: url("/static/assets/100_euro.jpg");}
+
+        >[data-value] {
+            background-size: contain;
+            background-repeat: no-repeat;
+            min-width: 150px;
+            aspect-ratio: 0.52;
+        }
+    }
+}

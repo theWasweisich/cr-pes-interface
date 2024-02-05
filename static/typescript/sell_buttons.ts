@@ -105,7 +105,7 @@ function setFavicon(state: boolean) {
 
 
 function payback_func() {
-
+    change_dialog_handler();
 }
 
 function own_consumption_func() {
@@ -131,4 +131,37 @@ function trigger_alarm() {
     setTimeout(() => {
         alert.classList.remove("activate")
     }, 5000);
+}
+
+/**
+ * This function is used to handle the change "Rückgeld" dialog 😃
+ */
+function change_dialog_handler() {
+    console.debug("Need some change?")
+    const dialog = document.getElementById("cashback-dialog-main") as HTMLDialogElement
+    
+    function open_dialog() {
+        if (table.getTotalValue() == 0) {
+            return -1;
+        } else {
+            dialog.showModal();
+            return 1;
+        }
+    }
+
+    function close_dialog() { 
+        dialog.close();
+    }
+
+
+    if (dialog.open) {
+        console.debug("Dialog already open! Doin' nothin'")
+        return close_dialog()
+    } else {
+        console.debug("Opening dialog!")
+        return open_dialog()
+    }
+
+
+    table.getTotalValue()
 }
