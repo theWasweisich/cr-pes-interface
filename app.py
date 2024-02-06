@@ -17,7 +17,6 @@ from flask import (
 )
 from flask_cors import cross_origin
 import status
-import waitress
 
 from datetime import datetime, timedelta
 import logging
@@ -47,6 +46,10 @@ app.register_blueprint(api_bp, url_prefix="/api")
 load_dotenv()
 
 app.secret_key = os.getenv('SECRET_KEY')
+
+if app.secret_key == None:
+    raise Exception("Es wurde kein secret_key definiert!")
+
 app.permanent_session_lifetime = timedelta(minutes=5)
 
 
@@ -249,7 +252,12 @@ if __name__ == "__main__":
     del logger
 
     if ('-p' in sys.argv) or ('--production' in sys.argv):
+        import waitress
         print(bcolors.OKGREEN + "Production-Ready Server" + bcolors.ENDC)
+        waitress.serve(app, host="0.0.0.0", port=80)
+    elif ('-w' in sys.argv) or ('--waitress' in sys.argv):
+        import waitress
+        print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
         waitress.serve(app, host="127.0.0.1", port=80)
     else:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
