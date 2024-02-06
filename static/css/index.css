@@ -6,6 +6,7 @@
     body * {
         display: none;
     }
+
     html::before {
         content: 'Device width too small!';
         font-size: xxx-large;
@@ -162,6 +163,7 @@ body {
         height: 50px;
         display: block;
         text-wrap: pretty;
+        transition: background 200ms linear;
     }
 }
 
@@ -178,22 +180,42 @@ body {
 }
 
 #cashback-dialog-main {
+    >h2 {
+        text-decoration: double dashed;
+    }
+
     >.preselecter {
-        >[data-value="5"] {background-image: url("/static/assets/5_euro.jpg");}
-        
-        >[data-value="10"] {background-image: url("/static/assets/10_euro.jpg");}
-        
-        >[data-value="20"] {background-image: url("/static/assets/20_euro.jpg");}
-        
-        >[data-value="50"] {background-image: url("/static/assets/50_euro.jpg");}
-        
-        >[data-value="100"] {background-image: url("/static/assets/100_euro.jpg");}
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 1rem;
+
+
+        >[data-value="5"] {
+            background-image: url("/static/assets/5_euro.webp");
+        }
+
+        >[data-value="10"] {
+            background-image: url("/static/assets/10_euro.webp");
+        }
+
+        >[data-value="20"] {
+            background-image: url("/static/assets/20_euro.webp");
+        }
+
+        >[data-value="50"] {
+            background-image: url("/static/assets/50_euro.webp");
+        }
+
+        >[data-value="100"] {
+            background-image: url("/static/assets/100_euro.webp");
+        }
 
         >[data-value] {
+            border: none;
             background-size: contain;
             background-repeat: no-repeat;
-            min-width: 150px;
-            aspect-ratio: 0.52;
+            min-width: max-content;
+            aspect-ratio: auto;
         }
     }
 }

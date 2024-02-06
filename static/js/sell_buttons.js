@@ -124,10 +124,25 @@ function trigger_alarm() {
  * This function is used to handle the change "Rückgeld" dialog 😃
  */
 function change_dialog_handler() {
-    console.debug("Need some change?");
+    // console.debug("Need some change?")
     const dialog = document.getElementById("cashback-dialog-main");
+    const dial_opener = document.querySelector('#sell_buttons>[data-function="pay_back"]');
+    dialog.addEventListener('click', (event) => {
+        console.log("[*] Clicked! ");
+        console.log(event.target);
+        var rect = dialog.getBoundingClientRect();
+        var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+            rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+        if (!isInDialog) {
+            dialog.close();
+        }
+    });
     function open_dialog() {
         if (table.getTotalValue() == 0) {
+            dial_opener.style.backgroundColor = "red";
+            setTimeout(() => {
+                dial_opener.style.backgroundColor = "";
+            }, 100);
             return -1;
         }
         else {
@@ -139,12 +154,10 @@ function change_dialog_handler() {
         dialog.close();
     }
     if (dialog.open) {
-        console.debug("Dialog already open! Doin' nothin'");
         return close_dialog();
     }
     else {
-        console.debug("Opening dialog!");
+        // console.debug("Opening dialog!")
         return open_dialog();
     }
-    table.getTotalValue();
 }
