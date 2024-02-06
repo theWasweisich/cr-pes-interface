@@ -1,4 +1,3 @@
-from ast import literal_eval
 from typing import Any
 import uuid
 import flask
@@ -7,7 +6,7 @@ from flask import (
     render_template,
     request
 )
-from flask_cors import cross_origin
+from flask_cors import cross_origin, CORS
 import logging
 import sqlite3
 import status
@@ -22,15 +21,15 @@ time_zone = pytz.timezone("Europe/Berlin")
 
 api_bp = Blueprint('api_bp', __name__)
 
-
+CORS(api_bp)
 
 class Crepes_Class():
     def __init__(self, id: int, name: str, price: float, ingredients: list[str], color: str) -> None:
-        self.id = id
-        self.name = name
-        self.price = price
-        self.ingredients = ingredients
-        self.color = color
+        self.id: int = id
+        self.name: str = name
+        self.price: float = price
+        self.ingredients: list[str] = ingredients
+        self.color: str = color
     
     def get_in_str(self):
         data = json.dumps((self.id, self.name, self.price, self.ingredients, self.color))
@@ -46,6 +45,14 @@ class Crepes_Class():
 
 
 def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]] | None:
+    """Returns all Crêpes currently in the database either as a list of `Crepes_Class` or a list of dictionaries
+
+    Args:
+        as_dict (bool, optional): Weather or not to output the crêpes as dicts. Defaults to False.
+
+    Returns:
+        list[Crepes_Class] | list[dict[str, str]] | None: The Crepeslist
+    """
     con, cur = get_db()
 
     cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
@@ -57,10 +64,10 @@ def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str
 
     if as_dict:
         for crepe in crêpes_res:
-            as_dict_list.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), literal_eval(crepe[3]), crepe[4]).return_as_dict())
+            as_dict_list.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), json.loads(crepe[3]), crepe[4]).return_as_dict())
     else:
         for crepe in crêpes_res:
-            res_crêpes.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), literal_eval(crepe[3]), crepe[4]))
+            res_crêpes.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), json.loads(crepe[3]), crepe[4]))
 
     if (len(as_dict_list) == 0):
         as_dict_list = None
@@ -72,8 +79,11 @@ def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str
         return as_dict_list
     else:
         return res_crêpes
+    return
 
-def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: str, shift_staff: str):
+
+
+# def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: str, shift_staff: str):
     """Creates a new shift
 
     Args:
@@ -203,7 +213,7 @@ def parse_price(start: str) -> float:
 
 
 
-@cross_origin
+
 @api_bp.route("/crepes/delete", methods=("DELETE",))
 def delete_crepe():
     """
@@ -232,7 +242,6 @@ def delete_crepe():
     con.close()
     return {"status": "success"}
 
-@cross_origin
 @api_bp.route("/sold/failresistor", methods=("POST",))
 def crepe_sold_failresistor():
     data = request.json
@@ -240,7 +249,6 @@ def crepe_sold_failresistor():
         json.dump(data, f)
     return {"status": "success"}
 
-@cross_origin
 @api_bp.route("/sold", methods=("POST",))
 def crepe_sold():
     con, cur = get_db()
@@ -303,24 +311,4 @@ def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     return (conn, cur)
 
 
-class ShiftAlreadyExists(Exception):
-    pass
-
-
-
-hello_str = r"""
-
-                                    __ _ _        _   _   _ 
-                                   / _(_) |      | | | | | |
- __      ___ __ ___  _ __   __ _  | |_ _| | ___  | | | | | |
- \ \ /\ / / '__/ _ \| '_ \ / _` | |  _| | |/ _ \ | | | | | |
-  \ V  V /| | | (_) | | | | (_| | | | | | |  __/ |_| |_| |_|
-   \_/\_/ |_|  \___/|_| |_|\__, | |_| |_|_|\___| (_) (_) (_)
-                            __/ |                           
-                           |___/                            
-
-"""
-
-
-if __name__ == "__main__":
-    print(hello_str)
+class ShiftAlreadyExists(Exception): pass

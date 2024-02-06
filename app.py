@@ -23,7 +23,6 @@ import logging
 import secrets
 import sys
 from typing import Any
-from ast import literal_eval
 
 from user_handling import get_db
 import user_handling
@@ -93,7 +92,7 @@ def serve_einstellungen():
         return url_for("serve_login")
 
 
-@app.route("/login", methods=("POST", "GET"))
+@app.route("/login", methods=["GET", "POST"])
 def serve_login():
 
     if request.method == "GET":
@@ -174,13 +173,12 @@ def serve_dashboard():
 
 @app.route("/help")
 def rick_roll():
-    resp = redirect("https://youtu.be/dQw4w9WgXcQ?si=7sPxh0li5uSBE3rr")
+    resp = redirect("https://youtu.be/dQw4w9WgXcQ")
     resp.headers.add("Du bist ein", "l'opfl")
     return resp # Rickroll 😘
 
 @app.route("/favicon.ico")
 def serve_favicon():
-    logging.warning("Favicon loaded!")
     with open("favicon.ico", "rb") as f:
         data = f.read()
     resp = make_response(data)
