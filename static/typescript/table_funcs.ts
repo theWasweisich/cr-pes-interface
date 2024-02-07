@@ -125,6 +125,17 @@ class Table {
     }
 
     /**
+     * Returns the current total value
+     */
+    getTotalValue() {
+        var total: number = 0;
+        for (let item of this.items) {
+            total += item.crepe.amount * item.crepe.preis
+        }
+        return total
+    }
+
+    /**
      * Bla
      * @param crepe The Crêpes to addd
      * @returns The new amount

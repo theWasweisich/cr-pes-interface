@@ -98,6 +98,7 @@ function setFavicon(state) {
     }
 }
 function payback_func() {
+    change_dialog_handler();
 }
 function own_consumption_func() {
 }
@@ -118,4 +119,45 @@ function trigger_alarm() {
     setTimeout(() => {
         alert.classList.remove("activate");
     }, 5000);
+}
+/**
+ * This function is used to handle the change "Rückgeld" dialog 😃
+ */
+function change_dialog_handler() {
+    // console.debug("Need some change?")
+    const dialog = document.getElementById("cashback-dialog-main");
+    const dial_opener = document.querySelector('#sell_buttons>[data-function="pay_back"]');
+    dialog.addEventListener('click', (event) => {
+        console.log("[*] Clicked! ");
+        console.log(event.target);
+        var rect = dialog.getBoundingClientRect();
+        var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+            rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+        if (!isInDialog) {
+            dialog.close();
+        }
+    });
+    function open_dialog() {
+        if (table.getTotalValue() == 0) {
+            dial_opener.style.backgroundColor = "red";
+            setTimeout(() => {
+                dial_opener.style.backgroundColor = "";
+            }, 100);
+            return -1;
+        }
+        else {
+            dialog.showModal();
+            return 1;
+        }
+    }
+    function close_dialog() {
+        dialog.close();
+    }
+    if (dialog.open) {
+        return close_dialog();
+    }
+    else {
+        // console.debug("Opening dialog!")
+        return open_dialog();
+    }
 }
