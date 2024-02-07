@@ -1,4 +1,3 @@
-from locale import currency
 import sqlite3
 import logging
 from flask.sessions import SessionMixin

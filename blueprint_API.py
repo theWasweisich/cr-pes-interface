@@ -1,10 +1,7 @@
 from ast import literal_eval
-from typing import Any
 import uuid
-import flask
 from flask import (
     Blueprint,
-    render_template,
     request
 )
 from flask_cors import cross_origin
@@ -15,7 +12,6 @@ import status
 import datetime
 import pytz
 import json
-import os
 import get_sales
 
 from classes import Crepes_Class
