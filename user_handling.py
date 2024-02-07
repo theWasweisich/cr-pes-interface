@@ -3,30 +3,12 @@ import sqlite3
 import logging
 from flask.sessions import SessionMixin
 
+from classes import User
+
 def get_db():
     con = sqlite3.connect("datenbank.db")
     cur = con.cursor()
     return con, cur
-
-class User:
-    def __init__(self, username, password, priviledge, current_key) -> None:
-        self.username = username
-        self.password = password
-        self.priviledge = priviledge
-        self.current_key = current_key
-    
-    def is_authorized(self, level: int):
-        logging.debug(f"Trying to authorize {self} to Level: {level}")
-        return self.priviledge >= level
-    
-    def get_key(self):
-        return self.current_key
-    
-    def set_key(self, key: str):
-        self.current_key = key
-    
-    def __str__(self):
-        return f"Username: {self.username} || Password: {self.password} || Priviledge: {self.priviledge}"
 
 users: list[User] = []
 

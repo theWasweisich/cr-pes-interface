@@ -1,24 +1,11 @@
-from typing import Any, Optional, Type, Union, overload
-
-from jinja2 import Undefined
+from typing import Any, Optional, Union, overload
+from classes import CrepeSale
 
 def import_db():
     from blueprint_API import get_db
     return get_db
 
 import datetime
-
-class CrepeSale():
-    def __init__(self, id: int, saleID: int, name: str, amount: int, price: float, time: datetime.datetime) -> None:
-        self.id = id
-        self.saleID = saleID
-        self.name = name
-        self.amount = amount
-        self.price = price
-        self.time = time
-    
-    def __str__(self) -> str:
-        return f"ID: {self.id}; SaleID: {self.saleID}; Name: {self.name}; Amount: {self.amount}; Preis: {self.price}; Zeit: {self.time.strftime("%d-%m-%Y, %H:%M:%S")}"
 
 sales_complete: list[CrepeSale] = []
 

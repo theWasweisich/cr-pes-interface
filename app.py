@@ -32,7 +32,8 @@ import user_handling
 import os
 from dotenv import load_dotenv
 
-from blueprint_API import (api_bp, get_crepes, Crepes_Class)
+from blueprint_API import (api_bp, get_crepes)
+from classes import Crepes_Class, bcolors
 
 
 user_handling.load_users()
@@ -228,17 +229,6 @@ def bad_request(e):
 
 
 app.register_error_handler(404, bad_request)
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 if __name__ == "__main__":
     logging.info("👋 app.py wurde ausgeführt!")

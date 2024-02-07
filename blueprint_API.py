@@ -18,31 +18,13 @@ import json
 import os
 import get_sales
 
+from classes import Crepes_Class
+
 time_zone = pytz.timezone("Europe/Berlin")
 
 api_bp = Blueprint('api_bp', __name__)
 
 
-
-class Crepes_Class():
-    def __init__(self, id: int, name: str, price: float, ingredients: list[str], color: str) -> None:
-        self.id = id
-        self.name = name
-        self.price = price
-        self.ingredients = ingredients
-        self.color = color
-    
-    def get_in_str(self):
-        data = json.dumps((self.id, self.name, self.price, self.ingredients, self.color))
-        return data
-    
-    def return_as_dict(self):
-        return {"id": self.id,
-         "name": self.name,
-         "price": self.price,
-         "ingredients": json.dumps(self.ingredients),
-         "colour": self.color
-         }
 
 
 def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]] | None:
@@ -98,7 +80,7 @@ def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: 
         e_time.isoformat(timespec='seconds')
     ))
     if cur.fetchone != ():
-        raise ShiftAlreadyExists
+        raise Exception
     
     
     cur.execute("INSERT INTO shifts (date, time_start, time_end, shift_name, staff, uuid) VALUES (?, ?, ?, ?, ?);", (
@@ -211,7 +193,6 @@ def delete_crepe():
     Data should contain: `id`, `name`
     """
     data_list = request.get_json()
-    # logging.debug(f"Removed Crêpes arrived!\nData: {data_list}") # FIXME
 
     con, cur = get_db()
 
@@ -302,9 +283,6 @@ def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     cur = conn.cursor()
     return (conn, cur)
 
-
-class ShiftAlreadyExists(Exception):
-    pass
 
 
 
