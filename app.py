@@ -24,7 +24,9 @@ import user_handling
 import os
 from dotenv import load_dotenv
 
-from blueprint_API import (api_bp, get_crepes)
+from api.api_blueprint import api_bp
+from api.api_helpers import get_crepes
+
 from classes import Crepes_Class, bcolors
 
 
@@ -36,6 +38,7 @@ logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", forma
 app = Flask(__name__)
 
 app.register_blueprint(api_bp, url_prefix="/api")
+
 
 load_dotenv()
 
