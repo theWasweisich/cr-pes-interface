@@ -11,7 +11,6 @@ from flask import (
     url_for,
 )
 import status
-import waitress
 
 from datetime import timedelta
 import logging
@@ -48,6 +47,10 @@ app.register_blueprint(api_bp, url_prefix="/api")
 load_dotenv()
 
 app.secret_key = os.getenv('SECRET_KEY')
+
+if app.secret_key == None:
+    raise Exception("Es wurde kein secret_key definiert!")
+
 app.permanent_session_lifetime = timedelta(minutes=5)
 
 
@@ -91,7 +94,7 @@ def serve_einstellungen():
         return url_for("serve_login")
 
 
-@app.route("/login", methods=("POST", "GET"))
+@app.route("/login", methods=["GET", "POST"])
 def serve_login():
 
     if request.method == "GET":
@@ -172,13 +175,12 @@ def serve_dashboard():
 
 @app.route("/help")
 def rick_roll():
-    resp = redirect("https://youtu.be/dQw4w9WgXcQ?si=7sPxh0li5uSBE3rr")
+    resp = redirect("https://youtu.be/dQw4w9WgXcQ")
     resp.headers.add("Du bist ein", "l'opfl")
     return resp # Rickroll 😘
 
 @app.route("/favicon.ico")
 def serve_favicon():
-    logging.warning("Favicon loaded!")
     with open("favicon.ico", "rb") as f:
         data = f.read()
     resp = make_response(data)
@@ -239,7 +241,12 @@ if __name__ == "__main__":
     del logger
 
     if ('-p' in sys.argv) or ('--production' in sys.argv):
+        import waitress
         print(bcolors.OKGREEN + "Production-Ready Server" + bcolors.ENDC)
+        waitress.serve(app, host="0.0.0.0", port=80)
+    elif ('-w' in sys.argv) or ('--waitress' in sys.argv):
+        import waitress
+        print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
         waitress.serve(app, host="127.0.0.1", port=80)
     else:
         app.config['TEMPLATES_AUTO_RELOAD'] = True

@@ -11,7 +11,9 @@ def get_db():
 
 users: list[User] = []
 
+
 def load_users():
+    "Loads all users and puts them into the `users` list."
     con, cur = get_db()
 
     cur.execute("SELECT * FROM users")
@@ -21,6 +23,7 @@ def load_users():
 
     for result in res:
         users.append(User(result[1], result[2], result[3], result[4]))
+
 
 def get_user_from_key(key: str) -> User | None:
     """Gets a user with a given key
@@ -36,12 +39,23 @@ def get_user_from_key(key: str) -> User | None:
             return user
     return
 
+
 def get_user_from_username_and_password(username: str, password: str) -> User | None:
+    """Returns the `User` class given username and password
+
+    Args:
+        username (str): The user's username
+        password (str): The user's plaintext password (yea bad I know)
+
+    Returns:
+        User | None: The `User` class, if found. Else None
+    """
     logging.debug(f"All Users: {str(users)}")
     for user in users:
         if user.username == username and user.password == password:
             return user
     return None
+
 
 def authenticate_user(session: SessionMixin, required_level: int)  -> bool:
     """Authenticates the user, if authentication fails, returns False
