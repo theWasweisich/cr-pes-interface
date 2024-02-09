@@ -16,14 +16,14 @@ set_listeners_up();
 
 async function send_sell_to_server(sale: Crêpe[] | string) {
     console.log("SENDING");
-    let url: string = urls.newSale;
+    let url: string = urls.newSale; // urls defined in global
 
     if (typeof (sale) == "string") {
         url = urls.resistor;
     }
 
 
-    var response = await fetch(url, { // url defined in global
+    var response = await fetch(url, {
         method: "POST",
         mode: "cors",
         cache: "no-cache",
@@ -77,10 +77,11 @@ async function payed_func() {
     let response = await send_sell_to_server(crepes);
 
     if (response) {
+        setFavicon(true);
         reset_list_func();
         return true;
     } else {
-        connectionError = true;
+        setFavicon(false)
         reset_list_func();
         return false;
     };

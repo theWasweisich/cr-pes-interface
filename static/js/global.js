@@ -1,32 +1,19 @@
 const urls = {
     newSale: "/api/sold",
     resistor: "/api/sold/failresistor",
+    getcrepes: "/api/crepes/get"
 };
 var crepelist = [];
 var crepemap = new Map();
 var connectionError = false;
-/**
- * either true or false
- */
-class CrepeConError {
-    constructor(value) {
-        this.value = value;
-    }
-    get() {
-        return this.value;
-    }
-    setFavicon() {
-        if (this.value) {
-        }
-    }
-}
 class Crêpe {
-    constructor(id, name, preis, amount, root_element, table_root_element) {
+    constructor(id, name, preis, amount, color, root_element, table_root_element) {
         this.table_element = undefined;
         this.crepeId = id;
         this.name = name;
         this.preis = preis;
         this.amount = amount;
+        this.color = color;
         this.root_element = root_element;
         this.table_element = table_root_element;
     }
@@ -48,7 +35,7 @@ function set_data(root_element, crepeId, crepeName, crepePreis) {
         crepePreis = (root_element.getAttribute('data-preis'));
         crepeId = (root_element.getAttribute('data-id'));
     }
-    crepelist.push(new Crêpe(Number(crepeId), crepeName, Number(crepePreis), 0, root_element));
+    crepelist.push(new Crêpe(Number(crepeId), crepeName, Number(crepePreis), 0, null, root_element));
     return;
 }
 /**

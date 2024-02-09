@@ -22,7 +22,7 @@ set_listeners_up();
 function send_sell_to_server(sale) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("SENDING");
-        let url = urls.newSale;
+        let url = urls.newSale; // urls defined in global
         if (typeof (sale) == "string") {
             url = urls.resistor;
         }
@@ -71,11 +71,12 @@ function payed_func() {
         }
         let response = yield send_sell_to_server(crepes);
         if (response) {
+            setFavicon(true);
             reset_list_func();
             return true;
         }
         else {
-            connectionError = true;
+            setFavicon(false);
             reset_list_func();
             return false;
         }

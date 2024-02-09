@@ -73,11 +73,13 @@ function event_listener(ev: MouseEvent) {
     }
 }
 
-function setup() {
+async function setup() {
 
     var crepes = document.getElementsByClassName('crepe_container') as HTMLCollectionOf<HTMLElement>;
 
     var crepes_list = Array.from(crepes)
+
+    await insertEverything();
 
     crepes_list.forEach(crepe => {
         crepe.addEventListener("click", (ev) => event_listener(ev), true);

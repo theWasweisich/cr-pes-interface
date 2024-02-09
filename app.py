@@ -1,13 +1,8 @@
 from asyncio import constants
-import sqlite3
 import flask
-from jinja2 import Undefined
-from werkzeug import exceptions
 from flask import (
     Flask,
-    Response,
     flash,
-    get_flashed_messages,
     make_response,
     redirect,
     render_template,
@@ -15,14 +10,12 @@ from flask import (
     session,
     url_for,
 )
-from flask_cors import cross_origin
 import status
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 import logging
 import secrets
 import sys
-from typing import Any
 
 from user_handling import get_db
 import user_handling
@@ -30,7 +23,15 @@ import user_handling
 import os
 from dotenv import load_dotenv
 
-from blueprint_API import (api_bp, get_crepes, Crepes_Class)
+from api.api_blueprint import api_bp
+from api.api_helpers import get_crepes
+
+from classes import Crepes_Class, bcolors
+
+### Test
+from ua_parser.user_agent_parser import Parse
+from werkzeug.user_agent import UserAgent
+from werkzeug.utils import cached_property
 
 
 user_handling.load_users()
@@ -41,6 +42,7 @@ logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", forma
 app = Flask(__name__)
 
 app.register_blueprint(api_bp, url_prefix="/api")
+
 
 load_dotenv()
 
@@ -75,7 +77,7 @@ def valid_keys() -> list[str]:
 
 @app.route("/")
 def serve_homepage():
-    return render_template("index.jinja", crepes=crêpes)
+    return render_template("index.jinja")
 
 
 @app.route("/einstellungen")
@@ -229,17 +231,6 @@ def bad_request(e):
 
 
 app.register_error_handler(404, bad_request)
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 if __name__ == "__main__":
     logging.info("👋 app.py wurde ausgeführt!")
