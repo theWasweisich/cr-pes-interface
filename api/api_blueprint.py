@@ -120,6 +120,51 @@ class CrepesView(FlaskView):
         con.commit()
         con.close()
         return {"status": "success"}
+    
+    @route("/sold", methods=("POST",))
+    def crepe_sold(self):
+        con, cur = get_db()
+        try:
+            data = request.json
+            if (data == None):
+                return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
+            
+            logging.debug(f"New Crêpes: {data}")
+
+
+            to_db: list[tuple] = []
+
+            try:
+                cur.execute("SELECT MAX(saleID) FROM sales")
+                saleID_next = int(cur.fetchone()[0]) + 1
+            except Exception as e:
+                logging.error(f"There has been an error: {e}")
+                saleID_next = 0
+
+            logging.debug(f"Next SaleID: {saleID_next}")
+
+            now_time = datetime.datetime.now().isoformat()
+            for crepe in data:
+                cID = crepe["crepeId"]
+                cNAME = crepe["name"]
+                cPREIS = crepe["preis"]
+                cAMOUNT = crepe["amount"]
+
+
+                to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time))
+
+                logging.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
+
+            cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, time) VALUES (?, ?, ?, ?, ?)", to_db)
+
+
+            con.commit()
+        except Exception as e:
+            logging.exception(e)
+            con.close()
+            return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+        con.close()
+        return {"status": "success"}, status.HTTP_200_OK
 
 
 

@@ -74,18 +74,24 @@ function event_listener(ev: MouseEvent) {
 }
 
 async function setup() {
+    insertEverything().then((status) => {
 
-    var crepes = document.getElementsByClassName('crepe_container') as HTMLCollectionOf<HTMLElement>;
+        if (!status) {
+            throw Error("WHAI?")
+        }
 
-    var crepes_list = Array.from(crepes)
+        var crepes = document.getElementsByClassName('crepe_container') as HTMLCollectionOf<HTMLElement>;
+    
+        var crepes_list = Array.from(crepes)
+    
+        crepes_list.forEach(crepe => {
+            crepe.addEventListener("click", (ev) => event_listener(ev), true);
+            set_data(crepe);
+            let price = formatter.format(Number(crepe.getAttribute('data-preis')));
+            (crepe.querySelector('[name="price"]') as HTMLElement).innerHTML = price;
+        });
+    })
 
-    await insertEverything();
-
-    crepes_list.forEach(crepe => {
-        crepe.addEventListener("click", (ev) => event_listener(ev), true);
-        set_data(crepe);
-        (crepe.querySelector('[type="price"]') as HTMLElement).innerHTML = formatter.format(Number(crepe.getAttribute('data-preis')))
-    });
 }
 setup();
 

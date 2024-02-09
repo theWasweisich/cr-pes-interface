@@ -13,25 +13,29 @@ const payback = btns_container.querySelector('[data-function="pay_back"]');
 const own_consumption = btns_container.querySelector('[data-function="own_consumption"]');
 const reset_button = btns_container.querySelector('[data-function="reset"]');
 function set_listeners_up() {
-    payed.addEventListener('click', payed_func);
+    payed.addEventListener('click', () => { payed_func(false); });
     payback.addEventListener('click', payback_func);
     own_consumption.addEventListener('click', own_consumption_func);
     reset_button.addEventListener('click', reset_list_func);
 }
 set_listeners_up();
-function send_sell_to_server(sale) {
+function send_sell_to_server(sale, own_consumption = false) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("SENDING");
         let url = urls.newSale; // urls defined in global
         if (typeof (sale) == "string") {
             url = urls.resistor;
         }
+        var headers = {
+            "Content-Type": "application/json",
+            "ownConsumption": String(own_consumption),
+        };
         var response = yield fetch(url, {
             method: "POST",
             mode: "cors",
             cache: "no-cache",
             credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
+            headers: headers,
             redirect: "manual",
             referrerPolicy: "no-referrer",
             body: JSON.stringify(sale)
@@ -46,7 +50,7 @@ function send_sell_to_server(sale) {
         }
     });
 }
-function payed_func() {
+function payed_func(own_consumption = false) {
     return __awaiter(this, void 0, void 0, function* () {
         function appendToLocalStorage() {
             var current_sold = localStorage.getItem("sold");
@@ -69,7 +73,7 @@ function payed_func() {
         if (crepes.length == 0) {
             return;
         }
-        let response = yield send_sell_to_server(crepes);
+        let response = yield send_sell_to_server(crepes, own_consumption);
         if (response) {
             setFavicon(true);
             reset_list_func();
@@ -102,6 +106,11 @@ function payback_func() {
     change_dialog_handler();
 }
 function own_consumption_func() {
+    console.log("Own consumption!");
+    if (table.items.size < 1) {
+        console.log("DA IS JA GARNIX!");
+    }
+    payed_func(true);
 }
 function reset_list_func() {
     table.remove_all_table_entries();

@@ -75,6 +75,7 @@ def valid_keys() -> list[str]:
         keys[i] = keys[i][0]
     return keys
 
+
 @app.route("/")
 def serve_homepage():
     return render_template("index.jinja")
