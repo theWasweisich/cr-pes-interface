@@ -74,19 +74,8 @@ def valid_keys() -> list[str]:
 
 @app.route("/")
 def serve_homepage():
-    return render_template("index.jinja", crepes=crêpes)
+    return render_template("index.jinja")
 
-@app.get("/ua_parser")
-def get_ua():
-
-    ua_str = request.headers.get("User-Agent")
-    ua = Parse(ua_str)
-    logging.critical(f"User-Agent: {ua["user_agent"]}")
-
-    return {
-        "status": "success",
-        "browser": ua["user_agent"]["family"] # type: ignore
-        }
 
 @app.route("/einstellungen")
 def serve_einstellungen():

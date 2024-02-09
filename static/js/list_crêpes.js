@@ -18,21 +18,89 @@ function fetch_crepes() {
             mode: "cors",
             cache: "no-cache",
             credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
             redirect: "manual",
             referrerPolicy: "no-referrer",
         });
         if (res.ok) {
             console.log("Fetched crêpes, starting to insert now");
-            return res.json();
+            var jason = yield res.json();
+            console.log(jason);
+            return jason;
+        }
+        else {
+            return null;
         }
     });
 }
-function insertCrêpes(name, price) {
-    const container = document.getElementById("main-content");
-    const template = document.querySelector("template");
-    var clone = template.content.cloneNode(true);
-    let body = clone;
-    body.setAttribute("", "");
-    container.appendChild(clone);
+function insertEverything() {
+    return __awaiter(this, void 0, void 0, function* () {
+        var crêpes = yield fetch_crepes();
+        if (crêpes === null) {
+            return false;
+        }
+        try {
+            crêpes = Object(crêpes);
+        }
+        catch (Error) {
+            return false;
+        }
+        removeAllCrêpes();
+        crêpes.forEach(crêpe => {
+            var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], crêpe["amount"], crêpe["colour"]);
+            console.assert(typeof (new_crêpe.color) === "string", "WHAI?");
+            crepelist.push(new_crêpe);
+        });
+        crepelist.forEach(crêpe => {
+            insertCrêpe(crêpe);
+        });
+    });
+}
+/**
+ * ### Please do not look at this function. It is a horrible pile of spaghetti
+ * @param crêpe The Crêpe to insert
+ */
+function insertCrêpe(crêpe) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (crêpe === null) {
+            throw Error("DU DUMM DU TROTTL");
+        }
+        const container = document.getElementById("main-content");
+        const root = document.createElement("div");
+        root.classList.add("crepe_container");
+        root.setAttribute("data-name", crêpe.name);
+        root.setAttribute("data-preis", crêpe.preis.toString());
+        root.setAttribute("data-color", crêpe.color);
+        root.setAttribute("data-id", crêpe.crepeId.toString());
+        const crepecontrol = document.createElement("div");
+        crepecontrol.classList.add("crepecontrol");
+        const remove = document.createElement("button");
+        remove.classList.add("remove");
+        remove.innerText = "-";
+        const add = document.createElement("button");
+        add.classList.add("add");
+        add.innerText = "+";
+        const counter = document.createElement("p");
+        counter.classList.add("crepes_counter");
+        const name = document.createElement("h4");
+        name.setAttribute("name", "name");
+        name.innerText = crêpe.name;
+        const price = document.createElement("p");
+        price.setAttribute("name", "price");
+        price.innerText = formatter.format(crêpe.preis);
+        root.appendChild(crepecontrol);
+        root.appendChild(name);
+        root.appendChild(price);
+        crepecontrol.appendChild(remove);
+        crepecontrol.appendChild(add);
+        container.appendChild(root);
+        crêpe.root_element = root;
+    });
+}
+function removeAllCrêpes() {
+    table.remove_all_table_entries();
+    const root = document.getElementById("main-content");
+    while (root.hasChildNodes()) {
+        root.removeChild(root.firstChild);
+    }
+    crepelist.length = 0;
 }

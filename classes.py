@@ -35,6 +35,7 @@ class CrepeSale():
     def __str__(self) -> str:
         return f"ID: {self.id}; SaleID: {self.saleID}; Name: {self.name}; Amount: {self.amount}; Preis: {self.price}; Zeit: {self.time.strftime("%d-%m-%Y, %H:%M:%S")}"
 
+
 class Crepes_Class():
     def __init__(self, id: int, name: str, price: float, ingredients: list[str], color: str) -> None:
         self.id = id
@@ -48,12 +49,14 @@ class Crepes_Class():
         return data
     
     def return_as_dict(self):
-        return {"id": self.id,
-         "name": self.name,
-         "price": self.price,
-         "ingredients": json.dumps(self.ingredients),
-         "colour": self.color
+        return {
+            "id": self.id,
+            "name": self.name,
+            "price": self.price,
+            "ingredients": json.dumps(self.ingredients),
+            "colour": self.color
          }
+
 
 class bcolors:
     HEADER = '\033[95m'

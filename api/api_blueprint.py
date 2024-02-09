@@ -16,7 +16,7 @@ import json
 import get_sales
 
 from classes import Crepes_Class
-from api.api_helpers import get_db, parse_price
+from api.api_helpers import get_db, parse_price, get_crepes
 
 time_zone = pytz.timezone("Europe/Berlin")
 
@@ -24,9 +24,9 @@ api_bp = Blueprint('api_bp', __name__)
 
 class CrepesView(FlaskView):
 
-    @route("/get")
+    @route("/get", methods=("GET",))
     def get(self):
-        return {}
+        return get_crepes(as_dict=True)
     
     @route("/delete", methods=("DELETE",))
     def delete_crepe(self):

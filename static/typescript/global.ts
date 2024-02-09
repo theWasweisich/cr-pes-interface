@@ -16,14 +16,16 @@ class Crêpe {
     preis: number;
     crepeId: number;
     amount: number;
+    color: string;
     root_element: HTMLElement;
     table_element: HTMLTableElement | undefined = undefined;
 
-    constructor(id: number, name: string, preis: number, amount: number, root_element: HTMLElement, table_root_element?: HTMLTableElement) {
+    constructor(id: number, name: string, preis: number, amount: number, color?: string, root_element?: HTMLElement, table_root_element?: HTMLTableElement) {
         this.crepeId = id;
         this.name = name;
         this.preis = preis;
         this.amount = amount;
+        this.color = color;
         this.root_element = root_element;
         this.table_element = table_root_element;
     }
@@ -48,7 +50,7 @@ function set_data(root_element: HTMLElement, crepeId?: string, crepeName?: strin
         crepeId = (root_element.getAttribute('data-id'))
     }
 
-    crepelist.push(new Crêpe(Number(crepeId), crepeName, Number(crepePreis), 0, root_element))
+    crepelist.push(new Crêpe(Number(crepeId), crepeName, Number(crepePreis), 0, null, root_element))
     return;
 }
 
