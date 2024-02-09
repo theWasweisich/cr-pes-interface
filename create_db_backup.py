@@ -1,23 +1,40 @@
+import json
+from pprint import pprint
 import sqlite3
 import datetime
 import os
 
-con = sqlite3.connect("datenbank.db")
+def func1():
+    con = sqlite3.connect("datenbank.db")
 
-time = datetime.datetime.now().strftime("%Y-%m-%d")
+    time = datetime.datetime.now().strftime("%Y-%m-%d")
 
-filename = f"./db/{time}_dump.sql"
+    filename = f"./db/{time}_dump.sql"
 
-if os.path.isfile(filename):
-    answ = input("Do you want to overwrite the current dump? (Y/N) ")
-    if ((answ == "Y") or (answ == "y")):
-        os.remove(filename)
-    else:
-        exit()
+    if os.path.isfile(filename):
+        answ = input("Do you want to overwrite the current dump? (Y/N) ")
+        if ((answ == "Y") or (answ == "y")):
+            os.remove(filename)
+        else:
+            exit()
 
 
-with open(filename, "w", encoding="UTF-8") as f:
-    for line in con.iterdump():
-        f.write(line)
+    with open(filename, "w", encoding="UTF-8") as f:
+        for line in con.iterdump():
+            f.write(line)
 
-print("finished!")
+    print("finished!")
+
+def func2():
+    con = sqlite3.connect("datenbank.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT * FROM Crêpes")
+    res = cur.fetchall()
+
+    print(res)
+    print(type(res))
+    print(json.dumps(res))
+
+if __name__ == "__main__":
+    func2()

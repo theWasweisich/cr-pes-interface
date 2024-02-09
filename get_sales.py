@@ -2,7 +2,7 @@ from typing import Any, Optional, Union, overload
 from classes import CrepeSale
 
 def import_db():
-    from blueprint_API import get_db
+    from api.api_helpers import get_db
     return get_db
 
 import datetime

@@ -56,10 +56,10 @@ def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str
 
     if as_dict:
         for crepe in crêpes_res:
-            as_dict_list.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), json.loads(crepe[3]), crepe[4]).return_as_dict())
+            as_dict_list.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), (crepe[3]), crepe[4]).return_as_dict())
     else:
         for crepe in crêpes_res:
-            res_crêpes.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), json.loads(crepe[3]), crepe[4]))
+            res_crêpes.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), (crepe[3]), crepe[4]))
 
     if (len(as_dict_list) == 0):
         as_dict_list = None

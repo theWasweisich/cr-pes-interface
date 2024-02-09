@@ -1,25 +1,11 @@
 const urls = {
     newSale: "/api/sold",
     resistor: "/api/sold/failresistor",
+    getcrepes: "/api/crepes/get"
 };
 var crepelist = [];
 var crepemap = new Map();
 var connectionError = false;
-/**
- * either true or false
- */
-class CrepeConError {
-    constructor(value) {
-        this.value = value;
-    }
-    get() {
-        return this.value;
-    }
-    setFavicon() {
-        if (this.value) {
-        }
-    }
-}
 class Crêpe {
     constructor(id, name, preis, amount, root_element, table_root_element) {
         this.table_element = undefined;

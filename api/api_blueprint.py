@@ -5,6 +5,7 @@ from flask import (
     request
 )
 from flask_cors import cross_origin
+from flask_classful import FlaskView, route
 import logging
 import sqlite3
 import status
@@ -15,11 +16,113 @@ import json
 import get_sales
 
 from classes import Crepes_Class
-from api_helpers import get_db, parse_price
+from api.api_helpers import get_db, parse_price
 
 time_zone = pytz.timezone("Europe/Berlin")
 
 api_bp = Blueprint('api_bp', __name__)
+
+class CrepesView(FlaskView):
+
+    @route("/get")
+    def get(self):
+        return {}
+    
+    @route("/delete", methods=("DELETE",))
+    def delete_crepe(self):
+        """
+        Function to delete the crêpes specified by the given data
+        Data should contain: `id`, `name`
+        """
+        data_list = request.get_json()
+
+        con, cur = get_db()
+
+        for data in data_list:
+            id = data["id"]
+            name = data["name"]
+
+            cur.execute("SELECT name FROM `Crêpes` WHERE id = ?", [id,])
+            db_name: str = cur.fetchone()[0]
+
+            if db_name == name:
+                cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?", [id, name])
+                con.close()
+            else:
+                con.close()
+                return {"status": "failed", "error": "crepe_not_found"}
+
+        con.close()
+        return {"status": "success"}
+
+    @route("/create", methods=("PUT",))
+    def new_crepe(self):
+        data_list = request.get_json()
+        # logging.debug(f"New Crêpes arrived!\nData: {data_list}")
+
+        if data_list.length == 0:
+            return {"status": "failed", "type": "noting_changed"}
+
+        for data in data_list:
+            name = data["name"]
+            price = data["price"]
+            ingredients = data["ingredients"].split(",")
+            color = data["color"]
+
+            logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
+
+            con, cur = get_db()
+
+            try:
+                cur.execute("INSERT INTO Crêpes (name, price, ingredients, colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
+                con.commit()
+            except sqlite3.OperationalError as e:
+                return {"status": "error", "type": "database", "error": e.sqlite_errorname}
+            
+            except sqlite3.IntegrityError as e:
+                
+                if e.sqlite_errorcode == 2067:
+                    return {"status": "error", "type": "crepe_exists"}
+                
+                return {"status": "error", "type": "database", "error": e.sqlite_errorname}
+            except Exception as e:
+                return {"status": "error", "type": "unknown"}
+
+            con.close()
+
+        return {"status": "success"}
+    
+    @route("/edit", methods=("PATCH",))
+    def edit_crepe(self):
+        con, cur = get_db()
+        data = request.get_json()
+        logging.debug(f"Edited Crêpes arrived!\nData: {data}")
+        for crepe in data:
+            id = crepe["id"]
+            name = crepe["name"]
+            price = crepe["price"]
+            price_str = parse_price(price)
+
+            cur.execute("SELECT name, price FROM Crêpes WHERE id=?", id)
+            res = cur.fetchone()
+            db_name = res[0]
+            db_price = res[1]
+            db_price_str = str(db_price).replace("\xa0", " ")
+            logging.debug(f"DB_Data: {db_name} ({type(db_name)}) :: {db_price} ({type(db_price)})")
+
+            if (db_price != price_str):
+                logging.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
+                cur.execute("UPDATE Crêpes SET price=? WHERE id=?", (price, id))
+            if name != db_name:
+                logging.info(f"Database & Edited are not the same! {name} vs {db_name}")
+                cur.execute("UPDATE Crêpes SET name=? WHERE id=?", (name, id))
+
+        con.commit()
+        con.close()
+        return {"status": "success"}
+
+
+
 
 
 
@@ -27,103 +130,101 @@ api_bp = Blueprint('api_bp', __name__)
 def index():
     return "", status.HTTP_403_FORBIDDEN
 
-@cross_origin
-@api_bp.route("/crepes/new", methods=("PUT",))
-def new_crepe():
-    data_list = request.get_json()
-    # logging.debug(f"New Crêpes arrived!\nData: {data_list}")
+# @cross_origin
+# @api_bp.route("/crepes/new", methods=("PUT",))
+# def new_crepe():
+#     data_list = request.get_json()
+#     # logging.debug(f"New Crêpes arrived!\nData: {data_list}")
 
-    if data_list.length == 0:
-        return {"status": "failed", "type": "noting_changed"}
+#     if data_list.length == 0:
+#         return {"status": "failed", "type": "noting_changed"}
 
-    for data in data_list:
-        name = data["name"]
-        price = data["price"]
-        ingredients = data["ingredients"].split(",")
-        color = data["color"]
+#     for data in data_list:
+#         name = data["name"]
+#         price = data["price"]
+#         ingredients = data["ingredients"].split(",")
+#         color = data["color"]
 
-        logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
+#         logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
 
-        con, cur = get_db()
+#         con, cur = get_db()
 
-        try:
-            cur.execute("INSERT INTO Crêpes (name, price, ingredients, colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
-            con.commit()
-        except sqlite3.OperationalError as e:
-            return {"status": "error", "type": "database", "error": e.sqlite_errorname}
+#         try:
+#             cur.execute("INSERT INTO Crêpes (name, price, ingredients, colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
+#             con.commit()
+#         except sqlite3.OperationalError as e:
+#             return {"status": "error", "type": "database", "error": e.sqlite_errorname}
         
-        except sqlite3.IntegrityError as e:
+#         except sqlite3.IntegrityError as e:
             
-            if e.sqlite_errorcode == 2067:
-                return {"status": "error", "type": "crepe_exists"}
+#             if e.sqlite_errorcode == 2067:
+#                 return {"status": "error", "type": "crepe_exists"}
             
-            return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-        except Exception as e:
-            return {"status": "error", "type": "unknown"}
+#             return {"status": "error", "type": "database", "error": e.sqlite_errorname}
+#         except Exception as e:
+#             return {"status": "error", "type": "unknown"}
 
-        con.close()
+#         con.close()
 
-    return {"status": "success"}
+#     return {"status": "success"}
 
-@cross_origin
-@api_bp.route("/crepes/edit", methods=("PATCH",))
-def edit_crepe():
-    con, cur = get_db()
-    data = request.get_json()
-    logging.debug(f"Edited Crêpes arrived!\nData: {data}")
-    for crepe in data:
-        id = crepe["id"]
-        name = crepe["name"]
-        price = crepe["price"]
-        price_str = parse_price(price)
+# @cross_origin
+# @api_bp.route("/crepes/edit", methods=("PATCH",))
+# def edit_crepe():
+#     con, cur = get_db()
+#     data = request.get_json()
+#     logging.debug(f"Edited Crêpes arrived!\nData: {data}")
+#     for crepe in data:
+#         id = crepe["id"]
+#         name = crepe["name"]
+#         price = crepe["price"]
+#         price_str = parse_price(price)
 
-        cur.execute("SELECT name, price FROM Crêpes WHERE id=?", id)
-        res = cur.fetchone()
-        db_name = res[0]
-        db_price = res[1]
-        db_price_str = str(db_price).replace("\xa0", " ")
-        logging.debug(f"DB_Data: {db_name} ({type(db_name)}) :: {db_price} ({type(db_price)})")
+#         cur.execute("SELECT name, price FROM Crêpes WHERE id=?", id)
+#         res = cur.fetchone()
+#         db_name = res[0]
+#         db_price = res[1]
+#         db_price_str = str(db_price).replace("\xa0", " ")
+#         logging.debug(f"DB_Data: {db_name} ({type(db_name)}) :: {db_price} ({type(db_price)})")
 
-        if (db_price != price_str):
-            logging.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
-            cur.execute("UPDATE Crêpes SET price=? WHERE id=?", (price, id))
-        if name != db_name:
-            logging.info(f"Database & Edited are not the same! {name} vs {db_name}")
-            cur.execute("UPDATE Crêpes SET name=? WHERE id=?", (name, id))
+#         if (db_price != price_str):
+#             logging.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
+#             cur.execute("UPDATE Crêpes SET price=? WHERE id=?", (price, id))
+#         if name != db_name:
+#             logging.info(f"Database & Edited are not the same! {name} vs {db_name}")
+#             cur.execute("UPDATE Crêpes SET name=? WHERE id=?", (name, id))
 
-    con.commit()
-    con.close()
-    return {"status": "success"}
+#     con.commit()
+#     con.close()
+#     return {"status": "success"}
 
+# @cross_origin
+# @api_bp.route("/crepes/delete", methods=("DELETE",))
+# def delete_crepe():
+#     """
+#     Function to delete the crêpes specified by the given data
+#     Data should contain: `id`, `name`
+#     """
+#     data_list = request.get_json()
 
+#     con, cur = get_db()
 
-@cross_origin
-@api_bp.route("/crepes/delete", methods=("DELETE",))
-def delete_crepe():
-    """
-    Function to delete the crêpes specified by the given data
-    Data should contain: `id`, `name`
-    """
-    data_list = request.get_json()
+#     for data in data_list:
+#         id = data["id"]
+#         name = data["name"]
 
-    con, cur = get_db()
+#         cur.execute("SELECT name FROM `Crêpes` WHERE id = ?", [id,])
+#         db_name: str = cur.fetchone()[0]
 
-    for data in data_list:
-        id = data["id"]
-        name = data["name"]
+#         if db_name == name:
+#             cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?", [id, name])
+#             con.close()
+#         else:
+#             con.close()
+#             return {"status": "failed", "error": "crepe_not_found"}
 
-        cur.execute("SELECT name FROM `Crêpes` WHERE id = ?", [id,])
-        db_name: str = cur.fetchone()[0]
-
-        if db_name == name:
-            cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?", [id, name])
-            con.close()
-        else:
-            con.close()
-            return {"status": "failed", "error": "crepe_not_found"}
-
-    con.close()
-    return {"status": "success"}
+#     con.close()
+#     return {"status": "success"}
 
 @cross_origin
 @api_bp.route("/sold/failresistor", methods=("POST",))
@@ -191,6 +292,8 @@ def serve_heatmap():
     return json.dumps(data)
 
 
+
+CrepesView.register(api_bp, route_base="/crepes")
 
 
 hello_str = r"""

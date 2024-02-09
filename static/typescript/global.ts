@@ -1,6 +1,7 @@
 const urls = {
     newSale: "/api/sold",
     resistor: "/api/sold/failresistor",
+    getcrepes: "/api/crepes/get"
 }
 
 var crepelist: Crêpe[] = []
@@ -8,26 +9,6 @@ var crepemap: Map<Crêpe, Map<unknown, unknown>> = new Map();
 
 var connectionError: boolean = false;
 
-/**
- * either true or false
- */
-class CrepeConError {
-    value: boolean;
-
-    constructor(value?: boolean) {
-        this.value = value;
-    }
-
-    get () {
-        return this.value;
-    }
-
-    setFavicon() {
-        if (this.value) {
-
-        }
-    }
-}
 
 class Crêpe {
     id: number;
