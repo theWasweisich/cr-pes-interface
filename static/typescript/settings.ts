@@ -203,7 +203,7 @@ function create_crepe(): boolean {
 
 
 /**
- * **Bitte save_changes() benutzen**
+ * **Bitte `` benutzen**
  */
 async function send_settings_to_server(): Promise<boolean> {
     console.log("Speichern");

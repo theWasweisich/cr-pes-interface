@@ -6,7 +6,7 @@ const own_consumption = btns_container.querySelector('[data-function="own_consum
 const reset_button = btns_container.querySelector('[data-function="reset"]') as HTMLButtonElement
 
 function set_listeners_up() {
-    payed.addEventListener('click', payed_func)
+    payed.addEventListener('click', () => {payed_func(false);})
     payback.addEventListener('click', payback_func)
     own_consumption.addEventListener('click', own_consumption_func)
     reset_button.addEventListener('click', reset_list_func)
@@ -14,12 +14,17 @@ function set_listeners_up() {
 
 set_listeners_up();
 
-async function send_sell_to_server(sale: Crêpe[] | string) {
+async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: boolean = false) {
     console.log("SENDING");
     let url: string = urls.newSale; // urls defined in global
 
     if (typeof (sale) == "string") {
         url = urls.resistor;
+    }
+
+    var headers: HeadersInit = {
+        "Content-Type": "application/json",
+        "ownConsumption": String(own_consumption),
     }
 
 
@@ -28,13 +33,13 @@ async function send_sell_to_server(sale: Crêpe[] | string) {
         mode: "cors",
         cache: "no-cache",
         credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         redirect: "manual",
         referrerPolicy: "no-referrer",
         body: JSON.stringify(sale)
     })
 
-    if (response.ok) {
+    if (response.status == 200) {
         console.log("OK")
         return true;
     } else {
@@ -43,7 +48,7 @@ async function send_sell_to_server(sale: Crêpe[] | string) {
     }
 }
 
-async function payed_func() {
+async function payed_func(own_consumption: boolean = false) {
 
     function appendToLocalStorage() {
         var current_sold = localStorage.getItem("sold")
@@ -74,7 +79,7 @@ async function payed_func() {
         return
     }
 
-    let response = await send_sell_to_server(crepes);
+    let response = await send_sell_to_server(crepes, own_consumption);
 
     if (response) {
         setFavicon(true);
@@ -110,7 +115,13 @@ function payback_func() {
 }
 
 function own_consumption_func() {
+    console.log("Own consumption!")
 
+    if (table.items.size < 1) {
+        console.log("DA IS JA GARNIX!")
+    }
+    
+    payed_func(true);
 }
 
 function reset_list_func() {

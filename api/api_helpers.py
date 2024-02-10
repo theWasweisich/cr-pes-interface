@@ -93,3 +93,4 @@ def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     conn = sqlite3.connect("datenbank.db")
     cur = conn.cursor()
     return (conn, cur)
+

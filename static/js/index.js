@@ -73,13 +73,18 @@ function event_listener(ev) {
 }
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
-        var crepes = document.getElementsByClassName('crepe_container');
-        var crepes_list = Array.from(crepes);
-        yield insertEverything();
-        crepes_list.forEach(crepe => {
-            crepe.addEventListener("click", (ev) => event_listener(ev), true);
-            set_data(crepe);
-            crepe.querySelector('[type="price"]').innerHTML = formatter.format(Number(crepe.getAttribute('data-preis')));
+        insertEverything().then((status) => {
+            if (!status) {
+                throw Error("WHAI?");
+            }
+            var crepes = document.getElementsByClassName('crepe_container');
+            var crepes_list = Array.from(crepes);
+            crepes_list.forEach(crepe => {
+                crepe.addEventListener("click", (ev) => event_listener(ev), true);
+                set_data(crepe);
+                let price = formatter.format(Number(crepe.getAttribute('data-preis')));
+                crepe.querySelector('[name="price"]').innerHTML = price;
+            });
         });
     });
 }

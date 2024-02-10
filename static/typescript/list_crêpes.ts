@@ -15,9 +15,7 @@ async function fetch_crepes() {
     });
 
     if (res.ok) {
-        console.log("Fetched crêpes, starting to insert now")
         var jason = await res.json()
-        console.log(jason)
         return jason
     } else {
         return null
@@ -38,13 +36,15 @@ async function insertEverything() {
     removeAllCrêpes();
     
     crêpes.forEach(crêpe => {
-        var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], crêpe["amount"], crêpe["colour"])
+        var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], 0, crêpe["colour"])
         console.assert(typeof(new_crêpe.color) === "string", "WHAI?")
         crepelist.push(new_crêpe)
     });
     crepelist.forEach(crêpe => {
         insertCrêpe(crêpe);
     })
+
+    return true;
 }
 
 
@@ -96,6 +96,7 @@ async function insertCrêpe(crêpe: Crêpe) {
 
     crepecontrol.appendChild(remove)
     crepecontrol.appendChild(add)
+    crepecontrol.appendChild(counter)
 
     container.appendChild(root);
 

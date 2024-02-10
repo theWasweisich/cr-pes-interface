@@ -120,9 +120,52 @@ class CrepesView(FlaskView):
         con.commit()
         con.close()
         return {"status": "success"}
+    
+    @route("/sold", methods=("POST",))
+    def crepe_sold(self):
+        con, cur = get_db()
+        try:
+            data = request.json
+            if (data == None):
+                return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
+            
+            logging.debug(f"New Crêpes: {data}")
 
 
+            to_db: list[tuple] = []
 
+            try:
+                cur.execute("SELECT MAX(saleID) FROM sales")
+                saleID_next = int(cur.fetchone()[0]) + 1
+            except Exception as e:
+                logging.error(f"There has been an error: {e}")
+                saleID_next = 0
+
+            logging.debug(f"Next SaleID: {saleID_next}")
+
+            now_time = datetime.datetime.now().isoformat()
+            for crepe in data:
+                cID = crepe["crepeId"]
+                cNAME = crepe["name"]
+                cPREIS = crepe["preis"]
+                cAMOUNT = crepe["amount"]
+                cOwnConsumpt = crepe["own_consumption"]
+
+
+                to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time))
+
+                logging.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
+
+            cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, time) VALUES (?, ?, ?, ?, ?)", to_db)
+
+
+            con.commit()
+        except Exception as e:
+            logging.exception(e)
+            con.close()
+            return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+        con.close()
+        return {"status": "success"}, status.HTTP_200_OK
 
 
 
@@ -132,41 +175,6 @@ def index():
 
 # @cross_origin
 # @api_bp.route("/crepes/new", methods=("PUT",))
-# def new_crepe():
-#     data_list = request.get_json()
-#     # logging.debug(f"New Crêpes arrived!\nData: {data_list}")
-
-#     if data_list.length == 0:
-#         return {"status": "failed", "type": "noting_changed"}
-
-#     for data in data_list:
-#         name = data["name"]
-#         price = data["price"]
-#         ingredients = data["ingredients"].split(",")
-#         color = data["color"]
-
-#         logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
-
-#         con, cur = get_db()
-
-#         try:
-#             cur.execute("INSERT INTO Crêpes (name, price, ingredients, colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
-#             con.commit()
-#         except sqlite3.OperationalError as e:
-#             return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-        
-#         except sqlite3.IntegrityError as e:
-            
-#             if e.sqlite_errorcode == 2067:
-#                 return {"status": "error", "type": "crepe_exists"}
-            
-#             return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-#         except Exception as e:
-#             return {"status": "error", "type": "unknown"}
-
-#         con.close()
-
-#     return {"status": "success"}
 
 # @cross_origin
 # @api_bp.route("/crepes/edit", methods=("PATCH",))
