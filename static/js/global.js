@@ -1,5 +1,5 @@
 const urls = {
-    newSale: "/api/sold",
+    newSale: "/api/crepes/sold",
     resistor: "/api/sold/failresistor",
     getcrepes: "/api/crepes/get"
 };

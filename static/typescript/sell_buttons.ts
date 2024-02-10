@@ -7,14 +7,14 @@ const reset_button = btns_container.querySelector('[data-function="reset"]') as 
 
 function set_listeners_up() {
     payed.addEventListener('click', () => {payed_func(false);})
-    payback.addEventListener('click', payback_func)
+    payback.addEventListener('click', change_dialog_handler)
     own_consumption.addEventListener('click', own_consumption_func)
     reset_button.addEventListener('click', reset_list_func)
 }
 
 set_listeners_up();
 
-async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: boolean = false) {
+async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: string) {
     console.log("SENDING");
     let url: string = urls.newSale; // urls defined in global
 
@@ -79,7 +79,7 @@ async function payed_func(own_consumption: boolean = false) {
         return
     }
 
-    let response = await send_sell_to_server(crepes, own_consumption);
+    let response = await send_sell_to_server(crepes, own_consumption ? "own" : "foreign");
 
     if (response) {
         setFavicon(true);
@@ -109,11 +109,9 @@ function setFavicon(state: boolean) {
 }
 
 
-
-function payback_func() {
-    change_dialog_handler();
-}
-
+/**
+ * Function to be called when the "Eigenverbrauch" Button is pressed
+ */
 function own_consumption_func() {
     console.log("Own consumption!")
 
@@ -124,25 +122,36 @@ function own_consumption_func() {
     payed_func(true);
 }
 
+/**
+ * The function called by the "Zurücksetzen" Button
+ */
 function reset_list_func() {
     table.remove_all_table_entries();
 }
 
+/**
+ * Function to be called when there has been an error whilst transmitting the sale
+ */
 function fail_resistor() {
     var stored = localStorage.getItem('sold');
-    var res = send_sell_to_server(stored);
+    var res = send_sell_to_server(stored, "emergencyTransmission");
     if (res) {
         connectionError = false;
         localStorage.removeItem('sold')
     }
 }
 
+/**
+ * Shows red warning message, if transmission didn't work
+ */
 function trigger_alarm() {
-    const alert = document.getElementById("popup-alert")
-    alert.classList.add("activate")
-    setTimeout(() => {
-        alert.classList.remove("activate")
-    }, 5000);
+    if (connectionError) {
+        const alert = document.getElementById("popup-alert")
+        alert.classList.add("activate")
+        setTimeout(() => {
+            alert.classList.remove("activate")
+        }, 5000);
+    }
 }
 
 /**
@@ -166,21 +175,26 @@ function change_dialog_handler() {
         }
     })
     
-    function open_dialog() {
+    function open_dialog(): boolean {
         if (table.getTotalValue() == 0) {
             dial_opener.style.backgroundColor = "red";
             setTimeout(() => {
                 dial_opener.style.backgroundColor = "";
             }, 100)
-            return -1;
+            return false;
         } else {
             dialog.showModal();
-            return 1;
+            return true;
         }
     }
 
     function close_dialog() { 
-        dialog.close();
+        try {
+            dialog.close();
+        } catch (error) {
+            return false;
+        }
+        return true;
     }
 
 
