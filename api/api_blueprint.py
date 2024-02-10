@@ -121,6 +121,7 @@ class CrepesView(FlaskView):
         con.close()
         return {"status": "success"}
     
+
     @route("/sold", methods=("POST",))
     def crepe_sold(self):
         con, cur = get_db()
@@ -149,19 +150,28 @@ class CrepesView(FlaskView):
                 cNAME = crepe["name"]
                 cPREIS = crepe["preis"]
                 cAMOUNT = crepe["amount"]
-                cOwnConsumpt = crepe["own_consumption"]
+
+                if 'ownConsumption' in request.headers:
+                    consumpt = request.headers["ownConsumption"]
+                else:
+                    logging.fatal("Own Consumption not found in headers!")
 
 
-                to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time))
+                to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time, consumpt))
 
-                logging.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
+                logging.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}; OWNCONSUMPTION: {consumpt}")
 
-            cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, time) VALUES (?, ?, ?, ?, ?)", to_db)
+            cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, time, Consumption) VALUES (?, ?, ?, ?, ?, ?)", to_db)
 
+            logging.debug("Inserted Crêpes!")
+            logging.debug(cur.fetchone())
 
+            cur.connection.commit()
             con.commit()
+            con.close()
         except Exception as e:
             logging.exception(e)
+            con.close()
             con.close()
             return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
         con.close()
@@ -245,6 +255,7 @@ def crepe_sold_failresistor():
 @cross_origin
 @api_bp.route("/sold", methods=("POST",))
 def crepe_sold():
+    return 'Please use /api/crepes/sold', status.HTTP_501_NOT_IMPLEMENTED
     con, cur = get_db()
     try:
         data = request.json

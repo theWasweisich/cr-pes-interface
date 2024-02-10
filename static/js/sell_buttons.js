@@ -19,7 +19,7 @@ function set_listeners_up() {
     reset_button.addEventListener('click', reset_list_func);
 }
 set_listeners_up();
-function send_sell_to_server(sale, own_consumption = false) {
+function send_sell_to_server(sale, own_consumption) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("SENDING");
         let url = urls.newSale; // urls defined in global
@@ -40,7 +40,7 @@ function send_sell_to_server(sale, own_consumption = false) {
             referrerPolicy: "no-referrer",
             body: JSON.stringify(sale)
         });
-        if (response.ok) {
+        if (response.status == 200) {
             console.log("OK");
             return true;
         }
@@ -73,7 +73,7 @@ function payed_func(own_consumption = false) {
         if (crepes.length == 0) {
             return;
         }
-        let response = yield send_sell_to_server(crepes, own_consumption);
+        let response = yield send_sell_to_server(crepes, own_consumption ? "own" : "foreign");
         if (response) {
             setFavicon(true);
             reset_list_func();
@@ -117,7 +117,7 @@ function reset_list_func() {
 }
 function fail_resistor() {
     var stored = localStorage.getItem('sold');
-    var res = send_sell_to_server(stored);
+    var res = send_sell_to_server(stored, "emergencyTransmission");
     if (res) {
         connectionError = false;
         localStorage.removeItem('sold');

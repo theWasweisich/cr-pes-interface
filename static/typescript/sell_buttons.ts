@@ -14,7 +14,7 @@ function set_listeners_up() {
 
 set_listeners_up();
 
-async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: boolean = false) {
+async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: string) {
     console.log("SENDING");
     let url: string = urls.newSale; // urls defined in global
 
@@ -79,7 +79,7 @@ async function payed_func(own_consumption: boolean = false) {
         return
     }
 
-    let response = await send_sell_to_server(crepes, own_consumption);
+    let response = await send_sell_to_server(crepes, own_consumption ? "own" : "foreign");
 
     if (response) {
         setFavicon(true);
@@ -130,7 +130,7 @@ function reset_list_func() {
 
 function fail_resistor() {
     var stored = localStorage.getItem('sold');
-    var res = send_sell_to_server(stored);
+    var res = send_sell_to_server(stored, "emergencyTransmission");
     if (res) {
         connectionError = false;
         localStorage.removeItem('sold')
