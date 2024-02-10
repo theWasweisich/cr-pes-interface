@@ -149,6 +149,7 @@ class CrepesView(FlaskView):
                 cNAME = crepe["name"]
                 cPREIS = crepe["preis"]
                 cAMOUNT = crepe["amount"]
+                cOwnConsumpt = crepe["own_consumption"]
 
 
                 to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time))
@@ -168,50 +169,12 @@ class CrepesView(FlaskView):
 
 
 
-
-
-
 @api_bp.route("/")
 def index():
     return "", status.HTTP_403_FORBIDDEN
 
 # @cross_origin
 # @api_bp.route("/crepes/new", methods=("PUT",))
-# def new_crepe():
-#     data_list = request.get_json()
-#     # logging.debug(f"New Crêpes arrived!\nData: {data_list}")
-
-#     if data_list.length == 0:
-#         return {"status": "failed", "type": "noting_changed"}
-
-#     for data in data_list:
-#         name = data["name"]
-#         price = data["price"]
-#         ingredients = data["ingredients"].split(",")
-#         color = data["color"]
-
-#         logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
-
-#         con, cur = get_db()
-
-#         try:
-#             cur.execute("INSERT INTO Crêpes (name, price, ingredients, colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
-#             con.commit()
-#         except sqlite3.OperationalError as e:
-#             return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-        
-#         except sqlite3.IntegrityError as e:
-            
-#             if e.sqlite_errorcode == 2067:
-#                 return {"status": "error", "type": "crepe_exists"}
-            
-#             return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-#         except Exception as e:
-#             return {"status": "error", "type": "unknown"}
-
-#         con.close()
-
-#     return {"status": "success"}
 
 # @cross_origin
 # @api_bp.route("/crepes/edit", methods=("PATCH",))

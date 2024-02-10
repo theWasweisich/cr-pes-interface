@@ -10,6 +10,7 @@ from flask import (
     session,
     url_for,
 )
+import werkzeug
 import status
 
 from datetime import timedelta
@@ -31,7 +32,7 @@ from classes import Crepes_Class, bcolors
 ### Test
 from ua_parser.user_agent_parser import Parse
 from werkzeug.user_agent import UserAgent
-from werkzeug.utils import cached_property
+from werkzeug.utils import cached_property, secure_filename
 
 
 user_handling.load_users()
@@ -79,7 +80,6 @@ def valid_keys() -> list[str]:
 @app.route("/")
 def serve_homepage():
     return render_template("index.jinja")
-
 
 @app.route("/einstellungen")
 def serve_einstellungen():

@@ -39,7 +39,7 @@ async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: boo
         body: JSON.stringify(sale)
     })
 
-    if (response.ok) {
+    if (response.status == 200) {
         console.log("OK")
         return true;
     } else {
