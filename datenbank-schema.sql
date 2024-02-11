@@ -1,4 +1,3 @@
-CREATE TABLE sqlite_sequence(name,seq);
 CREATE TABLE IF NOT EXISTS "shifts" (
 	"id"	INTEGER,
 	"time_start"	TEXT,

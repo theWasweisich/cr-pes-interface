@@ -27,19 +27,22 @@ print("\n"*2)
 
 def create_config():
     print(bcolors.HEADER + "Konfigurationsdatei wird erstellt." + bcolors.ENDC)
-    print("[*] Bitte wählen Sie einen Geheimschlüssel, welcher zur Anmeldung verwendet wird.\n\
-          " + bcolors.UNDERLINE + bcolors.WARNING + "Bitte notieren Sie diesen Schlüssel, bevor sie fortfahren!" + bcolors.ENDC)
 
-    
-    geheimschlüssel = getpass.getpass("Geheimschlüssel: ")
-    secret = secrets.token_hex(400)
+    if os.path.isfile("./.env"):
+          
+        print("[*] Bitte wählen Sie einen Geheimschlüssel, welcher zur Anmeldung verwendet wird.\n\
+            " + bcolors.UNDERLINE + bcolors.WARNING + "Bitte notieren Sie diesen Schlüssel, bevor sie fortfahren!" + bcolors.ENDC)
 
-    with open(".env", "w") as f:
-        f.write("# Dieser geheime Schlüssel wird für die Verschlüsselung der Sitzungen verwendet")
-        f.write(f"SECRET_KEY={secret}")
-        f.write("")
-        f.write("# Dies ist der Authentisierungsschlüssel. Hiermit kann das Program authorisiert werden")
-        f.write(f"AUTH_KEY={geheimschlüssel}")
+        
+        geheimschlüssel = getpass.getpass("Geheimschlüssel: ")
+        secret = secrets.token_hex(400)
+
+        with open(".env", "w") as f:
+            f.write("# Dieser geheime Schlüssel wird für die Verschlüsselung der Sitzungen verwendet")
+            f.write(f"SECRET_KEY={secret}")
+            f.write("")
+            f.write("# Dies ist der Authentisierungsschlüssel. Hiermit kann das Program authorisiert werden")
+            f.write(f"AUTH_KEY={geheimschlüssel}")
     
     print(bcolors.OKGREEN + "[+] Konfiguration erfolgreich abgeschlossen!" + bcolors.ENDC)
 
@@ -58,14 +61,6 @@ def prepare_database():
 
 
 if __name__ == "__main__":
-    if os.path.isfile("./.env"):
-        need_to_set_up["env_file"] = False
-
-    if os.path.isfile("./datenbank.db"):
-        need_to_set_up["datenbank"] = True
-
-    if need_to_set_up["env_file"]:
-        create_config()
-
-    if need_to_set_up["datenbank"]:
-        prepare_database()
+    create_config()
+    print()
+    prepare_database()
