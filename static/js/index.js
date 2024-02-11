@@ -89,6 +89,9 @@ function setup() {
     });
 }
 setup();
+/**
+ * Use this whenever accessing the Table
+ */
 var table = new Table();
 /**
  * Funktion, mit der man mithilfe des HTMLElementes den Crêpe bekommt

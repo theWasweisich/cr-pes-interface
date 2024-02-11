@@ -95,7 +95,9 @@ async function setup() {
 }
 setup();
 
-
+/**
+ * Use this whenever accessing the Table
+ */
 var table = new Table()
 
 /**
