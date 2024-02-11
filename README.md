@@ -11,19 +11,19 @@ Please note that this may not be the only use case, but one might need to rewrit
 Clone the repository:
 
 ```sh
-$ git clone https://github.com/theWasweisich/crepes-interface.git
+git clone https://github.com/theWasweisich/crepes-interface.git
 ```
 
 Install the required libraries:
 
 ```sh
-$ python3 -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 Final Configuration:
 
 ```sh
-$ python3 first_configuration.py
+python3 first_configuration.py
 ```
 
 Finally, run the server:
