@@ -10,15 +10,27 @@ Please note that this may not be the only use case, but one might need to rewrit
 
 Clone the repository:
 
-`$ git clone https://github.com/theWasweisich/crepes-interface.git`
+```sh
+$ git clone https://github.com/theWasweisich/crepes-interface.git
+```
 
 Install the required libraries:
 
-`$ python3 -m pip install -r requirements.txt`
+```sh
+$ python3 -m pip install -r requirements.txt
+```
+
+Final Configuration:
+
+```sh
+$ python3 first_configuration.py
+```
 
 Finally, run the server:
 
-`python3 app.py`
+```sh
+python3 app.py
+```
 
 ## Why what when?
 
@@ -26,8 +38,10 @@ For usage instructions, please refer to the [Wiki](https://github.com/theWasweis
 
 ## Contributing
 
+If there are any Issues or security concerns, please open an issue
+
 Issue reports and pull requests are highly welcome.
 
 ## License
 
-[MIT](https://github.com/theWasweisich/crepes-interface?tab=MIT-1-ov-file)
+This program is linced under the [MIT](https://github.com/theWasweisich/crepes-interface?tab=MIT-1-ov-file) License
