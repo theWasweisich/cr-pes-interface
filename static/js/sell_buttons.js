@@ -29,10 +29,11 @@ function send_sell_to_server(sale, own_consumption = false) {
         var headers = {
             "Content-Type": "application/json",
             "ownConsumption": String(own_consumption),
+            "X-crepeAuth": api_key,
         };
         var response = yield fetch(url, {
             method: "POST",
-            mode: "cors",
+            mode: "same-origin",
             cache: "no-cache",
             credentials: "same-origin",
             headers: headers,

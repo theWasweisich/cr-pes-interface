@@ -210,16 +210,7 @@ async function send_settings_to_server(): Promise<boolean> {
     
 
     async function send_delete() {
-        var response = await fetch(urls.delCrepe, {
-            method: "DELETE",
-            mode: "cors",
-            cache: "no-cache",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
-            redirect: "manual",
-            referrerPolicy: "no-referrer",
-            body: JSON.stringify(send_to_server_list.delete)
-        })
+        var response = await send_server(urls.delCrepe, "DELETE", send_to_server_list.delete)
 
         var text = await response.text()
 
@@ -233,16 +224,7 @@ async function send_settings_to_server(): Promise<boolean> {
         }
     }
     async function send_edit() {
-        var response = await fetch(urls.editCrepe, {
-            method: "PATCH",
-            mode: "cors",
-            cache: "no-cache",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
-            redirect: "manual",
-            referrerPolicy: "no-referrer",
-            body: JSON.stringify(send_to_server_list.edit)
-        })
+        var response = await send_server(urls.editCrepe, "PATCH", send_to_server_list.edit)
 
         var text = await response.text()
 
@@ -257,16 +239,7 @@ async function send_settings_to_server(): Promise<boolean> {
     };
     async function send_new() {
         console.log("Send new!")
-        var response = await fetch(urls.newCrepe, {
-            method: "PUT",
-            mode: "cors",
-            cache: "no-cache",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
-            redirect: "manual",
-            referrerPolicy: "no-referrer",
-            body: JSON.stringify(send_to_server_list.new)
-        })
+        var response = await send_server(urls.newCrepe, "PUT", send_to_server_list.new)
 
         var text = await response.text()
 

@@ -30,15 +30,7 @@ class SaleGroup {
  */
 function get_data(url) {
     return __awaiter(this, void 0, void 0, function* () {
-        var result = yield fetch(url, {
-            method: "GET",
-            mode: "cors",
-            cache: "no-cache",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
-            redirect: "manual",
-            referrerPolicy: "no-referrer",
-        });
+        var result = yield send_server(url, "GET");
         if (result.ok) {
             return yield result.json();
         }

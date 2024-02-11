@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 /**
  * These are all urls pointing to the api. For quick access
  */
@@ -10,6 +19,47 @@ const urls = {
     editCrepe: "/api/crepes/edit",
     newCrepe: "/api/crepes/new",
 };
+var api_key = "";
+if (localStorage.getItem("auth") == null) {
+    window.location.assign("/init");
+}
+else {
+    api_key = localStorage.getItem("auth");
+}
+function send_server(url, method, body) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (body != undefined) {
+            var response = yield fetch(url, {
+                method: method,
+                mode: "same-origin",
+                cache: "no-cache",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-crepeAuth": api_key
+                },
+                redirect: "manual",
+                referrerPolicy: "no-referrer",
+                body: JSON.stringify(body)
+            });
+        }
+        else {
+            var response = yield fetch(url, {
+                method: method,
+                mode: "same-origin",
+                cache: "no-cache",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-crepeAuth": api_key
+                },
+                redirect: "manual",
+                referrerPolicy: "no-referrer",
+            });
+        }
+        return response;
+    });
+}
 var crepelist = [];
 var crepemap = new Map();
 var connectionError = false;

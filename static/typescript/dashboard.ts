@@ -34,15 +34,7 @@ class SaleGroup {
  * @returns The response, or false if the request fails
  */
 async function get_data(url: string) {
-    var result = await fetch(url, {
-        method: "GET",
-        mode: "cors",
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        redirect: "manual",
-        referrerPolicy: "no-referrer",
-    })
+    var result = await send_server(url, "GET")
 
     if (result.ok) {
         return await result.json();

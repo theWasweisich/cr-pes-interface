@@ -1,7 +1,9 @@
+import os
 from flask import (
     Blueprint,
     request
 )
+import flask
 from flask_classful import FlaskView, route
 import logging
 import sqlite3
@@ -230,8 +232,22 @@ class SalesView(FlaskView):
 
 @api_bp.route("/")
 def index():
-    return "", status.HTTP_403_FORBIDDEN
+    return flask.send_from_directory("./docs", "index.html")
 
+
+@api_bp.before_request
+def before_request():
+    # for item in request.headers.items():
+    #     logging.debug(f"Header: {item}")
+    
+    if request.headers.get("X-crepeAuth", "PPP") == os.getenv("AUTH_KEY"):
+        # logging.debug("Authentication success!")
+        return
+    else:
+        # logging.debug("Authentication failed!")
+        return {
+            "status": "failed"
+            }
 
 
 CrepesView.register(api_bp, route_base="/crepes")
