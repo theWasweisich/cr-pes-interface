@@ -1,7 +1,55 @@
+/**
+ * These are all urls pointing to the api. For quick access
+ */
 const urls = {
-    newSale: "/api/crepes/sold",
-    resistor: "/api/sold/failresistor",
-    getcrepes: "/api/crepes/get"
+    newSale: "/api/sales/sold",
+    resistor: "/api/sales/failresistor",
+    getSales: "/api/sales/get",
+    
+    getcrepes: "/api/crepes/get",
+    delCrepe: "/api/crepes/delete",
+    editCrepe: "/api/crepes/edit",
+    newCrepe: "/api/crepes/new",
+}
+var api_key = "";
+
+if (localStorage.getItem("auth") == null) {
+    window.location.assign("/init");
+} else {
+    api_key = localStorage.getItem("auth")
+}
+
+async function send_server(url: string, method: string, body?: any): Promise<Response> {
+    if (body != undefined) {
+        var response = await fetch(url, {
+            method: method,
+            mode: "same-origin",
+            cache: "no-cache",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                "X-crepeAuth": api_key
+            },
+            redirect: "manual",
+            referrerPolicy: "no-referrer",
+            body: JSON.stringify(body)
+        })
+    } else {
+        var response = await fetch(url, {
+            method: method,
+            mode: "same-origin",
+            cache: "no-cache",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                "X-crepeAuth": api_key
+            },
+            redirect: "manual",
+            referrerPolicy: "no-referrer",
+        })
+
+    }
+    return response
 }
 
 var crepelist: Crêpe[] = []

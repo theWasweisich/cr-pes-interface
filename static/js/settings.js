@@ -186,16 +186,7 @@ function send_settings_to_server() {
         console.log("Speichern");
         function send_delete() {
             return __awaiter(this, void 0, void 0, function* () {
-                var response = yield fetch("/api/crepes/delete", {
-                    method: "DELETE",
-                    mode: "cors",
-                    cache: "no-cache",
-                    credentials: "same-origin",
-                    headers: { "Content-Type": "application/json" },
-                    redirect: "manual",
-                    referrerPolicy: "no-referrer",
-                    body: JSON.stringify(send_to_server_list.delete)
-                });
+                var response = yield send_server(urls.delCrepe, "DELETE", send_to_server_list.delete);
                 var text = yield response.text();
                 if (response.ok) {
                     need_to_speichern = false;
@@ -210,16 +201,7 @@ function send_settings_to_server() {
         }
         function send_edit() {
             return __awaiter(this, void 0, void 0, function* () {
-                var response = yield fetch("/api/crepes/edit", {
-                    method: "PATCH",
-                    mode: "cors",
-                    cache: "no-cache",
-                    credentials: "same-origin",
-                    headers: { "Content-Type": "application/json" },
-                    redirect: "manual",
-                    referrerPolicy: "no-referrer",
-                    body: JSON.stringify(send_to_server_list.edit)
-                });
+                var response = yield send_server(urls.editCrepe, "PATCH", send_to_server_list.edit);
                 var text = yield response.text();
                 if (response.ok) {
                     need_to_speichern = false;
@@ -236,16 +218,7 @@ function send_settings_to_server() {
         function send_new() {
             return __awaiter(this, void 0, void 0, function* () {
                 console.log("Send new!");
-                var response = yield fetch("/api/crepes/new", {
-                    method: "PUT",
-                    mode: "cors",
-                    cache: "no-cache",
-                    credentials: "same-origin",
-                    headers: { "Content-Type": "application/json" },
-                    redirect: "manual",
-                    referrerPolicy: "no-referrer",
-                    body: JSON.stringify(send_to_server_list.new)
-                });
+                var response = yield send_server(urls.newCrepe, "PUT", send_to_server_list.new);
                 var text = yield response.text();
                 if (response.ok) {
                     need_to_speichern = false;

@@ -2,14 +2,21 @@
  * This is used for importing the crêpes into the index html
  */
 
-
+/**
+ * yes yes very guud
+ * @returns The response
+ */
 async function fetch_crepes() {
     let url = urls.getcrepes
     var res = await fetch(url, {
         method: "GET",
-        mode: "cors",
+        mode: "same-origin",
         cache: "no-cache",
-        credentials: "same-origin",
+        headers: {
+            "Content-Type": "application/json",
+            "X-crepeAuth": api_key
+        },
+        credentials: "include",
         redirect: "manual",
         referrerPolicy: "no-referrer",
     });

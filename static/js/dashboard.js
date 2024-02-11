@@ -8,8 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var sales = [];
+/**
+ * Represents a singular Sale for the dashboard
+ */
 class SingularSale {
-    constructor(id, name, price, amount, time) {
+    constructor(id, name, price, amount, time, consumption) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -27,15 +30,7 @@ class SaleGroup {
  */
 function get_data(url) {
     return __awaiter(this, void 0, void 0, function* () {
-        var result = yield fetch(url, {
-            method: "GET",
-            mode: "cors",
-            cache: "no-cache",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
-            redirect: "manual",
-            referrerPolicy: "no-referrer",
-        });
+        var result = yield send_server(url, "GET");
         if (result.ok) {
             return yield result.json();
         }
@@ -46,7 +41,7 @@ function get_data(url) {
 }
 function load_sales() {
     return __awaiter(this, void 0, void 0, function* () {
-        var answer = yield get_data("/api/sales/get");
+        var answer = yield get_data(urls.getSales);
         console.log(answer);
         if (answer == false) {
             throw Error("Das hat leider nicht funktioniert! (Fehler #1)");
@@ -56,7 +51,7 @@ function load_sales() {
             var value = answer[key];
             value.items.forEach(item => {
                 total += item.price * item.amount;
-                sales.push(new SingularSale(item.ID, item.Name, item.price, item.amount, value.time));
+                sales.push(new SingularSale(item.ID, item.Name, item.price, item.amount, value.time, item.consumption));
                 add_sale_to_table(value.time, item.ID, item.Name, item.amount, item.price);
             });
             add_total_row(total);

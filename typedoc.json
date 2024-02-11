@@ -1,6 +1,6 @@
 {
     "entryPoints": ["static/typescript/*"],
-    "out": "../docs/typescript",
+    "out": "./api/docs",
     "excludeNotDocumented": true,
     "name": "Crêpes Program",
 }

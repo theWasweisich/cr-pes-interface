@@ -10,14 +10,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+/**
+ * yes yes very guud
+ * @returns The response
+ */
 function fetch_crepes() {
     return __awaiter(this, void 0, void 0, function* () {
         let url = urls.getcrepes;
         var res = yield fetch(url, {
             method: "GET",
-            mode: "cors",
+            mode: "same-origin",
             cache: "no-cache",
-            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
+                "X-crepeAuth": api_key
+            },
+            credentials: "include",
             redirect: "manual",
             referrerPolicy: "no-referrer",
         });

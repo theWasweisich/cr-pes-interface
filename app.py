@@ -1,4 +1,5 @@
 from asyncio import constants
+import base64
 import flask
 from flask import (
     Flask,
@@ -198,6 +199,26 @@ def serve_warning_favicon():
     resp.status_code = status.HTTP_200_OK
     return resp
 
+key = os.getenv("AUTH_KEY")
+
+@app.route("/init", methods=("GET", "POST"))
+def initialisation():
+    logging.info(request.method)
+    if request.method == "GET":
+        return render_template("init.jinja")
+    
+    elif request.method == "POST":
+        if request.json:
+            logging.info(request.json["auth"])
+            if request.json["auth"] == key:
+                return {
+                    "status": "success",
+                    "key": str(key)
+                    }
+            else:
+                return {"status": "failed", "error": "Code does not match"}
+
+    return 'METHOD NOT ALLOWED', status.HTTP_405_METHOD_NOT_ALLOWED
 
 
 @app.errorhandler(status.HTTP_404_NOT_FOUND)
@@ -206,14 +227,18 @@ def not_found(*args, **kwargs):
     logging.critical("Flashed!")
     return redirect("/")
 
+
+
 @app.before_request
 def do_before_request_stuff():
     session.permanent = True
 
     logger = logging.getLogger("werkzeug")
     if request.path.startswith("/static"):
+        ...
         logger.setLevel(logging.ERROR)
     else:
+        ...
         logger.setLevel(logging.DEBUG)
 
 

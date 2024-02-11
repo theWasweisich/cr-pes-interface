@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Init Crêpes-App</title>
+
+    <style>
+        * {
+            color-scheme: only dark;
+            font-family: sans-serif;
+        }
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+        }
+
+        form, form * {
+            font-size: xx-large;
+        }
+
+        #initialisor {
+            padding: 5rem;
+            background-color: rgb(49, 49, 49);
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="initialisor">
+        <h1>Bitte verifizieren Sie sich hier</h1>
+        <br>
+        <form action="" onsubmit="authenticate(); return false;">
+            <label for="auth">Code:</label>
+            <input id="auth" name="auth" type="password" maxlength="10">
+            <input type="submit">
+        </form>
+    </div>
+
+    <script>
+        async function authenticate() {
+            const psswd = document.getElementById("auth").value
+            console.log(psswd)
+            let res = await fetch("/init", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({"auth": psswd})
+            })
+            if (res.ok) {
+                response = await res.json()
+                console.log(response)
+
+                localStorage.setItem("auth", response["key"])
+
+                window.location.assign("/")
+            }
+        }
+    </script>
+
+</body>
+</html>
