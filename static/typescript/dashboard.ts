@@ -1,6 +1,9 @@
 
 var sales: SingularSale[] = [];
 
+/**
+ * Represents a singular Sale for the dashboard
+ */
 class SingularSale {
     time: string;
     id: number;
@@ -8,8 +11,9 @@ class SingularSale {
     price: number;
     amount: number;
     total: number;
+    consumption: string;
 
-    constructor (id: number, name: string, price: number, amount: number, time: string) {
+    constructor (id: number, name: string, price: number, amount: number, time: string, consumption: string) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -48,7 +52,7 @@ async function get_data(url: string) {
 }
 
 async function load_sales() {
-    var answer = await get_data("/api/sales/get");
+    var answer = await get_data(urls.getSales);
     console.log(answer)
     if (answer == false) {
         throw Error("Das hat leider nicht funktioniert! (Fehler #1)")
@@ -59,7 +63,7 @@ async function load_sales() {
         var value = answer[key];
         value.items.forEach(item => {
             total+= item.price * item.amount;
-            sales.push(new SingularSale(item.ID, item.Name, item.price, item.amount, value.time))
+            sales.push(new SingularSale(item.ID, item.Name, item.price, item.amount, value.time, item.consumption))
             add_sale_to_table(value.time, item.ID, item.Name, item.amount, item.price);
         });
         add_total_row(total);

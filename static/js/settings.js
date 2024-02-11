@@ -179,14 +179,14 @@ function create_crepe() {
     return;
 }
 /**
- * **Bitte save_changes() benutzen**
+ * **Bitte `` benutzen**
  */
 function send_settings_to_server() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("Speichern");
         function send_delete() {
             return __awaiter(this, void 0, void 0, function* () {
-                var response = yield fetch("/api/crepes/delete", {
+                var response = yield fetch(urls.delCrepe, {
                     method: "DELETE",
                     mode: "cors",
                     cache: "no-cache",
@@ -210,7 +210,7 @@ function send_settings_to_server() {
         }
         function send_edit() {
             return __awaiter(this, void 0, void 0, function* () {
-                var response = yield fetch("/api/crepes/edit", {
+                var response = yield fetch(urls.editCrepe, {
                     method: "PATCH",
                     mode: "cors",
                     cache: "no-cache",
@@ -236,7 +236,7 @@ function send_settings_to_server() {
         function send_new() {
             return __awaiter(this, void 0, void 0, function* () {
                 console.log("Send new!");
-                var response = yield fetch("/api/crepes/new", {
+                var response = yield fetch(urls.newCrepe, {
                     method: "PUT",
                     mode: "cors",
                     cache: "no-cache",

@@ -1,7 +1,15 @@
+/**
+ * These are all urls pointing to the api. For quick access
+ */
 const urls = {
-    newSale: "/api/sold",
-    resistor: "/api/sold/failresistor",
-    getcrepes: "/api/crepes/get"
+    newSale: "/api/sales/sold",
+    resistor: "/api/sales/failresistor",
+    getSales: "/api/sales/get",
+    
+    getcrepes: "/api/crepes/get",
+    delCrepe: "/api/crepes/delete",
+    editCrepe: "/api/crepes/edit",
+    newCrepe: "/api/crepes/new",
 }
 
 var crepelist: Crêpe[] = []

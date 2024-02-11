@@ -40,7 +40,7 @@ function send_sell_to_server(sale, own_consumption = false) {
             referrerPolicy: "no-referrer",
             body: JSON.stringify(sale)
         });
-        if (response.ok) {
+        if (response.status == 200) {
             console.log("OK");
             return true;
         }

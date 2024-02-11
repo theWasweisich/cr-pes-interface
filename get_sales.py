@@ -104,6 +104,7 @@ def get_dict() -> dict[int, dict[int, dict[str, Any]]]:
             })
     return tmp_data
 
+
 def get_heatmap() -> list[int]:
     """Returns the amount of sales that has been made for each hour of the day
 

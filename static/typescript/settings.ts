@@ -210,7 +210,7 @@ async function send_settings_to_server(): Promise<boolean> {
     
 
     async function send_delete() {
-        var response = await fetch("/api/crepes/delete", {
+        var response = await fetch(urls.delCrepe, {
             method: "DELETE",
             mode: "cors",
             cache: "no-cache",
@@ -233,7 +233,7 @@ async function send_settings_to_server(): Promise<boolean> {
         }
     }
     async function send_edit() {
-        var response = await fetch("/api/crepes/edit", {
+        var response = await fetch(urls.editCrepe, {
             method: "PATCH",
             mode: "cors",
             cache: "no-cache",
@@ -257,7 +257,7 @@ async function send_settings_to_server(): Promise<boolean> {
     };
     async function send_new() {
         console.log("Send new!")
-        var response = await fetch("/api/crepes/new", {
+        var response = await fetch(urls.newCrepe, {
             method: "PUT",
             mode: "cors",
             cache: "no-cache",
