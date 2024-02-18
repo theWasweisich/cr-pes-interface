@@ -43,6 +43,8 @@ def create_config():
 
     if not os.path.isfile("./.env"):
         print(bcolors.WARNING + "[!] Eine Konfigurationsdatei besteht bereits [!]" + bcolors.ENDC)
+        if input(consolecontrolSequences.RED + "Trotzdem Fortfahren? ([J]a/[N]ein) ") != "J":
+            exit()
 
     
 
@@ -77,8 +79,6 @@ def prepare_database():
 
 
 if __name__ == "__main__":
-    print(consolecontrolSequences.CLEAR_SCREEN + "HALLO")
-    exit()
     create_config()
     print()
     prepare_database()
