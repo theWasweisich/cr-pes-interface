@@ -55,7 +55,7 @@ def create_config():
     geheimschlüssel = input("Geheimschlüssel: ")
     secret = secrets.token_hex(400)
 
-    with open(".env", "w", encoding="UTF-8") as f:
+    with open(".env", "w", encoding="utf-8") as f:
         f.write("# Dieser geheime Schlüssel wird für die Verschlüsselung der Sitzungen verwendet\n")
         f.write(f"SECRET_KEY={secret}\n")
         f.write("\n")

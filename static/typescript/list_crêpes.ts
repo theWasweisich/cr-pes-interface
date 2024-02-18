@@ -23,7 +23,19 @@ async function fetch_crepes() {
 
     if (res.ok) {
         var jason = await res.json()
-        return jason
+        
+        try {
+            if (jason["status"] == "failed") {
+                return null
+            } else {
+                return jason
+            }
+            
+        } catch (error) {
+            console.error(`Help me! I catched an error! This error to be more precise: ${error}`)
+            return null
+        }
+        
     } else {
         return null
     }
