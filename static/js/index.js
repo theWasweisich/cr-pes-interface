@@ -75,7 +75,14 @@ function setup() {
     return __awaiter(this, void 0, void 0, function* () {
         insertEverything().then((status) => {
             if (!status) {
-                throw Error("WHAI?");
+                // Keine Crêpes konnten geladen werden
+                const container = document.getElementById("main-content");
+                const root = document.createElement("div");
+                const warn = document.createElement("h2");
+                warn.innerText = "Es konnten leider keine Crêpes geladen werden!";
+                root.appendChild(warn);
+                container.appendChild(root);
+                throw Error("Keine Crêpes konnten geladen werden");
             }
             var crepes = document.getElementsByClassName('crepe_container');
             var crepes_list = Array.from(crepes);

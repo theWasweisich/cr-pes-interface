@@ -25,7 +25,9 @@ async function fetch_crepes() {
         var jason = await res.json()
         
         try {
+            console.log(jason["status"])
             if (jason["status"] == "failed") {
+                console.error("Nix crepe")
                 return null
             } else {
                 return jason

@@ -32,7 +32,9 @@ function fetch_crepes() {
         if (res.ok) {
             var jason = yield res.json();
             try {
+                console.log(jason["status"]);
                 if (jason["status"] == "failed") {
+                    console.error("Nix crepe");
                     return null;
                 }
                 else {
