@@ -28,8 +28,9 @@ else {
 }
 function send_server(url, method, body) {
     return __awaiter(this, void 0, void 0, function* () {
+        var response;
         if (body != undefined) {
-            var response = yield fetch(url, {
+            response = yield fetch(url, {
                 method: method,
                 mode: "same-origin",
                 cache: "no-cache",
@@ -44,7 +45,7 @@ function send_server(url, method, body) {
             });
         }
         else {
-            var response = yield fetch(url, {
+            response = yield fetch(url, {
                 method: method,
                 mode: "same-origin",
                 cache: "no-cache",
@@ -57,6 +58,11 @@ function send_server(url, method, body) {
                 referrerPolicy: "no-referrer",
             });
         }
+        if (response.status == 304) {
+            localStorage.removeItem("auth");
+            location.reload();
+        }
+        console.debug(response.status);
         return response;
     });
 }

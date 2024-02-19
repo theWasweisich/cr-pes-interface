@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import sqlite3
 import uuid
 from classes import Crepes_Class
@@ -54,12 +55,15 @@ def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str
     res_crêpes: list[Crepes_Class] | None = []
     as_dict_list: list[dict[str, str]] | None = []
 
+    crepes_class_list: list[Crepes_Class] = []
+
+    for crepe in crêpes_res:
+        crepes_class_list.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), crepe[3], crepe[4]))
+
+
     if as_dict:
-        for crepe in crêpes_res:
-            as_dict_list.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), (crepe[3]), crepe[4]).return_as_dict())
-    else:
-        for crepe in crêpes_res:
-            res_crêpes.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), (crepe[3]), crepe[4]))
+        for crepe in crepes_class_list:
+            as_dict_list.append(crepe.return_as_dict())
 
     if (len(as_dict_list) == 0):
         as_dict_list = None

@@ -24,7 +24,11 @@ class CrepesView(FlaskView):
 
     @route("/get", methods=("GET",))
     def get(self):
-        return get_crepes(as_dict=True)
+        crepes = get_crepes(as_dict=True)
+        if (crepes):
+            return get_crepes(as_dict=True)
+        else:
+            return {"status": "failed"}, status.HTTP_204_NO_CONTENT
     
     @route("/delete", methods=("DELETE",))
     def delete_crepe(self):
@@ -255,9 +259,15 @@ def before_request():
     else:
         # logging.debug("Authentication failed!")
         return {
-            "status": "failed"
-            }
+            "status": "notAuthorized"
+            }, status.HTTP_403_FORBIDDEN
 
+@api_bp.get("/checkAuth")
+def check_auth():
+    if request.headers.get("X-crepeAuth", "PPP") == os.getenv("AUTH_KEY"):
+        return {"authStatus": "authorized"}
+    else:
+        return {"authStatus": "unauthorized"}
 
 CrepesView.register(api_bp, route_base="/crepes")
 SalesView.register(api_bp, route_base="/sales")

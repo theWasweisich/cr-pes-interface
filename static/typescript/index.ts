@@ -74,7 +74,7 @@ function event_listener(ev: MouseEvent) {
 }
 
 async function setup() {
-    insertEverything().then((status) => {
+    await insertEverything().then((status) => {
 
         if (!status) {
             // Keine Crêpes konnten geladen werden

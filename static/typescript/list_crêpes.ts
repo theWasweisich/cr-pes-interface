@@ -1,10 +1,8 @@
-/**
- * This is used for importing the crêpes into the index html
- */
+// This is used for importing the crêpes into the index html
 
 /**
- * yes yes very guud
- * @returns The response
+ * Function to get crêpes from the api.
+ * @returns The crepes or null if there are no crepes
  */
 async function fetch_crepes() {
     let url = urls.getcrepes
@@ -21,23 +19,30 @@ async function fetch_crepes() {
         referrerPolicy: "no-referrer",
     });
 
+    if (!res.ok) {
+        return undefined
+    }
+
     if (res.ok) {
         var jason = await res.json()
-        
+
+        if (res.status == 403) {
+            return undefined
+        }
+
         try {
-            console.log(jason["status"])
-            if (jason["status"] == "failed") {
-                console.error("Nix crepe")
-                return null
+            if (jason["status"] == "notAuthorized") {
+                console.error("Autorize nixxe")
+                return undefined
             } else {
                 return jason
             }
-            
+
         } catch (error) {
             console.error(`Help me! I catched an error! This error to be more precise: ${error}`)
             return null
         }
-        
+
     } else {
         return null
     }
@@ -45,6 +50,11 @@ async function fetch_crepes() {
 
 async function insertEverything() {
     var crêpes = await fetch_crepes();
+    if (crêpes === undefined) {
+        console.log("Need to re-authorize!");
+        localStorage.removeItem("auth")
+        window.location.reload()
+    }
     if (crêpes === null) {
         return false;
     }
@@ -55,10 +65,10 @@ async function insertEverything() {
     }
 
     removeAllCrêpes();
-    
+
     crêpes.forEach(crêpe => {
         var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], 0, crêpe["colour"])
-        console.assert(typeof(new_crêpe.color) === "string", "WHAI?")
+        console.assert(typeof (new_crêpe.color) === "string", "WHAI?")
         crepelist.push(new_crêpe)
     });
     crepelist.forEach(crêpe => {
@@ -77,9 +87,9 @@ async function insertCrêpe(crêpe: Crêpe) {
     if (crêpe === null) {
         throw Error("DU DUMM DU TROTTL")
     }
-    
+
     const container = document.getElementById("main-content") as HTMLElement
-    
+
     const root = document.createElement("div")
     root.classList.add("crepe_container")
     root.setAttribute("data-name", crêpe.name)
@@ -90,7 +100,7 @@ async function insertCrêpe(crêpe: Crêpe) {
 
     const crepecontrol = document.createElement("div")
     crepecontrol.classList.add("crepecontrol")
-    
+
     const remove = document.createElement("button")
     remove.classList.add("remove")
     remove.innerText = "-"
@@ -98,7 +108,7 @@ async function insertCrêpe(crêpe: Crêpe) {
     const add = document.createElement("button")
     add.classList.add("add")
     add.innerText = "+"
-    
+
     const counter = document.createElement("p")
     counter.classList.add("crepes_counter")
 
@@ -106,7 +116,7 @@ async function insertCrêpe(crêpe: Crêpe) {
     const name = document.createElement("h4")
     name.setAttribute("name", "name")
     name.innerText = crêpe.name
-    
+
     const price = document.createElement("p")
     price.setAttribute("name", "price")
     price.innerText = formatter.format(crêpe.preis)
@@ -126,8 +136,8 @@ async function insertCrêpe(crêpe: Crêpe) {
 
 function removeAllCrêpes() {
     table.remove_all_table_entries()
-    const root =  document.getElementById("main-content");
-    
+    const root = document.getElementById("main-content");
+
     while (root.hasChildNodes()) {
         root.removeChild(root.firstChild);
     }

@@ -24,10 +24,7 @@ class TableEntry {
         amount.setAttribute("data-type", "amount");
         name.setAttribute("data-type", "name");
         price.setAttribute("data-type", "price");
-        // amount.setAttribute("data-type", "amount")
-        // name.setAttribute("data-type", "name")
-        // price.setAttribute("data-type", "price")
-        amount.innerHTML = this.crepe.amount.toString();
+        amount.innerHTML = this.crepe.amount.toString() + "x";
         name.innerHTML = this.crepe.name;
         price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.crepe.preis);
         this.row = tr; // The row that this TableEntry lives in. Needed for deletion
@@ -48,11 +45,6 @@ class TableRow {
         this.price = entry.row.querySelector('[data-type="price"]');
     }
     updateAmount(new_amount) {
-        console.groupCollapsed("Updating Price");
-        console.log("Updating Price Element:");
-        console.log(this.amount);
-        console.log(`to: ${new_amount}`);
-        console.groupEnd();
         this.amount.innerText = `${new_amount}x`;
     }
     updateName(new_name) {
@@ -131,7 +123,7 @@ class Table {
         var row = this.table.querySelector(`[data-id="${crepe.crepeId}"]`);
         var amount_elem = row.querySelector(`[data-type="amount"]`);
         var price_elem = row.querySelector(`[data-type="price"]`);
-        amount_elem.innerHTML = crepe.amount.toString();
+        amount_elem.innerHTML = crepe.amount.toString() + "x";
         price_elem.innerHTML = Intl.NumberFormat("de-DE", { style: 'currency', currency: 'EUR' }).format(crepe.preis * crepe.amount);
         return;
     }

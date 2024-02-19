@@ -19,6 +19,64 @@ let send_to_server_list = {
     delete: new Array
 };
 
+async function getCurrentCrepes() {
+    var res = await send_server(urls.getcrepes, "GET")
+
+    var crêpes = await res.json()
+
+    crepelist.length = 0
+
+    console.log("Crêpes:")
+    console.log(await crêpes)
+    console.log("HI")
+
+    for (var i = 0; i < await crêpes.length; i++) {
+        let crêpe = await crêpes[i];
+
+        console.log(crêpe)
+        var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], 0, crêpe["colour"])
+        console.log(new_crêpe)
+        crepelist.push(new_crêpe)
+
+    }
+    console.log("Moin")
+    populateCrêpesList();
+}
+
+function populateCrêpesList() {
+    const toAppendTo = document.getElementById("crepes_list")
+    console.log("Populating...")
+    const templ = document.getElementById("crepeslist_tmpl") as HTMLTemplateElement;
+
+    console.groupCollapsed("Crepelist")
+    console.log(crepelist)
+    console.groupEnd()
+
+    for (let i = 0; i < crepelist.length; i++) {
+        let crepe = crepelist[i];
+        
+        let htmlString = templ.innerHTML;
+        console.groupCollapsed("1")
+        console.log(htmlString)
+        console.log(crepe)
+        console.groupEnd()
+        htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId))
+        htmlString = htmlString.replace(/!! NAME !!/g, crepe.name)
+        htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.preis))
+        htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.preis))
+        htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.color)
+        
+        let newElem = document.createElement("div")
+        newElem.innerHTML = htmlString
+        console.groupCollapsed("2")
+        console.log(htmlString)
+        console.log(newElem)
+        console.groupEnd()
+        toAppendTo.appendChild(newElem)
+    }
+    console.log("Finished ✅")
+}
+
 function set_settings_up() {
     if (crepelist.length == 0) {
         var list: HTMLElement = document.getElementById("crepes_list")

@@ -1,14 +1,14 @@
 // https://www.chartjs.org/docs
 
-
+api_key = String(localStorage.getItem("auth"))
 
 async function get_data(url) {
     var result = await fetch(url, {
         method: "GET",
-        mode: "cors",
+        mode: "same-origin",
         cache: "no-cache",
         credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-crepeauth": api_key },
         redirect: "manual",
         referrerPolicy: "no-referrer",
     })

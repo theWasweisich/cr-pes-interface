@@ -20,8 +20,9 @@ if (localStorage.getItem("auth") == null) {
 }
 
 async function send_server(url: string, method: string, body?: any): Promise<Response> {
+    var response: Promise<Response> | Response;
     if (body != undefined) {
-        var response = await fetch(url, {
+        response = await fetch(url, {
             method: method,
             mode: "same-origin",
             cache: "no-cache",
@@ -35,7 +36,7 @@ async function send_server(url: string, method: string, body?: any): Promise<Res
             body: JSON.stringify(body)
         })
     } else {
-        var response = await fetch(url, {
+        response = await fetch(url, {
             method: method,
             mode: "same-origin",
             cache: "no-cache",
@@ -49,6 +50,13 @@ async function send_server(url: string, method: string, body?: any): Promise<Res
         })
 
     }
+
+    if (response.status == 304) {
+        localStorage.removeItem("auth")
+        location.reload()
+    }
+    console.debug(response.status)
+
     return response
 }
 

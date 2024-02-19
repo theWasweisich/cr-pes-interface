@@ -23,6 +23,54 @@ let send_to_server_list = {
     edit: new Array,
     delete: new Array
 };
+function getCurrentCrepes() {
+    return __awaiter(this, void 0, void 0, function* () {
+        var res = yield send_server(urls.getcrepes, "GET");
+        var crêpes = yield res.json();
+        crepelist.length = 0;
+        console.log("Crêpes:");
+        console.log(yield crêpes);
+        console.log("HI");
+        for (var i = 0; i < (yield crêpes.length); i++) {
+            let crêpe = yield crêpes[i];
+            console.log(crêpe);
+            var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], 0, crêpe["colour"]);
+            console.log(new_crêpe);
+            crepelist.push(new_crêpe);
+        }
+        console.log("Moin");
+        populateCrêpesList();
+    });
+}
+function populateCrêpesList() {
+    const toAppendTo = document.getElementById("crepes_list");
+    console.log("Populating...");
+    const templ = document.getElementById("crepeslist_tmpl");
+    console.groupCollapsed("Crepelist");
+    console.log(crepelist);
+    console.groupEnd();
+    for (let i = 0; i < crepelist.length; i++) {
+        let crepe = crepelist[i];
+        let htmlString = templ.innerHTML;
+        console.groupCollapsed("1");
+        console.log(htmlString);
+        console.log(crepe);
+        console.groupEnd();
+        htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId));
+        htmlString = htmlString.replace(/!! NAME !!/g, crepe.name);
+        htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.preis));
+        htmlString = htmlString.replace(/!! PRICE_STR !!/g, String(crepe.preis));
+        htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.color);
+        let newElem = document.createElement("div");
+        newElem.innerHTML = htmlString;
+        console.groupCollapsed("2");
+        console.log(htmlString);
+        console.log(newElem);
+        console.groupEnd();
+        toAppendTo.appendChild(newElem);
+    }
+    console.log("Finished ✅");
+}
 function set_settings_up() {
     if (crepelist.length == 0) {
         var list = document.getElementById("crepes_list");

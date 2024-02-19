@@ -6,6 +6,7 @@ function alignClock() {
         if (secs == 1) {
             // console.log("First second!")
             clearInterval(secs);
+            setTime();
             setInterval(setTime, 30_000) // Call setTime every 30 seconds
         }
     }, 10)

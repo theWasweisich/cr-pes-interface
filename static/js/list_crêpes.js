@@ -1,6 +1,4 @@
-/**
- * This is used for importing the crêpes into the index html
- */
+// This is used for importing the crêpes into the index html
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -11,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 /**
- * yes yes very guud
- * @returns The response
+ * Function to get crêpes from the api.
+ * @returns The crepes or null if there are no crepes
  */
 function fetch_crepes() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -29,13 +27,18 @@ function fetch_crepes() {
             redirect: "manual",
             referrerPolicy: "no-referrer",
         });
+        if (!res.ok) {
+            return undefined;
+        }
         if (res.ok) {
             var jason = yield res.json();
+            if (res.status == 403) {
+                return undefined;
+            }
             try {
-                console.log(jason["status"]);
-                if (jason["status"] == "failed") {
-                    console.error("Nix crepe");
-                    return null;
+                if (jason["status"] == "notAuthorized") {
+                    console.error("Autorize nixxe");
+                    return undefined;
                 }
                 else {
                     return jason;
@@ -54,6 +57,11 @@ function fetch_crepes() {
 function insertEverything() {
     return __awaiter(this, void 0, void 0, function* () {
         var crêpes = yield fetch_crepes();
+        if (crêpes === undefined) {
+            console.log("Need to re-authorize!");
+            localStorage.removeItem("auth");
+            window.location.reload();
+        }
         if (crêpes === null) {
             return false;
         }

@@ -203,13 +203,11 @@ key = os.getenv("AUTH_KEY")
 
 @app.route("/init", methods=("GET", "POST"))
 def initialisation():
-    logging.info(request.method)
     if request.method == "GET":
         return render_template("init.jinja")
     
     elif request.method == "POST":
         if request.json:
-            logging.info(request.json["auth"])
             if request.json["auth"] == key:
                 return {
                     "status": "success",

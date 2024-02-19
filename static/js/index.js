@@ -73,7 +73,7 @@ function event_listener(ev) {
 }
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
-        insertEverything().then((status) => {
+        yield insertEverything().then((status) => {
             if (!status) {
                 // Keine Crêpes konnten geladen werden
                 const container = document.getElementById("main-content");

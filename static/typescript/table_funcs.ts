@@ -35,12 +35,8 @@ class TableEntry {
         name.setAttribute("data-type", "name")
         price.setAttribute("data-type", "price")
 
-        // amount.setAttribute("data-type", "amount")
-        // name.setAttribute("data-type", "name")
-        // price.setAttribute("data-type", "price")
-
-        amount.innerHTML = this.crepe.amount.toString()
-        name.innerHTML = this.crepe.name
+        amount.innerHTML = this.crepe.amount.toString() + "x";
+        name.innerHTML = this.crepe.name;
         price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.crepe.preis)
 
 
@@ -71,11 +67,6 @@ class TableRow {
     }
 
     updateAmount(new_amount: number) {
-        console.groupCollapsed("Updating Price")
-        console.log("Updating Price Element:")
-        console.log(this.amount)
-        console.log(`to: ${new_amount}`)
-        console.groupEnd()
         this.amount.innerText = `${new_amount}x`;
     }
 
@@ -168,7 +159,7 @@ class Table {
         var amount_elem = row.querySelector(`[data-type="amount"]`) as HTMLTableCellElement
         var price_elem = row.querySelector(`[data-type="price"]`) as HTMLTableCellElement
 
-        amount_elem.innerHTML = crepe.amount.toString();
+        amount_elem.innerHTML = crepe.amount.toString() + "x";
         price_elem.innerHTML = Intl.NumberFormat("de-DE", { style: 'currency', currency: 'EUR' }).format(crepe.preis * crepe.amount);
         return;
     }

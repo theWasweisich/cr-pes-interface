@@ -119,6 +119,20 @@
                         <input name="Crêpes Preis" type="text" data-value="{{ crepe['price'] }}" oninput="input_changed(this);" pattern="^(?:\d*(?:\.|,)*)+(?:\d+,\d+)(?:\s€|€|&nbsp;€)?$"/><br>
                     </div>
                     {% endfor %}
+                    <template id="crepeslist_tmpl">
+                        <div class="crepe_container" data-id="!! ID !!" data-name="!! NAME !!" data-preis="!! PRICE !!" data-colour="!! COLOUR !!" was_edited="false">
+                            <div class="edited_hint"></div>
+                            <div class="crepecontrol">
+                                <div class="icon_container">
+                                    <button data-type="del" data-name="!! NAME !!" onclick="delte_crepe(this);">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <input name="Crêpes Name" type="text" value="!! NAME !!" oninput="input_changed(this);"/><br>
+                            <input name="Crêpes Preis" type="text" data-value="!! PRICE_STR !!" oninput="input_changed(this);" pattern="^(?:\d*(?:\.|,)*)+(?:\d+,\d+)(?:\s€|€|&nbsp;€)?$"/><br>
+                        </div>
+                    </template>
                 </div>
             </form>
         </fieldset>
