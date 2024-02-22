@@ -34,13 +34,27 @@ img {
 
 .crepe_container {
     position: relative;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
     overflow: hidden;
     padding: 15px;
     margin: 2px;
     background-color: rgba(128, 128, 128, 0.309);
     border: 1px solid black;
+    
+    :first-child {
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+    
+    :last-child {
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+    }
 }
+
+
+
+
 
 .edited_hint {
     display: none;

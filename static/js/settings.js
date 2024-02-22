@@ -59,7 +59,7 @@ function populateCrêpesList() {
         htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId));
         htmlString = htmlString.replace(/!! NAME !!/g, crepe.name);
         htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.preis));
-        htmlString = htmlString.replace(/!! PRICE_STR !!/g, String(crepe.preis));
+        htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.preis));
         htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.color);
         let newElem = document.createElement("div");
         newElem.innerHTML = htmlString;
@@ -67,7 +67,8 @@ function populateCrêpesList() {
         console.log(htmlString);
         console.log(newElem);
         console.groupEnd();
-        toAppendTo.appendChild(newElem);
+        var elem = toAppendTo.appendChild(newElem);
+        elem.querySelector('input[name="Crêpes Preis"]').value = formatter.format(crepe.preis);
     }
     console.log("Finished ✅");
 }
@@ -102,8 +103,10 @@ function prepare_loader() {
         loader.style.display = "none";
     });
 }
-set_settings_up();
-prepare_loader();
+getCurrentCrepes().then(() => {
+    set_settings_up();
+    prepare_loader();
+});
 /**
  * Function that is called by #save_btn
  */

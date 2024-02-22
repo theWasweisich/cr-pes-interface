@@ -72,7 +72,9 @@ function populateCrêpesList() {
         console.log(htmlString)
         console.log(newElem)
         console.groupEnd()
-        toAppendTo.appendChild(newElem)
+        var elem = toAppendTo.appendChild(newElem);
+
+        (elem.querySelector('input[name="Crêpes Preis"]') as HTMLInputElement).value = formatter.format(crepe.preis);
     }
     console.log("Finished ✅")
 }
@@ -116,8 +118,10 @@ function prepare_loader() {
     })
 }
 
-set_settings_up();
-prepare_loader();
+getCurrentCrepes().then(() => {
+    set_settings_up();
+    prepare_loader();
+});
 
 /**
  * Function that is called by #save_btn
