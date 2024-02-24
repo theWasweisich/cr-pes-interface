@@ -180,8 +180,8 @@ class CrepesView(FlaskView):
 
 class SalesView(FlaskView):
 
-    @route("/failresistor")
-    def crepe_sold_failresistor(self):
+    @route("/failresister")
+    def crepe_sold_failResister(self):
         data = request.json
         with open("failResistance.txt", "w", encoding="UTF-8") as f:
             json.dump(data, f)

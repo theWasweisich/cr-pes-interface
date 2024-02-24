@@ -2,15 +2,16 @@
  * These are all urls pointing to the api. For quick access
  */
 const urls = {
-    newSale: "/api/sales/sold",
-    resistor: "/api/sales/failresistor",
-    getSales: "/api/sales/get",
+    newsale: "/api/sales/sold",
+    resistor: "/api/sales/failResister",
+    getsales: "/api/sales/get",
     
     getcrepes: "/api/crepes/get",
     delCrepe: "/api/crepes/delete",
     editCrepe: "/api/crepes/edit",
     newCrepe: "/api/crepes/new",
 }
+
 var api_key = "";
 
 if (localStorage.getItem("auth") == null) {
@@ -19,36 +20,42 @@ if (localStorage.getItem("auth") == null) {
     api_key = localStorage.getItem("auth")
 }
 
+
 async function send_server(url: string, method: string, body?: any): Promise<Response> {
     var response: Promise<Response> | Response;
-    if (body != undefined) {
-        response = await fetch(url, {
-            method: method,
-            mode: "same-origin",
-            cache: "no-cache",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                "X-crepeAuth": api_key
-            },
-            redirect: "manual",
-            referrerPolicy: "no-referrer",
-            body: JSON.stringify(body)
-        })
-    } else {
-        response = await fetch(url, {
-            method: method,
-            mode: "same-origin",
-            cache: "no-cache",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                "X-crepeAuth": api_key
-            },
-            redirect: "manual",
-            referrerPolicy: "no-referrer",
-        })
-
+    try {
+        if (body != undefined) {
+            response = await fetch(url, {
+                method: method,
+                mode: "same-origin",
+                cache: "no-cache",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-crepeAuth": api_key
+                },
+                redirect: "manual",
+                referrerPolicy: "no-referrer",
+                body: JSON.stringify(body)
+            })
+        } else {
+            response = await fetch(url, {
+                method: method,
+                mode: "same-origin",
+                cache: "no-cache",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-crepeAuth": api_key
+                },
+                redirect: "manual",
+                referrerPolicy: "no-referrer",
+            })
+    
+        }
+    } catch (error) {
+        alert("Es gab einen Fehler!")
+        throw {"name": "Error"}
     }
 
     if (response.status == 304) {

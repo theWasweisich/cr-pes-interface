@@ -2,6 +2,7 @@ import os
 import getpass
 import secrets
 import sqlite3
+import re
 
 class consolecontrolSequences:
     CLEAR_SCREEN = '\033[2J'
@@ -34,9 +35,28 @@ need_to_set_up = {
 
 
 
-print(bcolors.OKBLUE + bcolors.BOLD + "[*] --- Configuration --- [*]" + bcolors.ENDC)
-print("\n"*2)
 
+def validate_email(email: str) -> bool:
+    if not re.match("[^@].*@\\w{2,}\\.\\w{2,}", email):
+        return False
+    else:
+        return True
+
+def setup_config_email():
+    print(bcolors.OKBLUE + "[+] Soll eine debug-Email eingerichtet werden? ([J]a/[N]ein) " + bcolors.ENDC)
+    if input(" ") == "J":
+        finished = False
+        while not finished:
+            print(bcolors.OKCYAN + "[*] Bitte geben Sie die gewünschte E-Mail ein: ", end="")
+            email = input()
+            if validate_email(email):
+                finished = True
+                with open(".env", "a", encoding="UTF-8") as f:
+                    f.write("# If critical emails occur, a warning will be sent to this email")
+                    f.write(f"CRITICAL_ERROR_EMAIL={email}")
+            if email == "exit" or email == "quit" or email == "e" or email == "q":
+                finished = True
+    return
 
 def create_config():
     print(bcolors.HEADER + "Konfigurationsdatei wird erstellt." + bcolors.ENDC)
@@ -77,8 +97,14 @@ def prepare_database():
     con.close()
     print(bcolors.OKGREEN + "[+] Datenbank erfolgreich erstellt!\n" + bcolors.ENDC)
 
-
 if __name__ == "__main__":
+    
+    print(bcolors.OKBLUE + bcolors.BOLD + "[*] --- Configuration --- [*]" + bcolors.ENDC)
+    print("\n"*2)
+
+
     create_config()
+    print()
+    setup_config_email()
     print()
     prepare_database()

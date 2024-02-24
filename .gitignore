@@ -12,3 +12,5 @@ _venv_activate.bat
 /personal_notes
 .env
 *.db
+/.flitzenv/
+node_modules

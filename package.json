@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "@types/jquery": "^3.5.29",
-    "chart.js": "^4.4.1"
+    "chart.js": "^4.4.1",
+    "ts-node": "^10.9.2"
   }
 }

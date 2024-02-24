@@ -39,7 +39,7 @@ from werkzeug.utils import cached_property, secure_filename
 user_handling.load_users()
 
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
-
+# logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # Activate if logs should be print to console
 
 app = Flask(__name__)
 
