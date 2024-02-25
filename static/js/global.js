@@ -11,9 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
  * These are all urls pointing to the api. For quick access
  */
 const urls = {
-    newSale: "/api/sales/sold",
-    resistor: "/api/sales/failresistor",
-    getSales: "/api/sales/get",
+    newsale: "/api/sales/sold",
+    resistor: "/api/sales/failResister",
+    getsales: "/api/sales/get",
     getcrepes: "/api/crepes/get",
     delCrepe: "/api/crepes/delete",
     editCrepe: "/api/crepes/edit",
@@ -29,34 +29,40 @@ else {
 function send_server(url, method, body) {
     return __awaiter(this, void 0, void 0, function* () {
         var response;
-        if (body != undefined) {
-            response = yield fetch(url, {
-                method: method,
-                mode: "same-origin",
-                cache: "no-cache",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-crepeAuth": api_key
-                },
-                redirect: "manual",
-                referrerPolicy: "no-referrer",
-                body: JSON.stringify(body)
-            });
+        try {
+            if (body != undefined) {
+                response = yield fetch(url, {
+                    method: method,
+                    mode: "same-origin",
+                    cache: "no-cache",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-crepeAuth": api_key
+                    },
+                    redirect: "manual",
+                    referrerPolicy: "no-referrer",
+                    body: JSON.stringify(body)
+                });
+            }
+            else {
+                response = yield fetch(url, {
+                    method: method,
+                    mode: "same-origin",
+                    cache: "no-cache",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-crepeAuth": api_key
+                    },
+                    redirect: "manual",
+                    referrerPolicy: "no-referrer",
+                });
+            }
         }
-        else {
-            response = yield fetch(url, {
-                method: method,
-                mode: "same-origin",
-                cache: "no-cache",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-crepeAuth": api_key
-                },
-                redirect: "manual",
-                referrerPolicy: "no-referrer",
-            });
+        catch (error) {
+            alert("Es gab einen Fehler!");
+            throw { "name": "Error" };
         }
         if (response.status == 304) {
             localStorage.removeItem("auth");

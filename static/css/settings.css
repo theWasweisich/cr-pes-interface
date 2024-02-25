@@ -10,6 +10,13 @@ html, body {
     padding: 0;
 }
 
+#newForm * {
+    transition: all 500ms;
+}
+
+#newForm.success * {
+    background-color: green;
+}
 
 input:not([type="button"]) {
     border: none;

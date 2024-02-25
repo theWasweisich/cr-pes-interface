@@ -22,7 +22,7 @@ set_listeners_up();
 function send_sell_to_server(sale, own_consumption) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("SENDING");
-        let url = urls.newSale; // urls defined in global
+        let url = urls.newsale; // urls defined in global
         if (typeof (sale) == "string") {
             url = urls.resistor;
         }

@@ -36,7 +36,7 @@
         <div id="create" data-type="table">
             <h2>Crêpes Erstellen</h2>
             <!-- Hier beginnt die Erstellung -->
-            <form action="#" autocomplete="off" onsubmit="create_crepe(); return false;">
+            <form id="newForm" action="#" autocomplete="off" onsubmit="create_crepe(); return false;">
                 <table>
                     <tr>
                         <td>
@@ -70,22 +70,17 @@
                             <label for="color">Farbe</label>
                         </td>
                         <td>
-                            <input type="color" name="ccolor" id="ccolor" hidden>
                             <select name="color" id="color" onchange="change_selected();" style="text-shadow: 0 0 10px white;">
                                 <option value="white" style="background-color: #FFFFFF; color: darkblue;" selected>Spezial</option>
                                 <option value="green" style="background-color: #566E3D">Deftig</option>
                                 <option value="yellow" style="background-color: #eaee20; color: darkblue;">Süß</option>
                                 <option value="purple" style="background-color: #5B3758">Jahrescrêpe</option>
-                                <option value="blue" style="background-color: #009DFF"></option>
-                                <option value="yellow" style="background-color: #FF1B1C"></option>
-                                <option value="#31E981" style="background-color: #31E981"></option>
-                                <option value="custom">Benutzerdefiniert</option>
                             </select>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="submit" value="Neuen Crêpes erstellen!">
+                            <input id="newSubmit" type="submit" value="Neuen Crêpes erstellen!">
                         </td>
                     </tr>
                 </table>

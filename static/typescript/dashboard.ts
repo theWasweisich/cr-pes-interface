@@ -44,7 +44,7 @@ async function get_data(url: string) {
 }
 
 async function load_sales() {
-    var answer = await get_data(urls.getSales);
+    var answer = await get_data(urls.getsales);
     console.log(answer)
     if (answer == false) {
         throw Error("Das hat leider nicht funktioniert! (Fehler #1)")
