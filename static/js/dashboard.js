@@ -41,7 +41,7 @@ function get_data(url) {
 }
 function load_sales() {
     return __awaiter(this, void 0, void 0, function* () {
-        var answer = yield get_data(urls.getSales);
+        var answer = yield get_data(urls.getsales);
         console.log(answer);
         if (answer == false) {
             throw Error("Das hat leider nicht funktioniert! (Fehler #1)");

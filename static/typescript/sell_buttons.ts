@@ -16,7 +16,7 @@ set_listeners_up();
 
 async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: string) {
     console.log("SENDING");
-    let url: string = urls.newSale; // urls defined in global
+    let url: string = urls.newsale; // urls defined in global
 
     if (typeof (sale) == "string") {
         url = urls.resistor;
