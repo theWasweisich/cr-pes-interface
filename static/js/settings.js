@@ -9,19 +9,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 // Some useful Variables
-var need_to_speichern = false;
 var crepes_selected = false;
-window.onbeforeunload = function () {
-    if (need_to_speichern) {
-        return "U SURE?";
+window.addEventListener("beforeunload", (event) => {
+    if ((send_to_server_list.delete.length > 0) || (send_to_server_list.edit.length > 0) || (send_to_server_list.new.length > 0)) {
+        event.preventDefault();
     }
-    else
-        return;
-};
+});
 let send_to_server_list = {
     new: new Array,
     edit: new Array,
-    delete: new Array
+    delete: new Array,
 };
 function getCurrentCrepes() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -53,6 +50,9 @@ function populateCrêpesList() {
         elem.querySelector('input[name="Crêpes Preis"]').value = formatter.format(crepe.preis);
     }
 }
+/**
+ * What does this function do?
+ */
 function set_settings_up() {
     if (crepelist.length == 0) {
         var list = document.getElementById("crepes_list");
@@ -70,6 +70,8 @@ function set_settings_up() {
             crepelist.push(new Crêpe(Number(id), name, price, 0, null, crepe));
         }
     }
+    ;
+    check_if_need_to_speichern();
 }
 function prepare_loader() {
     const button = document.getElementById('save_btn');
@@ -155,7 +157,6 @@ function delte_crepe(target) {
         "id": id,
         "name": crepename
     });
-    need_to_speichern = true;
     check_if_need_to_speichern();
 }
 function loadCrepe(elem, crepes_data) {
@@ -200,7 +201,6 @@ function create_crepe() {
         "color": color.value
     };
     send_to_server_list.new.push(crepe_data);
-    need_to_speichern = true;
     check_if_need_to_speichern();
     console.log("Crêpes Created!");
     form.classList.add("success");
@@ -220,7 +220,6 @@ function send_settings_to_server() {
                 var response = yield send_server(urls.delCrepe, "DELETE", send_to_server_list.delete);
                 var text = yield response.text();
                 if (response.ok) {
-                    need_to_speichern = false;
                     console.log(text);
                     return true;
                 }
@@ -235,7 +234,6 @@ function send_settings_to_server() {
                 var response = yield send_server(urls.editCrepe, "PATCH", send_to_server_list.edit);
                 var text = yield response.text();
                 if (response.ok) {
-                    need_to_speichern = false;
                     console.log(text);
                     return true;
                 }
@@ -252,7 +250,6 @@ function send_settings_to_server() {
                 var response = yield send_server(urls.newCrepe, "PUT", send_to_server_list.new);
                 var text = yield response.text();
                 if (response.ok) {
-                    need_to_speichern = false;
                     console.groupCollapsed("Gespeichert");
                     console.log(text);
                     console.groupEnd();
@@ -331,26 +328,33 @@ function save_changes() {
         }
     });
 }
+/**
+ * Function checks if the user needs to save changes.
+ * @returns true, if there are unsaved-changes
+ * @returns false, if there are no unsaved-changes
+ */
 function check_if_need_to_speichern() {
     /**
      * Checks if send_to_server_list is empty
      */
     function is_all_empty() {
-        if (send_to_server_list.delete.length != 0 && send_to_server_list.edit.length != 0 && send_to_server_list.new.length != 0) {
+        if (send_to_server_list.delete.length != 0 || send_to_server_list.edit.length != 0 || send_to_server_list.new.length != 0) {
             return true;
         }
         else {
             return false;
         }
     }
-    var btn = document.getElementById('save_btn');
-    if (is_all_empty()) {
-        need_to_speichern = false;
+    let btn = document.getElementById('save_btn');
+    const empty = is_all_empty();
+    if (empty) {
         btn.style.backgroundColor = "rgb(120, 120, 120)";
+        window.onbeforeunload = () => { };
+        return true;
     }
     else {
-        need_to_speichern = true;
         btn.style.backgroundColor = "rgb(0, 133, 35)";
+        return false;
     }
 }
 function input_changed(elem) {
@@ -370,14 +374,12 @@ function input_changed(elem) {
         elem.checkValidity();
         container.setAttribute("was_edited", "true");
         marker.style.display = "block";
-        need_to_speichern = true;
         check_if_need_to_speichern();
     }
     else {
         elem.checkValidity();
         marker.style.display = "none";
         container.setAttribute("was_edited", "false");
-        need_to_speichern = true;
         check_if_need_to_speichern();
     }
 }
@@ -426,7 +428,6 @@ function check_for_edits() {
                 "name": name,
                 "price": price
             });
-            need_to_speichern = true;
             check_if_need_to_speichern();
         }
     }
