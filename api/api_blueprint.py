@@ -39,6 +39,7 @@ class CrepesView(FlaskView):
         data_list = request.get_json()
 
         con, cur = get_db()
+        error_detail: str | None = None
 
         for data in data_list:
             id = data["id"]
@@ -49,13 +50,18 @@ class CrepesView(FlaskView):
 
             if db_name == name:
                 cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?", [id, name])
-                con.close()
             else:
-                con.close()
-                return {"status": "failed", "error": "crepe_not_found"}
+                logging.exception("Der zu löschende Crepe wurde nicht gefunden!")
+                error_detail = f"requested crepe not found! ({name})"
+                break
 
+        con.commit()
         con.close()
-        return {"status": "success"}
+        if error_detail:
+            return {"status": "failed", "detail": error_detail}
+        else:
+            return {"status": "success", "deleted": data_list}
+
 
     @route("/create", methods=("PUT",))
     def new_crepe(self):

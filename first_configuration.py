@@ -1,55 +1,20 @@
 import os
-import getpass
 import secrets
 import sqlite3
-import re
-
-class consolecontrolSequences:
-    CLEAR_SCREEN = '\033[2J'
-    MOVE_CURSOR_TO_TOP_RIGHT = '\033[H'
-
-    BLACK = "\033[30m"
-    RED = "\033[31m"
-    GREEN = "\033[32m"
-    YELLOW = "\033[33m"
-    BLUE = "\033[34m"
-    MAGENTA = "\033[35m"
-    CYAN = "\033[36m"
-    WHITE = "\033[37m"
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-need_to_set_up = {
-    "env_file": True,
-    "datenbank": True,
-}
+import email_validator
+from classes import bcolors, consolecontrolSequences
 
 
 
-
-def validate_email(email: str) -> bool:
-    if not re.match("[^@].*@\\w{2,}\\.\\w{2,}", email):
-        return False
-    else:
-        return True
 
 def setup_config_email():
-    print(bcolors.OKBLUE + "[+] Soll eine debug-Email eingerichtet werden? ([J]a/[N]ein) " + bcolors.ENDC)
+    print(bcolors.OKBLUE + "[+] Soll eine Backup-Email eingerichtet werden? ([J]a/[N]ein) " + bcolors.ENDC)
     if input(" ") == "J":
         finished = False
         while not finished:
             print(bcolors.OKCYAN + "[*] Bitte geben Sie die gewünschte E-Mail ein: ", end="")
             email = input()
-            if validate_email(email):
+            if email_validator.validate_email(email):
                 finished = True
                 with open(".env", "a", encoding="UTF-8") as f:
                     f.write("# If critical emails occur, a warning will be sent to this email")
@@ -105,6 +70,13 @@ if __name__ == "__main__":
 
     create_config()
     print()
-    setup_config_email()
+    try:
+        setup_config_email()
+    except email_validator.EmailNotValidError as e:
+        print(bcolors.ENDC)
+        print(e)
+        exit()
+    except:
+        print(bcolors.ENDC)
     print()
     prepare_database()
