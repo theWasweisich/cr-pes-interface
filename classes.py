@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+from typing import TypedDict
 
 
 class User:
@@ -23,6 +24,14 @@ class User:
     def __str__(self):
         return f"Username: {self.username} || Password: {self.password} || Priviledge: {self.priviledge}"
 
+class CrepeSaleDict(TypedDict):
+    id: int
+    saleID: int
+    name: str
+    amount: int
+    price: float
+    time: datetime.datetime
+
 class CrepeSale():
     def __init__(self, id: int, saleID: int, name: str, amount: int, price: float, time: datetime.datetime) -> None:
         self.id = id
@@ -34,6 +43,10 @@ class CrepeSale():
     
     def __str__(self) -> str:
         return f"ID: {self.id}; SaleID: {self.saleID}; Name: {self.name}; Amount: {self.amount}; Preis: {self.price}; Zeit: {self.time.strftime("%d-%m-%Y, %H:%M:%S")}"
+    
+    def __object__(self) -> CrepeSaleDict:
+        return CrepeSaleDict({"id": self.id,"saleID": self.saleID,"name": self.name,"amount": self.amount,"price": self.price,"time": self.time})
+        
 
 
 class Crepes_Class():

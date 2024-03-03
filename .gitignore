@@ -10,7 +10,7 @@ key.pem
 cert.pem
 _venv_activate.bat
 /personal_notes
-.env
+*.env
 *.db
 /.flitzenv/
 node_modules
