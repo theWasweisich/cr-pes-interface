@@ -37,6 +37,11 @@ async function getCurrentCrepes() {
 function populateCrêpesList() {
     const toAppendTo = document.getElementById("crepes_list")
     const templ = document.getElementById("crepeslist_tmpl") as HTMLTemplateElement;
+    const to_delete = toAppendTo.querySelectorAll("div") as NodeListOf<HTMLElement>
+
+    to_delete.forEach((elem) => {
+        elem.remove();
+    })
 
     for (let i = 0; i < crepelist.length; i++) {
         let crepe = crepelist[i];
@@ -84,24 +89,8 @@ function set_settings_up() {
     check_if_need_to_speichern()
 }
 
-function prepare_loader() {
-    const button = document.getElementById('save_btn');
-    const text = document.getElementById('save_text');
-    const loader = document.getElementById('loader');
-
-    button.addEventListener("mouseenter", () => {
-        text.style.display = "none";
-        loader.style.display = "block";
-    })
-    button.addEventListener("mouseout", () => {
-        text.style.display = "block";
-        loader.style.display = "none";
-    })
-}
-
 getCurrentCrepes().then(() => {
     set_settings_up();
-    prepare_loader();
 });
 
 /**
@@ -119,12 +108,6 @@ async function button_save_changes_to_server() {
             save_btn.innerText = "Speichern";
         }, 2000)
     }
-}
-
-function change_selected() {
-    var select_elem: HTMLInputElement = document.getElementById('color') as HTMLInputElement;
-    var selected_color = select_elem.value;
-    select_elem.style.backgroundColor = selected_color;
 }
 
 /**
@@ -160,7 +143,7 @@ function toggle_empty() {
  */
 function delte_crepe(target: HTMLElement) {
     var root = target.parentElement.parentElement.parentElement;
-    if (!('crepe_container' in root.classList)) {
+    if (!root.classList.contains("crepe_container")) {
         console.group("Error")
         console.error("FATAL ERROR. Function: delete_crepe")
         console.info(root)
@@ -212,32 +195,28 @@ function editCrepe() {
 }
 
 function create_crepe(): boolean {
-    let name = document.getElementById('crepeName');
-    let price = document.getElementById('price');
-    let ingredients = document.getElementById('ingredients');
-    let color = document.getElementById('color');
-    let sumitter = document.getElementById("newSubmit") as HTMLInputElement;
+    let name = document.getElementById('crepeName') as HTMLInputElement;
+    let price = document.getElementById('price') as HTMLInputElement;
+    let ingredients = document.getElementById('ingredients') as HTMLInputElement;
+    let color = document.getElementById('color') as HTMLSelectElement;
     let form = document.getElementById("newForm") as HTMLFormElement;
     
     var crepe_data = {
-        // @ts-expect-error
         "name": name.value,
-        // @ts-expect-error
         "price": price.value,
-        // @ts-expect-error
         "ingredients": ingredients.value,
-        // @ts-expect-error
         "color": color.value
         };
+
     send_to_server_list.new.push(crepe_data)
     check_if_need_to_speichern();
 
-    console.log("Crêpes Created!")
     form.classList.add("success")
     setTimeout(() => {
         form.classList.remove("success")
     }, 250);
 
+    color.selectedIndex = 0
     form.reset()
 
     return;
@@ -313,10 +292,11 @@ async function save_changes(): Promise<boolean> {
     console.warn(send_to_server_list)
     const res = await send_settings_to_server();
     if (res) {
-        setTimeout(function () {
-            location.reload()
-        }, 3500)
+        send_to_server_list.delete = []
+        send_to_server_list.edit = []
+        send_to_server_list.new = []
         changes_saved(true);
+        getCurrentCrepes();
         return true;
     } else {
         changes_saved(false);
@@ -347,7 +327,8 @@ async function save_changes(): Promise<boolean> {
         }
         function animation_out() {
             const Anim = new KeyframeEffect(elem, [{opacity: "0", top: "0"}], {duration: 500, fill: "forwards"})
-            new Animation(Anim, document.timeline).play()
+            new Animation(Anim, document.timeline).play();
+            check_if_need_to_speichern()
         }
     }
 }
@@ -363,10 +344,10 @@ function check_if_need_to_speichern(): boolean {
      * Checks if send_to_server_list is empty
      */
     function is_all_empty(): boolean {
-        if (send_to_server_list.delete.length != 0 || send_to_server_list.edit.length != 0 || send_to_server_list.new.length != 0) {
-            return true;
-        } else {
+        if (send_to_server_list.delete.length > 0 || send_to_server_list.edit.length > 0 || send_to_server_list.new.length > 0) {
             return false;
+        } else {
+            return true;
         }
     }
 

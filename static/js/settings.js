@@ -36,6 +36,10 @@ function getCurrentCrepes() {
 function populateCrêpesList() {
     const toAppendTo = document.getElementById("crepes_list");
     const templ = document.getElementById("crepeslist_tmpl");
+    const to_delete = toAppendTo.querySelectorAll("div");
+    to_delete.forEach((elem) => {
+        elem.remove();
+    });
     for (let i = 0; i < crepelist.length; i++) {
         let crepe = crepelist[i];
         let htmlString = templ.innerHTML;
@@ -73,22 +77,8 @@ function set_settings_up() {
     ;
     check_if_need_to_speichern();
 }
-function prepare_loader() {
-    const button = document.getElementById('save_btn');
-    const text = document.getElementById('save_text');
-    const loader = document.getElementById('loader');
-    button.addEventListener("mouseenter", () => {
-        text.style.display = "none";
-        loader.style.display = "block";
-    });
-    button.addEventListener("mouseout", () => {
-        text.style.display = "block";
-        loader.style.display = "none";
-    });
-}
 getCurrentCrepes().then(() => {
     set_settings_up();
-    prepare_loader();
 });
 /**
  * Function that is called by #save_btn
@@ -105,11 +95,6 @@ function button_save_changes_to_server() {
             }, 2000);
         }
     });
-}
-function change_selected() {
-    var select_elem = document.getElementById('color');
-    var selected_color = select_elem.value;
-    select_elem.style.backgroundColor = selected_color;
 }
 /**
  * Funktion prüft, ob die Liste mit Crêpes leer ist
@@ -143,7 +128,7 @@ function toggle_empty() {
  */
 function delte_crepe(target) {
     var root = target.parentElement.parentElement.parentElement;
-    if (!('crepe_container' in root.classList)) {
+    if (!root.classList.contains("crepe_container")) {
         console.group("Error");
         console.error("FATAL ERROR. Function: delete_crepe");
         console.info(root);
@@ -188,25 +173,20 @@ function create_crepe() {
     let price = document.getElementById('price');
     let ingredients = document.getElementById('ingredients');
     let color = document.getElementById('color');
-    let sumitter = document.getElementById("newSubmit");
     let form = document.getElementById("newForm");
     var crepe_data = {
-        // @ts-expect-error
         "name": name.value,
-        // @ts-expect-error
         "price": price.value,
-        // @ts-expect-error
         "ingredients": ingredients.value,
-        // @ts-expect-error
         "color": color.value
     };
     send_to_server_list.new.push(crepe_data);
     check_if_need_to_speichern();
-    console.log("Crêpes Created!");
     form.classList.add("success");
     setTimeout(() => {
         form.classList.remove("success");
     }, 250);
+    color.selectedIndex = 0;
     form.reset();
     return;
 }
@@ -290,10 +270,11 @@ function save_changes() {
         console.warn(send_to_server_list);
         const res = yield send_settings_to_server();
         if (res) {
-            setTimeout(function () {
-                location.reload();
-            }, 3500);
+            send_to_server_list.delete = [];
+            send_to_server_list.edit = [];
+            send_to_server_list.new = [];
             changes_saved(true);
+            getCurrentCrepes();
             return true;
         }
         else {
@@ -324,6 +305,7 @@ function save_changes() {
             function animation_out() {
                 const Anim = new KeyframeEffect(elem, [{ opacity: "0", top: "0" }], { duration: 500, fill: "forwards" });
                 new Animation(Anim, document.timeline).play();
+                check_if_need_to_speichern();
             }
         }
     });
@@ -338,11 +320,11 @@ function check_if_need_to_speichern() {
      * Checks if send_to_server_list is empty
      */
     function is_all_empty() {
-        if (send_to_server_list.delete.length != 0 || send_to_server_list.edit.length != 0 || send_to_server_list.new.length != 0) {
-            return true;
+        if (send_to_server_list.delete.length > 0 || send_to_server_list.edit.length > 0 || send_to_server_list.new.length > 0) {
+            return false;
         }
         else {
-            return false;
+            return true;
         }
     }
     let btn = document.getElementById('save_btn');

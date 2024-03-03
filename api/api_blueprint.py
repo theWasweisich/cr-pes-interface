@@ -1,4 +1,5 @@
 import os
+from typing import Any
 from flask import (
     Blueprint,
     request
@@ -63,19 +64,23 @@ class CrepesView(FlaskView):
             return {"status": "success", "deleted": data_list}
 
 
-    @route("/create", methods=("PUT",))
+    @route("/new", methods=("PUT",))
     def new_crepe(self):
         data_list = request.get_json()
-        # logging.debug(f"New Crêpes arrived!\nData: {data_list}")
 
-        if data_list.length == 0:
+        if len(data_list) == 0:
             return {"status": "failed", "type": "noting_changed"}
+        
+        data_list: list[dict[str, Any]] = data_list
 
         for data in data_list:
-            name = data["name"]
-            price = data["price"]
-            ingredients = data["ingredients"].split(",")
-            color = data["color"]
+            name: str = data["name"]
+            price: float = data["price"]
+            ingredients: list[str] = data["ingredients"].split(",")
+            for i in range(len(ingredients)):
+                ingredients[i] = ingredients[i].strip()
+
+            color: str = data["color"]
 
             logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
 
@@ -88,12 +93,11 @@ class CrepesView(FlaskView):
                 return {"status": "error", "type": "database", "error": e.sqlite_errorname}
             
             except sqlite3.IntegrityError as e:
-                
                 if e.sqlite_errorcode == 2067:
                     return {"status": "error", "type": "crepe_exists"}
                 
                 return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-            except Exception as e:
+            except Exception:
                 return {"status": "error", "type": "unknown"}
 
             con.close()
