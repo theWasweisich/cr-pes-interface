@@ -1,22 +1,20 @@
 // Imported: formatter, set_data, Crêpes2, crepelist from global
 
 // Some useful Variables
-var need_to_speichern: boolean = false;
 var crepes_selected = false;
 
 
-window.onbeforeunload = function () {
-    if (need_to_speichern) {
-        return "U SURE?"
+window.addEventListener("beforeunload", (event: BeforeUnloadEvent) => {
+    if ((send_to_server_list.delete.length > 0) || (send_to_server_list.edit.length > 0) || (send_to_server_list.new.length > 0)) {
+        event.preventDefault();
     }
-    else return;
-}
+})
 
 
 let send_to_server_list = {
     new: new Array,
     edit: new Array,
-    delete: new Array
+    delete: new Array,
 };
 
 async function getCurrentCrepes() {
@@ -58,6 +56,9 @@ function populateCrêpesList() {
     }
 }
 
+/**
+ * What does this function do?
+ */
 function set_settings_up() {
     if (crepelist.length == 0) {
         var list: HTMLElement = document.getElementById("crepes_list")
@@ -79,7 +80,8 @@ function set_settings_up() {
 
             crepelist.push(new Crêpe(Number(id), name, price, 0, null, crepe))
         }
-    }
+    };
+    check_if_need_to_speichern()
 }
 
 function prepare_loader() {
@@ -172,7 +174,6 @@ function delte_crepe(target: HTMLElement) {
         "id": id,
         "name": crepename
     });
-    need_to_speichern = true;
     check_if_need_to_speichern();
 }
 
@@ -229,7 +230,6 @@ function create_crepe(): boolean {
         "color": color.value
         };
     send_to_server_list.new.push(crepe_data)
-    need_to_speichern = true;
     check_if_need_to_speichern();
 
     console.log("Crêpes Created!")
@@ -256,7 +256,6 @@ async function send_settings_to_server(): Promise<boolean> {
         var text = await response.text()
 
         if (response.ok) {
-            need_to_speichern = false;
             console.log(text)
             return true;
         } else {
@@ -270,7 +269,6 @@ async function send_settings_to_server(): Promise<boolean> {
         var text = await response.text()
 
         if (response.ok) {
-            need_to_speichern = false;
             console.log(text)
             return true;
         } else {
@@ -285,7 +283,6 @@ async function send_settings_to_server(): Promise<boolean> {
         var text = await response.text()
 
         if (response.ok) {
-            need_to_speichern = false;
             console.groupCollapsed("Gespeichert")
             console.log(text)
             console.groupEnd()
@@ -355,27 +352,34 @@ async function save_changes(): Promise<boolean> {
     }
 }
 
-function check_if_need_to_speichern() {
+/**
+ * Function checks if the user needs to save changes.
+ * @returns true, if there are unsaved-changes
+ * @returns false, if there are no unsaved-changes
+ */
+function check_if_need_to_speichern(): boolean {
 
     /**
      * Checks if send_to_server_list is empty
      */
-    function is_all_empty() {
-        if (send_to_server_list.delete.length != 0 && send_to_server_list.edit.length != 0 && send_to_server_list.new.length != 0) {
+    function is_all_empty(): boolean {
+        if (send_to_server_list.delete.length != 0 || send_to_server_list.edit.length != 0 || send_to_server_list.new.length != 0) {
             return true;
         } else {
             return false;
         }
     }
 
-    var btn = document.getElementById('save_btn') as HTMLButtonElement
+    let btn = document.getElementById('save_btn') as HTMLButtonElement
+    const empty = is_all_empty()
 
-    if (is_all_empty()) {
-        need_to_speichern = false;
+    if (empty) {
         btn.style.backgroundColor = "rgb(120, 120, 120)";
+        window.onbeforeunload = () => {}
+        return true
     } else {
-        need_to_speichern = true;
         btn.style.backgroundColor = "rgb(0, 133, 35)";
+        return false
     }
 }
 
@@ -400,13 +404,11 @@ function input_changed(elem: HTMLInputElement) {
         elem.checkValidity();
         container.setAttribute("was_edited", "true")
         marker.style.display = "block"
-        need_to_speichern = true;
         check_if_need_to_speichern();
     } else {
         elem.checkValidity();
         marker.style.display = "none"
         container.setAttribute("was_edited", "false")
-        need_to_speichern = true;
         check_if_need_to_speichern();
     }
 }
@@ -462,7 +464,6 @@ function check_for_edits() {
                 "name": name,
                 "price": price
             })
-            need_to_speichern = true;
             check_if_need_to_speichern();
         }
     };
