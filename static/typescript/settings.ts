@@ -17,6 +17,10 @@ let send_to_server_list = {
     delete: new Array,
 };
 
+// TODO: getCurrentCrepes maybe obsolete?
+/**
+ * Clears the list of crepes and then re-populates it with newly fetched crepes
+ */
 async function getCurrentCrepes() {
     var res = await send_server(urls.getcrepes, "GET")
 
@@ -31,38 +35,43 @@ async function getCurrentCrepes() {
         crepelist.push(new_crêpe)
 
     }
-    populateCrêpesList();
-}
+    populateCrêpesList(crepelist);
 
-function populateCrêpesList() {
-    const toAppendTo = document.getElementById("crepes_list")
-    const templ = document.getElementById("crepeslist_tmpl") as HTMLTemplateElement;
-    const to_delete = toAppendTo.querySelectorAll("div") as NodeListOf<HTMLElement>
-
-    to_delete.forEach((elem) => {
-        elem.remove();
-    })
-
-    for (let i = 0; i < crepelist.length; i++) {
-        let crepe = crepelist[i];
-        
-        let htmlString = templ.innerHTML;
-        htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId))
-        htmlString = htmlString.replace(/!! NAME !!/g, crepe.name)
-        htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.preis))
-        htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.preis))
-        htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.color)
-        
-        let newElem = document.createElement("div")
-        newElem.innerHTML = htmlString
-        var elem = toAppendTo.appendChild(newElem);
-
-        (elem.querySelector('input[name="Crêpes Preis"]') as HTMLInputElement).value = formatter.format(crepe.preis);
+    /**
+     * Populates the Crepes Elements with the variable crepelist
+     */
+    function populateCrêpesList(list: Crêpe[]) {
+        const toAppendTo = document.getElementById("crepes_list")
+        const templ = document.getElementById("crepeslist_tmpl") as HTMLTemplateElement;
+        const to_delete = toAppendTo.querySelectorAll("div") as NodeListOf<HTMLElement>
+    
+        to_delete.forEach((elem) => {
+            elem.remove();
+        })
+    
+        for (let i = 0; i < list.length; i++) {
+            let crepe = list[i];
+            
+            let htmlString = templ.innerHTML;
+            htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId))
+            htmlString = htmlString.replace(/!! NAME !!/g, crepe.name)
+            htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.preis))
+            htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.preis))
+            htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.color)
+            
+            let newElem = document.createElement("div")
+            newElem.innerHTML = htmlString
+            var elem = toAppendTo.appendChild(newElem);
+    
+            (elem.querySelector('input[name="Crêpes Preis"]') as HTMLInputElement).value = formatter.format(crepe.preis);
+        }
     }
 }
 
+
 /**
- * What does this function do?
+ * Populates crepeslist variable by reading the html element.
+ * Therefore obsolete?
  */
 function set_settings_up() {
     if (crepelist.length == 0) {
@@ -89,12 +98,14 @@ function set_settings_up() {
     check_if_need_to_speichern()
 }
 
-getCurrentCrepes().then(() => {
-    set_settings_up();
-});
+getCurrentCrepes()
+// .then(() => {
+//     set_settings_up();
+// });
 
 /**
  * Function that is called by #save_btn
+ * Sends changes to the server and colors the button accordingly
  */
 async function button_save_changes_to_server() {
 
@@ -112,6 +123,7 @@ async function button_save_changes_to_server() {
 
 /**
  * Funktion prüft, ob die Liste mit Crêpes leer ist
+ * @returns boolean
  */
 function check_if_empty() {
     if (document.getElementById('crepes_list').childElementCount == 0) {
