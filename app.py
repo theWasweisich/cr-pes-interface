@@ -265,9 +265,16 @@ if __name__ == "__main__":
     del logger
 
     if ('-p' in sys.argv) or ('--production' in sys.argv):
+        print(bcolors.WARNING + "Do you really want to open the server to your local network? ([Y]es/[N]o)" + bcolors.ENDC)
         import waitress
-        print(bcolors.OKGREEN + "Production-Ready Server" + bcolors.ENDC)
-        waitress.serve(app, host="0.0.0.0", port=80)
+        match input():
+            case "Y" | "y":
+                print(bcolors.OKGREEN + "Production-Ready Server" + bcolors.ENDC)
+                waitress.serve(app, host="0.0.0.0", port=80)
+            case _:
+                print(bcolors.FAIL + "Server wird nicht ausgeführt!" + bcolors.ENDC)
+                exit(0)
+                
     elif ('-w' in sys.argv) or ('--waitress' in sys.argv):
         import waitress
         print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
