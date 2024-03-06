@@ -33,7 +33,13 @@ need_to_set_up = {
     "datenbank": True,
 }
 
-
+def getInput(__prompt: str = ""):
+    try:
+        return input(__prompt)
+    except EOFError:
+        exit(0)
+    except KeyboardInterrupt:
+        exit(0)
 
 
 def validate_email(email: str) -> bool:
@@ -44,39 +50,50 @@ def validate_email(email: str) -> bool:
 
 def setup_config_email():
     print(bcolors.OKBLUE + "[+] Soll eine debug-Email eingerichtet werden? ([J]a/[N]ein) " + bcolors.ENDC)
-    if input(" ") == "J":
-        finished = False
-        while not finished:
-            print(bcolors.OKCYAN + "[*] Bitte geben Sie die gewünschte E-Mail ein: ", end="")
-            email = input()
-            if validate_email(email):
-                finished = True
-                with open(".env", "a", encoding="UTF-8") as f:
-                    f.write("# If critical emails occur, a warning will be sent to this email")
-                    f.write(f"CRITICAL_ERROR_EMAIL={email}")
-            if email == "exit" or email == "quit" or email == "e" or email == "q":
-                finished = True
+    match getInput():
+        case "J" | "j" | "Y" | "y":
+            pass
+        case _:
+            return
+    
+    finished = False
+    while not finished:
+        print(bcolors.OKCYAN + "[*] Bitte geben Sie die gewünschte E-Mail ein: ", end="")
+        email = input()
+        if validate_email(email):
+            finished = True
+            with open(".env", "a", encoding="UTF-8") as f:
+                f.write("# If critical emails occur, a warning will be sent to this email")
+                f.write(f"CRITICAL_ERROR_EMAIL={email}")
+        if email == "exit" or email == "quit" or email == "e" or email == "q":
+            finished = True
     return
 
 def create_config():
     print(bcolors.HEADER + "Konfigurationsdatei wird erstellt." + bcolors.ENDC)
 
-    if not os.path.isfile("./.env"):
+    if os.path.isfile("./.env"):
         print(bcolors.WARNING + "[!] Eine Konfigurationsdatei besteht bereits [!]" + bcolors.ENDC)
-        if input(consolecontrolSequences.RED + "Trotzdem Fortfahren? ([J]a/[N]ein) ") != "J":
-            exit()
+        answ = getInput(consolecontrolSequences.RED + "Trotzdem Fortfahren? ([J]a/[N]ein) " + bcolors.ENDC)
+        continue_ = False
+        
+        if answ == "Y" or answ == "y" or answ == "J" or answ == "j":
+            continue_ = True
 
-    
+        if not continue_:
+            print("Not continuing")
+            return
 
     print("[*] Bitte wählen Sie einen Geheimschlüssel, welcher zur Anmeldung verwendet wird.\n\
         " + bcolors.UNDERLINE + bcolors.WARNING + "Bitte notieren Sie diesen Schlüssel, bevor sie fortfahren!" + bcolors.ENDC)
 
     
-    geheimschlüssel = input("Geheimschlüssel: ")
+    geheimschlüssel = getInput("Geheimschlüssel: ")
     secret = secrets.token_hex(400)
 
     with open(".env", "w", encoding="utf-8") as f:
         f.write("# Dieser geheime Schlüssel wird für die Verschlüsselung der Sitzungen verwendet\n")
+        f.write("# !! ⛔ Dieser Schlüssel sollte nicht geändert werden ⛔ !!\n")
         f.write(f"SECRET_KEY={secret}\n")
         f.write("\n")
         f.write("# Dies ist der Authentisierungsschlüssel. Hiermit kann das Program authorisiert werden\n")
@@ -93,9 +110,10 @@ def prepare_database():
         script = f.read()
     
     cur.executescript(script)
-    con.commit()
-    con.close()
+    con.commit(); con.close()
     print(bcolors.OKGREEN + "[+] Datenbank erfolgreich erstellt!\n" + bcolors.ENDC)
+
+
 
 if __name__ == "__main__":
     
@@ -108,3 +126,5 @@ if __name__ == "__main__":
     setup_config_email()
     print()
     prepare_database()
+    print(consolecontrolSequences.CLEAR_SCREEN, end="")
+    print(bcolors.OKGREEN + "Konfiguration erfolgreich abgeschlossen!" + bcolors.ENDC)
