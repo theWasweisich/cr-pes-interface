@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <title>Crêpes Übersicht</title>
+</head>
+<body>
+    <h1>Verkäufe: </h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Sale ID</th>
+            <th>Name</th>
+            <th>Anzahl</th>
+            <th>Preis</th>
+            <th>Verkaufszeit</th>
+        </tr>
+        {% for sale in data %}
+        <tr>
+            <td>{{ sale.id }}</td>
+            <td>{{ sale.saleId }}</td>
+            <td>{{ sale.name }}</td>
+            <td>{{ sale.anz }}</td>
+            <td>{{ sale.preis }}</td>
+            <td>{{ sale.time }}</td>
+        </tr>
+        {% endfor %}
+        <h2>Gesamt: {{ total }}</h2>
+    </table>
+</body>
+</html>

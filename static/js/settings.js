@@ -9,20 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 // Some useful Variables
-var need_to_speichern = false;
 var crepes_selected = false;
-window.onbeforeunload = function () {
-    if (need_to_speichern) {
-        return "U SURE?";
+window.addEventListener("beforeunload", (event) => {
+    if ((send_to_server_list.delete.length > 0) || (send_to_server_list.edit.length > 0) || (send_to_server_list.new.length > 0)) {
+        event.preventDefault();
     }
-    else
-        return;
-};
+});
 let send_to_server_list = {
     new: new Array,
     edit: new Array,
-    delete: new Array
+    delete: new Array,
 };
+// TODO: getCurrentCrepes maybe obsolete?
+/**
+ * Clears the list of crepes and then re-populates it with newly fetched crepes
+ */
 function getCurrentCrepes() {
     return __awaiter(this, void 0, void 0, function* () {
         var res = yield send_server(urls.getcrepes, "GET");
@@ -33,26 +34,37 @@ function getCurrentCrepes() {
             var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], 0, crêpe["colour"]);
             crepelist.push(new_crêpe);
         }
-        populateCrêpesList();
+        populateCrêpesList(crepelist);
+        /**
+         * Populates the Crepes Elements with the variable crepelist
+         */
+        function populateCrêpesList(list) {
+            const toAppendTo = document.getElementById("crepes_list");
+            const templ = document.getElementById("crepeslist_tmpl");
+            const to_delete = toAppendTo.querySelectorAll("div");
+            to_delete.forEach((elem) => {
+                elem.remove();
+            });
+            for (let i = 0; i < list.length; i++) {
+                let crepe = list[i];
+                let htmlString = templ.innerHTML;
+                htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId));
+                htmlString = htmlString.replace(/!! NAME !!/g, crepe.name);
+                htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.preis));
+                htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.preis));
+                htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.color);
+                let newElem = document.createElement("div");
+                newElem.innerHTML = htmlString;
+                var elem = toAppendTo.appendChild(newElem);
+                elem.querySelector('input[name="Crêpes Preis"]').value = formatter.format(crepe.preis);
+            }
+        }
     });
 }
-function populateCrêpesList() {
-    const toAppendTo = document.getElementById("crepes_list");
-    const templ = document.getElementById("crepeslist_tmpl");
-    for (let i = 0; i < crepelist.length; i++) {
-        let crepe = crepelist[i];
-        let htmlString = templ.innerHTML;
-        htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId));
-        htmlString = htmlString.replace(/!! NAME !!/g, crepe.name);
-        htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.preis));
-        htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.preis));
-        htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.color);
-        let newElem = document.createElement("div");
-        newElem.innerHTML = htmlString;
-        var elem = toAppendTo.appendChild(newElem);
-        elem.querySelector('input[name="Crêpes Preis"]').value = formatter.format(crepe.preis);
-    }
-}
+/**
+ * Populates crepeslist variable by reading the html element.
+ * Therefore obsolete?
+ */
 function set_settings_up() {
     if (crepelist.length == 0) {
         var list = document.getElementById("crepes_list");
@@ -70,26 +82,16 @@ function set_settings_up() {
             crepelist.push(new Crêpe(Number(id), name, price, 0, null, crepe));
         }
     }
+    ;
+    check_if_need_to_speichern();
 }
-function prepare_loader() {
-    const button = document.getElementById('save_btn');
-    const text = document.getElementById('save_text');
-    const loader = document.getElementById('loader');
-    button.addEventListener("mouseenter", () => {
-        text.style.display = "none";
-        loader.style.display = "block";
-    });
-    button.addEventListener("mouseout", () => {
-        text.style.display = "block";
-        loader.style.display = "none";
-    });
-}
-getCurrentCrepes().then(() => {
-    set_settings_up();
-    prepare_loader();
-});
+getCurrentCrepes();
+// .then(() => {
+//     set_settings_up();
+// });
 /**
  * Function that is called by #save_btn
+ * Sends changes to the server and colors the button accordingly
  */
 function button_save_changes_to_server() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -104,13 +106,9 @@ function button_save_changes_to_server() {
         }
     });
 }
-function change_selected() {
-    var select_elem = document.getElementById('color');
-    var selected_color = select_elem.value;
-    select_elem.style.backgroundColor = selected_color;
-}
 /**
  * Funktion prüft, ob die Liste mit Crêpes leer ist
+ * @returns boolean
  */
 function check_if_empty() {
     if (document.getElementById('crepes_list').childElementCount == 0) {
@@ -141,7 +139,7 @@ function toggle_empty() {
  */
 function delte_crepe(target) {
     var root = target.parentElement.parentElement.parentElement;
-    if (!('crepe_container' in root.classList)) {
+    if (!root.classList.contains("crepe_container")) {
         console.group("Error");
         console.error("FATAL ERROR. Function: delete_crepe");
         console.info(root);
@@ -155,7 +153,6 @@ function delte_crepe(target) {
         "id": id,
         "name": crepename
     });
-    need_to_speichern = true;
     check_if_need_to_speichern();
 }
 function loadCrepe(elem, crepes_data) {
@@ -187,26 +184,20 @@ function create_crepe() {
     let price = document.getElementById('price');
     let ingredients = document.getElementById('ingredients');
     let color = document.getElementById('color');
-    let sumitter = document.getElementById("newSubmit");
     let form = document.getElementById("newForm");
     var crepe_data = {
-        // @ts-expect-error
         "name": name.value,
-        // @ts-expect-error
         "price": price.value,
-        // @ts-expect-error
         "ingredients": ingredients.value,
-        // @ts-expect-error
         "color": color.value
     };
     send_to_server_list.new.push(crepe_data);
-    need_to_speichern = true;
     check_if_need_to_speichern();
-    console.log("Crêpes Created!");
     form.classList.add("success");
     setTimeout(() => {
         form.classList.remove("success");
     }, 250);
+    color.selectedIndex = 0;
     form.reset();
     return;
 }
@@ -220,7 +211,6 @@ function send_settings_to_server() {
                 var response = yield send_server(urls.delCrepe, "DELETE", send_to_server_list.delete);
                 var text = yield response.text();
                 if (response.ok) {
-                    need_to_speichern = false;
                     console.log(text);
                     return true;
                 }
@@ -235,7 +225,6 @@ function send_settings_to_server() {
                 var response = yield send_server(urls.editCrepe, "PATCH", send_to_server_list.edit);
                 var text = yield response.text();
                 if (response.ok) {
-                    need_to_speichern = false;
                     console.log(text);
                     return true;
                 }
@@ -252,7 +241,6 @@ function send_settings_to_server() {
                 var response = yield send_server(urls.newCrepe, "PUT", send_to_server_list.new);
                 var text = yield response.text();
                 if (response.ok) {
-                    need_to_speichern = false;
                     console.groupCollapsed("Gespeichert");
                     console.log(text);
                     console.groupEnd();
@@ -293,10 +281,11 @@ function save_changes() {
         console.warn(send_to_server_list);
         const res = yield send_settings_to_server();
         if (res) {
-            setTimeout(function () {
-                location.reload();
-            }, 3500);
+            send_to_server_list.delete = [];
+            send_to_server_list.edit = [];
+            send_to_server_list.new = [];
             changes_saved(true);
+            getCurrentCrepes();
             return true;
         }
         else {
@@ -327,30 +316,40 @@ function save_changes() {
             function animation_out() {
                 const Anim = new KeyframeEffect(elem, [{ opacity: "0", top: "0" }], { duration: 500, fill: "forwards" });
                 new Animation(Anim, document.timeline).play();
+                check_if_need_to_speichern();
             }
         }
     });
 }
+/**
+ * Function checks if the user needs to save changes.
+ * @returns true, if there are unsaved-changes
+ * @returns false, if there are no unsaved-changes
+ */
 function check_if_need_to_speichern() {
     /**
      * Checks if send_to_server_list is empty
      */
     function is_all_empty() {
-        if (send_to_server_list.delete.length != 0 && send_to_server_list.edit.length != 0 && send_to_server_list.new.length != 0) {
-            return true;
-        }
-        else {
+        if (send_to_server_list.delete.length > 0 || send_to_server_list.edit.length > 0 || send_to_server_list.new.length > 0) {
             return false;
         }
+        else {
+            return true;
+        }
     }
-    var btn = document.getElementById('save_btn');
-    if (is_all_empty()) {
-        need_to_speichern = false;
+    let btn = document.getElementById('save_btn');
+    const empty = is_all_empty();
+    if (empty) {
+        btn.style.filter = "brightness(50%);";
         btn.style.backgroundColor = "rgb(120, 120, 120)";
+        window.onbeforeunload = () => { };
+        return false;
     }
     else {
-        need_to_speichern = true;
+        btn.style.filter = "brightness(1);";
         btn.style.backgroundColor = "rgb(0, 133, 35)";
+        return true;
     }
 }
 function input_changed(elem) {
@@ -370,14 +369,12 @@ function input_changed(elem) {
         elem.checkValidity();
         container.setAttribute("was_edited", "true");
         marker.style.display = "block";
-        need_to_speichern = true;
         check_if_need_to_speichern();
     }
     else {
         elem.checkValidity();
         marker.style.display = "none";
         container.setAttribute("was_edited", "false");
-        need_to_speichern = true;
         check_if_need_to_speichern();
     }
 }
@@ -426,7 +423,6 @@ function check_for_edits() {
                 "name": name,
                 "price": price
             });
-            need_to_speichern = true;
             check_if_need_to_speichern();
         }
     }
