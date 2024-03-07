@@ -11,7 +11,7 @@ from flask import (
     session,
     url_for,
 )
-import werkzeug
+import flask_sitemap
 import status
 
 from datetime import timedelta
@@ -19,11 +19,12 @@ import logging
 import secrets
 import sys
 
-from user_handling import get_db
+from user_handling import get_db, load_users
 import user_handling
 
 import os
 from dotenv import load_dotenv
+from config_loader import config
 
 from api.api_blueprint import api_bp
 from api.api_helpers import get_crepes
@@ -35,20 +36,24 @@ from ua_parser.user_agent_parser import Parse
 from werkzeug.user_agent import UserAgent
 from werkzeug.utils import cached_property, secure_filename
 
-
-user_handling.load_users()
+load_users()
 
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
 # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # Activate if logs should be print to console
 
+flask_sitemap.config.SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS = True
+flask_sitemap.config.SITEMAP_IGNORE_ENDPOINTS = "/sitemap.xml"
+
 app = Flask(__name__)
+ext = flask_sitemap.Sitemap(app=app)
+
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
 
 load_dotenv()
 
-app.secret_key = os.getenv('SECRET_KEY')
+app.secret_key = config.get("SECRETS", 'secret_key')
 
 if app.secret_key == None:
     raise Exception("Es wurde kein secret_key definiert!")
@@ -199,19 +204,19 @@ def serve_warning_favicon():
     resp.status_code = status.HTTP_200_OK
     return resp
 
-key = os.getenv("AUTH_KEY")
 
 @app.route("/init", methods=("GET", "POST"))
 def initialisation():
+    logging.debug(f"Sections: " + repr(config.sections()))
     if request.method == "GET":
         return render_template("init.jinja")
     
     elif request.method == "POST":
         if request.json:
-            if request.json["auth"] == key:
+            if request.json["auth"] == config.get("SECRETS", "auth_key"):
                 return {
                     "status": "success",
-                    "key": str(key)
+                    "key": str(config.get("SECRETS", "auth_key"))
                     }
             else:
                 return {"status": "failed", "error": "Code does not match"}
@@ -233,18 +238,10 @@ def do_before_request_stuff():
 
     logger = logging.getLogger("werkzeug")
     if request.path.startswith("/static"):
-        ...
         logger.setLevel(logging.ERROR)
     else:
-        ...
         logger.setLevel(logging.DEBUG)
 
-
-
-@app.after_request
-def after_req(e: flask.Response):
-
-    return e
 
 
 def bad_request(e):
@@ -252,26 +249,27 @@ def bad_request(e):
         if "einstellungen" in request.referrer:
             return redirect("/einstellungen")
     return redirect("/")
-
-
 app.register_error_handler(404, bad_request)
+
+
 
 if __name__ == "__main__":
     logging.info("👋 app.py wurde ausgeführt!")
 
-    logger = logging.getLogger("waitress")
-    logger.setLevel(logging.DEBUG)
-
-    del logger
 
     if ('-p' in sys.argv) or ('--production' in sys.argv):
+
         import waitress
         print(bcolors.OKGREEN + "Production-Ready Server" + bcolors.ENDC)
         waitress.serve(app, host="0.0.0.0", port=80)
+
     elif ('-w' in sys.argv) or ('--waitress' in sys.argv):
+
         import waitress
         print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
         waitress.serve(app, host="127.0.0.1", port=80)
+
+
     else:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
