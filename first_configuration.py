@@ -106,7 +106,7 @@ def create_config():
 
     print(bcolors.HEADER + "Konfigurationsdatei wird erstellt." + bcolors.ENDC)
 
-    if not os.path.isfile("./.env"):
+    if os.path.isfile("./.env"):
         print(bcolors.WARNING + "[!] Eine Konfigurationsdatei besteht bereits [!]" + bcolors.ENDC)
         if input(consolecontrolSequences.RED + "Trotzdem Fortfahren? ([J]a/[N]ein) ") != "J":
             exit()
@@ -119,6 +119,7 @@ def create_config():
 
     with open(".env", "w", encoding="utf-8") as f:
         f.write("# Dieser geheime Schlüssel wird für die Verschlüsselung der Sitzungen verwendet\n")
+        f.write("# !! ⛔ Dieser Schlüssel sollte nicht geändert werden ⛔ !!\n")
         f.write(f"SECRET_KEY={secret}\n")
         f.write("\n")
         f.write("# Dies ist der Authentisierungsschlüssel. Hiermit kann das Program authorisiert werden\n")
@@ -136,9 +137,10 @@ def prepare_database():
         script = f.read()
     
     cur.executescript(script)
-    con.commit()
-    con.close()
+    con.commit(); con.close()
     print(bcolors.OKGREEN + "[+] Datenbank erfolgreich erstellt!\n" + bcolors.ENDC)
+
+
 
 if __name__ == "__main__":
     
@@ -156,6 +158,8 @@ if __name__ == "__main__":
         print(bcolors.ENDC)
     print()
     prepare_database()
+    print(consolecontrolSequences.CLEAR_SCREEN, end="")
+    print(bcolors.OKGREEN + "Konfiguration erfolgreich abgeschlossen!" + bcolors.ENDC)
 
     with open("config.ini", "w") as conf:
         config.write(conf)
