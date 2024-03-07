@@ -62,7 +62,6 @@ async function send_server(url: string, method: string, body?: any): Promise<Res
         localStorage.removeItem("auth")
         location.reload()
     }
-    console.debug(response.status)
 
     return response
 }

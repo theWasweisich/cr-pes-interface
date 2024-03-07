@@ -68,7 +68,6 @@ function send_server(url, method, body) {
             localStorage.removeItem("auth");
             location.reload();
         }
-        console.debug(response.status);
         return response;
     });
 }

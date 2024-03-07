@@ -43,7 +43,7 @@
                             <label for="crepeName">Crêpes Name:</label>
                         </td>
                         <td>
-                            <input type="text" id="crepeName" name="crepeName" placeholder="Crêpes Name" required autocomplete="off"><br>
+                            <input type="text" id="crepeName" placeholder="Crêpes Name" required autocomplete="off"><br>
                         </td>
                     </tr>
                     <tr>
@@ -51,7 +51,7 @@
                             <label for="price">Preis: </label>
                         </td>
                         <td>
-                            <input id="price" name="price" type="number" min="0" step="0.01" required autocomplete="off" placeholder="0"> €<br>
+                            <input id="price" type="number" required autocomplete="off" placeholder="0"> €<br>
                         </td>
                     </tr>
                     <tr>
@@ -59,22 +59,20 @@
                             <label for="ingredients">Zutaten</label>
                         </td>
                         <td>
-                            <div class="tooltipRightContainer">
-                                <input class="tooltipRightInput" id="ingredients" type="text" placeholder="Zutaten" required autocomplete="off">
-                                <div class="tooltipRight">Mit Komma getrennt</div>
-                            </div>
+                            <input id="ingredients" type="text" placeholder="Zutaten mit , getrennt" required autocomplete="off">
+                        </div>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label for="color">Farbe</label>
+                            <label for="color">Art</label>
                         </td>
                         <td>
-                            <select name="color" id="color" onchange="change_selected();" style="text-shadow: 0 0 10px white;">
-                                <option value="white" style="background-color: #FFFFFF; color: darkblue;" selected>Spezial</option>
-                                <option value="green" style="background-color: #566E3D">Deftig</option>
-                                <option value="yellow" style="background-color: #eaee20; color: darkblue;">Süß</option>
-                                <option value="purple" style="background-color: #5B3758">Jahrescrêpe</option>
+                            <select id="color">
+                                <option value="white" selected>Spezial</option>
+                                <option value="green">Deftig</option>
+                                <option value="yellow">Süß</option>
+                                <option value="purple">Jahrescrêpe</option>
                             </select>
                         </td>
                     </tr>
@@ -119,10 +117,8 @@
         </fieldset>
     </div>
     <button id="save_btn" onclick="button_save_changes_to_server(); return false;" type="button">
-        <p id="save_text">Speichern</p>
-        <div id="loader_container">
-            <div id="loader"></div>
-        </div>
+        <label for="save_btn" id="save_text">Speichern</label>
+        <span id="save_icon" class="material-symbols-outlined" aria-labelledby="save_text">save</span>
     </button>
 </body>
 </html>

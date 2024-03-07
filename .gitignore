@@ -14,3 +14,4 @@ _venv_activate.bat
 *.db
 /.flitzenv/
 node_modules
+*.ini

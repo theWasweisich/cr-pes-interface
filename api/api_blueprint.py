@@ -1,4 +1,5 @@
 import os
+from typing import Any, Callable
 from flask import (
     Blueprint,
     request
@@ -13,6 +14,8 @@ import datetime
 import pytz
 import json
 import get_sales
+import configparser
+from config_loader import config
 
 from api.api_helpers import get_db, parse_price, get_crepes
 
@@ -39,6 +42,7 @@ class CrepesView(FlaskView):
         data_list = request.get_json()
 
         con, cur = get_db()
+        error_detail: str | None = None
 
         for data in data_list:
             id = data["id"]
@@ -49,27 +53,36 @@ class CrepesView(FlaskView):
 
             if db_name == name:
                 cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?", [id, name])
-                con.close()
             else:
-                con.close()
-                return {"status": "failed", "error": "crepe_not_found"}
+                logging.exception("Der zu löschende Crepe wurde nicht gefunden!")
+                error_detail = f"requested crepe not found! ({name})"
+                break
 
+        con.commit()
         con.close()
-        return {"status": "success"}
+        if error_detail:
+            return {"status": "failed", "detail": error_detail}
+        else:
+            return {"status": "success", "deleted": data_list}
 
-    @route("/create", methods=("PUT",))
+
+    @route("/new", methods=("PUT",))
     def new_crepe(self):
         data_list = request.get_json()
-        # logging.debug(f"New Crêpes arrived!\nData: {data_list}")
 
-        if data_list.length == 0:
+        if len(data_list) == 0:
             return {"status": "failed", "type": "noting_changed"}
+        
+        data_list: list[dict[str, Any]] = data_list
 
         for data in data_list:
-            name = data["name"]
-            price = data["price"]
-            ingredients = data["ingredients"].split(",")
-            color = data["color"]
+            name: str = data["name"]
+            price: float = data["price"]
+            ingredients: list[str] = data["ingredients"].split(",")
+            for i in range(len(ingredients)):
+                ingredients[i] = ingredients[i].strip()
+
+            color: str = data["color"]
 
             logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
 
@@ -82,12 +95,11 @@ class CrepesView(FlaskView):
                 return {"status": "error", "type": "database", "error": e.sqlite_errorname}
             
             except sqlite3.IntegrityError as e:
-                
                 if e.sqlite_errorcode == 2067:
                     return {"status": "error", "type": "crepe_exists"}
                 
                 return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-            except Exception as e:
+            except Exception:
                 return {"status": "error", "type": "unknown"}
 
             con.close()
@@ -185,7 +197,7 @@ class SalesView(FlaskView):
         data = request.json
         with open("failResistance.txt", "w", encoding="UTF-8") as f:
             json.dump(data, f)
-        return {"status": "success"}
+        return {"status": "success"}, status.HTTP_200_OK
     
     @route("/sold")
     def get_sold_crepe(self):
@@ -235,39 +247,37 @@ class SalesView(FlaskView):
     @route("/get")
     def get_sales(self):
         data = get_sales.get_dict()
-        return json.dumps(data)
+        return json.dumps(data), status.HTTP_200_OK
     
     @route("/heatmap")
     def get_heatmap(self):
         data = get_sales.get_heatmap()
-        return json.dumps(data)
+        return json.dumps(data), status.HTTP_200_OK
 
 
-@api_bp.route("/")
+@api_bp.get("/")
 def index():
-    return flask.send_from_directory("./docs", "index.html")
+    return flask.send_from_directory("./docs", "index.html"), status.HTTP_200_OK
 
 
 @api_bp.before_request
 def before_request():
-    # for item in request.headers.items():
-    #     logging.debug(f"Header: {item}")
-    
-    if request.headers.get("X-crepeAuth", "PPP") == os.getenv("AUTH_KEY"):
-        # logging.debug("Authentication success!")
+    ALLOWED_URLS: list[str] = ["/api/",]
+
+    if request.path in ALLOWED_URLS:
+        return
+    elif request.headers.get("X-crepeAuth", "") == config.get("SECRETS", "auth_key"):
         return
     else:
-        # logging.debug("Authentication failed!")
-        return {
-            "status": "notAuthorized"
-            }, status.HTTP_403_FORBIDDEN
+        return {"status": "notAuthorized"}, status.HTTP_401_UNAUTHORIZED
+
 
 @api_bp.get("/checkAuth")
 def check_auth():
     if request.headers.get("X-crepeAuth", "PPP") == os.getenv("AUTH_KEY"):
-        return {"authStatus": "authorized"}
+        return {"authStatus": "authorized"}, status.HTTP_200_OK
     else:
-        return {"authStatus": "unauthorized"}
+        return {"authStatus": "unauthorized"}, status.HTTP_401_UNAUTHORIZED
 
 CrepesView.register(api_bp, route_base="/crepes")
 SalesView.register(api_bp, route_base="/sales")
