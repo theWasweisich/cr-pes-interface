@@ -238,18 +238,10 @@ def do_before_request_stuff():
 
     logger = logging.getLogger("werkzeug")
     if request.path.startswith("/static"):
-        ...
         logger.setLevel(logging.ERROR)
     else:
-        ...
         logger.setLevel(logging.DEBUG)
 
-
-
-@app.after_request
-def after_req(e: flask.Response):
-
-    return e
 
 
 def bad_request(e):
@@ -257,19 +249,20 @@ def bad_request(e):
         if "einstellungen" in request.referrer:
             return redirect("/einstellungen")
     return redirect("/")
-
-
 app.register_error_handler(404, bad_request)
+
+
 
 if __name__ == "__main__":
     logging.info("👋 app.py wurde ausgeführt!")
 
 
     if ('-p' in sys.argv) or ('--production' in sys.argv):
+
         import waitress
         print(bcolors.OKGREEN + "Production-Ready Server" + bcolors.ENDC)
         waitress.serve(app, host="0.0.0.0", port=80)
-        
+
     elif ('-w' in sys.argv) or ('--waitress' in sys.argv):
 
         import waitress
