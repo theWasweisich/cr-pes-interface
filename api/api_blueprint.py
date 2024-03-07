@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Callable
 from flask import (
     Blueprint,
     request
@@ -14,6 +14,8 @@ import datetime
 import pytz
 import json
 import get_sales
+import configparser
+from config_loader import config
 
 from api.api_helpers import get_db, parse_price, get_crepes
 
@@ -195,7 +197,7 @@ class SalesView(FlaskView):
         data = request.json
         with open("failResistance.txt", "w", encoding="UTF-8") as f:
             json.dump(data, f)
-        return {"status": "success"}
+        return {"status": "success"}, status.HTTP_200_OK
     
     @route("/sold")
     def get_sold_crepe(self):
@@ -245,39 +247,37 @@ class SalesView(FlaskView):
     @route("/get")
     def get_sales(self):
         data = get_sales.get_dict()
-        return json.dumps(data)
+        return json.dumps(data), status.HTTP_200_OK
     
     @route("/heatmap")
     def get_heatmap(self):
         data = get_sales.get_heatmap()
-        return json.dumps(data)
+        return json.dumps(data), status.HTTP_200_OK
 
 
-@api_bp.route("/")
+@api_bp.get("/")
 def index():
-    return flask.send_from_directory("./docs", "index.html")
+    return flask.send_from_directory("./docs", "index.html"), status.HTTP_200_OK
 
 
 @api_bp.before_request
 def before_request():
-    # for item in request.headers.items():
-    #     logging.debug(f"Header: {item}")
-    
-    if request.headers.get("X-crepeAuth", "PPP") == os.getenv("AUTH_KEY"):
-        # logging.debug("Authentication success!")
+    ALLOWED_URLS: list[str] = ["/api/",]
+
+    if request.path in ALLOWED_URLS:
+        return
+    elif request.headers.get("X-crepeAuth", "") == config.get("SECRETS", "auth_key"):
         return
     else:
-        # logging.debug("Authentication failed!")
-        return {
-            "status": "notAuthorized"
-            }, status.HTTP_403_FORBIDDEN
+        return {"status": "notAuthorized"}, status.HTTP_401_UNAUTHORIZED
+
 
 @api_bp.get("/checkAuth")
 def check_auth():
     if request.headers.get("X-crepeAuth", "PPP") == os.getenv("AUTH_KEY"):
-        return {"authStatus": "authorized"}
+        return {"authStatus": "authorized"}, status.HTTP_200_OK
     else:
-        return {"authStatus": "unauthorized"}
+        return {"authStatus": "unauthorized"}, status.HTTP_401_UNAUTHORIZED
 
 CrepesView.register(api_bp, route_base="/crepes")
 SalesView.register(api_bp, route_base="/sales")

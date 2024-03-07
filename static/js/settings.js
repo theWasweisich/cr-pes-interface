@@ -20,6 +20,10 @@ let send_to_server_list = {
     edit: new Array,
     delete: new Array,
 };
+// TODO: getCurrentCrepes maybe obsolete?
+/**
+ * Clears the list of crepes and then re-populates it with newly fetched crepes
+ */
 function getCurrentCrepes() {
     return __awaiter(this, void 0, void 0, function* () {
         var res = yield send_server(urls.getcrepes, "GET");
@@ -30,32 +34,36 @@ function getCurrentCrepes() {
             var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], 0, crêpe["colour"]);
             crepelist.push(new_crêpe);
         }
-        populateCrêpesList();
+        populateCrêpesList(crepelist);
+        /**
+         * Populates the Crepes Elements with the variable crepelist
+         */
+        function populateCrêpesList(list) {
+            const toAppendTo = document.getElementById("crepes_list");
+            const templ = document.getElementById("crepeslist_tmpl");
+            const to_delete = toAppendTo.querySelectorAll("div");
+            to_delete.forEach((elem) => {
+                elem.remove();
+            });
+            for (let i = 0; i < list.length; i++) {
+                let crepe = list[i];
+                let htmlString = templ.innerHTML;
+                htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId));
+                htmlString = htmlString.replace(/!! NAME !!/g, crepe.name);
+                htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.preis));
+                htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.preis));
+                htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.color);
+                let newElem = document.createElement("div");
+                newElem.innerHTML = htmlString;
+                var elem = toAppendTo.appendChild(newElem);
+                elem.querySelector('input[name="Crêpes Preis"]').value = formatter.format(crepe.preis);
+            }
+        }
     });
-}
-function populateCrêpesList() {
-    const toAppendTo = document.getElementById("crepes_list");
-    const templ = document.getElementById("crepeslist_tmpl");
-    const to_delete = toAppendTo.querySelectorAll("div");
-    to_delete.forEach((elem) => {
-        elem.remove();
-    });
-    for (let i = 0; i < crepelist.length; i++) {
-        let crepe = crepelist[i];
-        let htmlString = templ.innerHTML;
-        htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId));
-        htmlString = htmlString.replace(/!! NAME !!/g, crepe.name);
-        htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.preis));
-        htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.preis));
-        htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.color);
-        let newElem = document.createElement("div");
-        newElem.innerHTML = htmlString;
-        var elem = toAppendTo.appendChild(newElem);
-        elem.querySelector('input[name="Crêpes Preis"]').value = formatter.format(crepe.preis);
-    }
 }
 /**
- * What does this function do?
+ * Populates crepeslist variable by reading the html element.
+ * Therefore obsolete?
  */
 function set_settings_up() {
     if (crepelist.length == 0) {
@@ -77,11 +85,13 @@ function set_settings_up() {
     ;
     check_if_need_to_speichern();
 }
-getCurrentCrepes().then(() => {
-    set_settings_up();
-});
+getCurrentCrepes();
+// .then(() => {
+//     set_settings_up();
+// });
 /**
  * Function that is called by #save_btn
+ * Sends changes to the server and colors the button accordingly
  */
 function button_save_changes_to_server() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -98,6 +108,7 @@ function button_save_changes_to_server() {
 }
 /**
  * Funktion prüft, ob die Liste mit Crêpes leer ist
+ * @returns boolean
  */
 function check_if_empty() {
     if (document.getElementById('crepes_list').childElementCount == 0) {
@@ -330,13 +341,15 @@ function check_if_need_to_speichern() {
     let btn = document.getElementById('save_btn');
     const empty = is_all_empty();
     if (empty) {
+        btn.style.filter = "brightness(50%);";
         btn.style.backgroundColor = "rgb(120, 120, 120)";
         window.onbeforeunload = () => { };
-        return true;
+        return false;
     }
     else {
+        btn.style.filter = "brightness(1);";
         btn.style.backgroundColor = "rgb(0, 133, 35)";
-        return false;
+        return true;
     }
 }
 function input_changed(elem) {

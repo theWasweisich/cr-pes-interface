@@ -367,12 +367,14 @@ function check_if_need_to_speichern(): boolean {
     const empty = is_all_empty()
 
     if (empty) {
+        btn.style.filter = "brightness(50%);";
         btn.style.backgroundColor = "rgb(120, 120, 120)";
         window.onbeforeunload = () => {}
-        return true
-    } else {
-        btn.style.backgroundColor = "rgb(0, 133, 35)";
         return false
+    } else {
+        btn.style.filter = "brightness(1);";
+        btn.style.backgroundColor = "rgb(0, 133, 35)";
+        return true
     }
 }
 
