@@ -158,7 +158,6 @@ if __name__ == "__main__":
         print(bcolors.ENDC)
     print()
     prepare_database()
-    print(consolecontrolSequences.CLEAR_SCREEN, end="")
     print(bcolors.OKGREEN + "Konfiguration erfolgreich abgeschlossen!" + bcolors.ENDC)
 
     with open("config.ini", "w") as conf:

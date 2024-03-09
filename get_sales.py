@@ -1,20 +1,23 @@
-from typing import Annotated, Any, Literal, Optional, Union, overload
+from typing import Annotated, Literal, Optional, Union, overload
 import typing
 from classes import CrepeSale
+import datetime
+
 
 def import_db():
     from api.api_helpers import get_db
     return get_db
 
-import datetime
 
 sales_complete: list[CrepeSale] = []
 
-@overload
-def get_data(as_string = None) -> list[CrepeSale]: ...
 
 @overload
-def get_data(as_string: Literal[True]) -> list[str]: ...
+def get_data(as_string=None) -> list[CrepeSale]: ...  # noqa: E704
+
+
+@overload
+def get_data(as_string: Literal[True]) -> list[str]: ...  # noqa: E704
 
 
 def get_data(as_string: Optional[Literal[True]] = None) -> Union[list[CrepeSale], list[str]]:
@@ -44,6 +47,7 @@ def get_data(as_string: Optional[Literal[True]] = None) -> Union[list[CrepeSale]
         sales_complete.extend(return_list)
     return return_list
 
+
 def get_highest_sale_id(data: list[CrepeSale]) -> int:
     """Returns highest SaleID
 
@@ -59,6 +63,7 @@ def get_highest_sale_id(data: list[CrepeSale]) -> int:
             high = sale.saleID
     return high
 
+
 def sales_to_dict(data: list[CrepeSale]) -> tuple[list[dict[str, int | str | float]], float]:
     return_list: list[dict[str, int | str | float]] = []
     total: float = 0
@@ -73,6 +78,7 @@ def sales_to_dict(data: list[CrepeSale]) -> tuple[list[dict[str, int | str | flo
         total += sale.price * sale.amount
     return return_list, total
 
+
 def get_sales_with_id(data: list[CrepeSale], id: int) -> list[CrepeSale]:
     return_list = []
     for sale in data:
@@ -80,17 +86,19 @@ def get_sales_with_id(data: list[CrepeSale], id: int) -> list[CrepeSale]:
             return_list.append(sale)
     return return_list
 
+
 class SaleData(typing.TypedDict):
     items: tuple
     time: str
     total: float
+
 
 def get_dict():
     """Result to be sent to jinja
 
     Returns:
         dict[int, dict[int, dict[str, Any]]]: The data
-    
+
     data:
         {
         ID: {
@@ -103,19 +111,18 @@ def get_dict():
     data_start = get_data()
 
     tmp_data: dict[int, list[dict[str, int | str | float]] | str | float] = {}
-    
+
     ids: dict[int, CrepeSale] = {}
-    
+
     for crepe in data_start:
         ids[crepe.saleID] = crepe
 
     for id in ids:
         sales_with_id = get_sales_with_id(data_start, id)
-        tmp_data[id] = { # type: ignore
+        tmp_data[id] = {  # type: ignore
             "items": sales_to_dict(sales_with_id)[0],
             "time": ids[id].time.isoformat(),
-            "total": ids[id].price * ids[id].amount
-            }
+            "total": ids[id].price * ids[id].amount}
     return tmp_data
 
 
@@ -129,7 +136,7 @@ def get_heatmap() -> list[int]:
     if (sales_complete == []):
         get_data()
 
-    to_return = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # 0 Verkäufe für jede Stunde eines Tages (24)
+    to_return = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # 0 Verkäufe für jede Stunde eines Tages (24)
     saleIDs_done = []
     for sale in sales_complete:
         if sale.saleID in saleIDs_done:
@@ -138,13 +145,11 @@ def get_heatmap() -> list[int]:
         saleIDs_done.append(sale.saleID)
     return to_return
 
+
 def get_summary() -> list[
     dict[
-        Annotated[str, "Either '"], 
-        int 
-        | str 
-        | float 
-        | datetime.datetime]]:
+        Annotated[str, "Either '"],
+        int | str | float | datetime.datetime]]:
     dataFirst = get_data()
     sold: list = []
 
@@ -159,6 +164,7 @@ def get_summary() -> list[
             "time": sale.time
         })
     return sold
+
 
 if __name__ == "__main__":
     print(get_heatmap())

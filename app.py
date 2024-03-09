@@ -188,7 +188,7 @@ def rick_roll():
 
 @app.route("/favicon.ico")
 def serve_favicon():
-    with open("favicon.ico", "rb") as f:
+    with open("static/assets/icons/favicon.ico", "rb") as f:
         data = f.read()
     resp = make_response(data)
     resp.headers.set("Content-Type", "image/x-icon")
@@ -197,7 +197,7 @@ def serve_favicon():
 
 @app.route("/favicon_warn.ico")
 def serve_warning_favicon():
-    with open('favicon_warning.ico', "rb") as f:
+    with open('static/assets/icons/favicon_warning.ico', "rb") as f:
         data = f.read()
     resp = make_response(data)
     resp.headers.set("Content-Type", "image/x-icon")

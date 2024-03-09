@@ -1,5 +1,5 @@
 import os
-from typing import Any, Callable
+from typing import Any
 from flask import (
     Blueprint,
     request
@@ -14,7 +14,7 @@ import datetime
 import pytz
 import json
 import get_sales
-import configparser
+# import configparser
 from config_loader import config
 
 from api.api_helpers import get_db, parse_price, get_crepes
@@ -22,6 +22,7 @@ from api.api_helpers import get_db, parse_price, get_crepes
 time_zone = pytz.timezone("Europe/Berlin")
 
 api_bp = Blueprint('api_bp', __name__)
+
 
 class CrepesView(FlaskView):
 
@@ -32,7 +33,7 @@ class CrepesView(FlaskView):
             return get_crepes(as_dict=True)
         else:
             return {"status": "failed"}, status.HTTP_204_NO_CONTENT
-    
+
     @route("/delete", methods=("DELETE",))
     def delete_crepe(self):
         """
@@ -52,9 +53,11 @@ class CrepesView(FlaskView):
             db_name: str = cur.fetchone()[0]
 
             if db_name == name:
-                cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?", [id, name])
+                cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?",
+                            [id, name])
             else:
-                logging.exception("Der zu löschende Crepe wurde nicht gefunden!")
+                logging.exception("Der zu löschende Crepe wurde nicht \
+                                  gefunden!")
                 error_detail = f"requested crepe not found! ({name})"
                 break
 
@@ -65,14 +68,13 @@ class CrepesView(FlaskView):
         else:
             return {"status": "success", "deleted": data_list}
 
-
     @route("/new", methods=("PUT",))
     def new_crepe(self):
         data_list = request.get_json()
 
         if len(data_list) == 0:
             return {"status": "failed", "type": "noting_changed"}
-        
+
         data_list: list[dict[str, Any]] = data_list
 
         for data in data_list:
@@ -84,20 +86,22 @@ class CrepesView(FlaskView):
 
             color: str = data["color"]
 
-            logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} || {color}")
+            logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} \
+                         || {color}")
 
             con, cur = get_db()
 
             try:
-                cur.execute("INSERT INTO Crêpes (name, price, ingredients, colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
+                cur.execute("INSERT INTO Crêpes (name, price, ingredients,\
+                             colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
                 con.commit()
             except sqlite3.OperationalError as e:
                 return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-            
+
             except sqlite3.IntegrityError as e:
                 if e.sqlite_errorcode == 2067:
                     return {"status": "error", "type": "crepe_exists"}
-                
+
                 return {"status": "error", "type": "database", "error": e.sqlite_errorname}
             except Exception:
                 return {"status": "error", "type": "unknown"}
@@ -105,7 +109,7 @@ class CrepesView(FlaskView):
             con.close()
 
         return {"status": "success"}
-    
+
     @route("/edit", methods=("PATCH",))
     def edit_crepe(self):
         con, cur = get_db()
@@ -134,17 +138,16 @@ class CrepesView(FlaskView):
         con.commit()
         con.close()
         return {"status": "success"}
-    
+
     @route("/sold", methods=("POST",))
     def crepe_sold(self):
         con, cur = get_db()
         try:
             data = request.json
-            if (data == None):
+            if (data is None):
                 return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
-            
-            logging.debug(f"New Crêpes: {data}")
 
+            logging.debug(f"New Crêpes: {data}")
 
             to_db: list[tuple] = []
 
@@ -169,7 +172,6 @@ class CrepesView(FlaskView):
                 else:
                     logging.fatal("Own Consumption not found in headers!")
 
-
                 to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time, consumpt))
 
                 logging.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}; OWNCONSUMPTION: {consumpt}")
@@ -190,6 +192,7 @@ class CrepesView(FlaskView):
         con.close()
         return {"status": "success"}, status.HTTP_200_OK
 
+
 class SalesView(FlaskView):
 
     @route("/failresister")
@@ -198,17 +201,16 @@ class SalesView(FlaskView):
         with open("failResistance.txt", "w", encoding="UTF-8") as f:
             json.dump(data, f)
         return {"status": "success"}, status.HTTP_200_OK
-    
+
     @route("/sold")
     def get_sold_crepe(self):
         con, cur = get_db()
         try:
             data = request.json
-            if (data == None):
+            if (data is None):
                 return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
-            
-            logging.debug(f"New Crêpes: {data}")
 
+            logging.debug(f"New Crêpes: {data}")
 
             to_db: list[tuple] = []
 
@@ -228,13 +230,13 @@ class SalesView(FlaskView):
                 cPREIS = crepe["preis"]
                 cAMOUNT = crepe["amount"]
 
-
                 to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time))
 
-                logging.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
+                logging.debug(f"Sold: ID: {cID}; NAME: {cNAME}; \
+                              PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
 
-            cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, time) VALUES (?, ?, ?, ?, ?)", to_db)
-
+            cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, \
+                             time) VALUES (?, ?, ?, ?, ?)", to_db)
 
             con.commit()
         except Exception as e:
@@ -243,12 +245,12 @@ class SalesView(FlaskView):
             return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
         con.close()
         return {"status": "success"}, status.HTTP_200_OK
-    
+
     @route("/get")
     def get_sales(self):
         data = get_sales.get_dict()
         return json.dumps(data), status.HTTP_200_OK
-    
+
     @route("/heatmap")
     def get_heatmap(self):
         data = get_sales.get_heatmap()
@@ -266,7 +268,8 @@ def before_request():
 
     if request.path in ALLOWED_URLS:
         return
-    elif request.headers.get("X-crepeAuth", "") == config.get("SECRETS", "auth_key"):
+    elif request.headers.get("X-crepeAuth", "") == \
+            config.get("SECRETS", "auth_key"):
         return
     else:
         return {"status": "notAuthorized"}, status.HTTP_401_UNAUTHORIZED
@@ -278,6 +281,7 @@ def check_auth():
         return {"authStatus": "authorized"}, status.HTTP_200_OK
     else:
         return {"authStatus": "unauthorized"}, status.HTTP_401_UNAUTHORIZED
+
 
 CrepesView.register(api_bp, route_base="/crepes")
 SalesView.register(api_bp, route_base="/sales")

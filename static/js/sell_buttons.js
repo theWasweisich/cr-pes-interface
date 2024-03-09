@@ -108,8 +108,13 @@ function setFavicon(state) {
  */
 function own_consumption_func() {
     console.log("Own consumption!");
+    let own_consump = document.querySelector('[data-function="own_consumption"]');
     if (table.items.size < 1) {
         console.log("DA IS JA GARNIX!");
+        own_consump.style.backgroundColor = "rgb(255, 0, 0)";
+        setTimeout(() => {
+            own_consump.style.backgroundColor = "";
+        }, 100);
     }
     payed_func(true);
 }
@@ -150,8 +155,14 @@ function change_dialog_handler() {
     const dialog = document.getElementById("cashback-dialog-main");
     const dial_opener = document.querySelector('#sell_buttons>[data-function="pay_back"]');
     dialog.addEventListener('click', (event) => {
-        console.log("[*] Clicked! ");
-        console.log(event.target);
+        let eventElem = event.target;
+        var selectedValue = 0.0;
+        if (eventElem.nodeName == "BUTTON") {
+            let value = eventElem.getAttribute("data-value");
+            let numValue = Number(value);
+            selectedValue += numValue;
+        }
+        // Schließt den Dialog, wenn außerhalb geklickt wird
         var rect = dialog.getBoundingClientRect();
         var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
             rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
