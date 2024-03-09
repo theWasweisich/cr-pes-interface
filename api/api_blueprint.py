@@ -26,16 +26,18 @@ api_bp = Blueprint('api_bp', __name__)
 
 class CrepesView(FlaskView):
 
+    @staticmethod
     @route("/get", methods=("GET",))
-    def get(self):
+    def get():
         crepes = get_crepes(as_dict=True)
         if (crepes):
             return get_crepes(as_dict=True)
         else:
             return {"status": "failed"}, status.HTTP_204_NO_CONTENT
 
+    @staticmethod
     @route("/delete", methods=("DELETE",))
-    def delete_crepe(self):
+    def delete_crepe():
         """
         Function to delete the crêpes specified by the given data
         Data should contain: `id`, `name`
@@ -68,8 +70,9 @@ class CrepesView(FlaskView):
         else:
             return {"status": "success", "deleted": data_list}
 
+    @staticmethod
     @route("/new", methods=("PUT",))
-    def new_crepe(self):
+    def new_crepe():
         data_list = request.get_json()
 
         if len(data_list) == 0:
@@ -110,8 +113,9 @@ class CrepesView(FlaskView):
 
         return {"status": "success"}
 
+    @staticmethod
     @route("/edit", methods=("PATCH",))
-    def edit_crepe(self):
+    def edit_crepe():
         con, cur = get_db()
         data = request.get_json()
         logging.debug(f"Edited Crêpes arrived!\nData: {data}")
@@ -139,8 +143,9 @@ class CrepesView(FlaskView):
         con.close()
         return {"status": "success"}
 
+    @staticmethod
     @route("/sold", methods=("POST",))
-    def crepe_sold(self):
+    def crepe_sold():
         con, cur = get_db()
         try:
             data = request.json
@@ -195,15 +200,17 @@ class CrepesView(FlaskView):
 
 class SalesView(FlaskView):
 
+    @staticmethod
     @route("/failresister")
-    def crepe_sold_failResister(self):
+    def crepe_sold_failResister():
         data = request.json
         with open("failResistance.txt", "w", encoding="UTF-8") as f:
             json.dump(data, f)
         return {"status": "success"}, status.HTTP_200_OK
 
+    @staticmethod
     @route("/sold")
-    def get_sold_crepe(self):
+    def get_sold_crepe():
         con, cur = get_db()
         try:
             data = request.json
@@ -246,30 +253,36 @@ class SalesView(FlaskView):
         con.close()
         return {"status": "success"}, status.HTTP_200_OK
 
+    @staticmethod
     @route("/get")
-    def get_sales(self):
+    def get_sales():
         data = get_sales.get_dict()
         return json.dumps(data), status.HTTP_200_OK
 
+    @staticmethod
     @route("/heatmap")
-    def get_heatmap(self):
+    def get_heatmap():
         data = get_sales.get_heatmap()
         return json.dumps(data), status.HTTP_200_OK
 
 
 @api_bp.get("/")
-def index():
-    return flask.send_from_directory("./docs", "index.html"), status.HTTP_200_OK
+@api_bp.get("/<file>")
+def index(file: str | None = None):
+    if not file:
+        return flask.send_file("api/docs/index.html")
+    else:
+        return flask.send_from_directory("api/docs", file), status.HTTP_200_OK
 
 
 @api_bp.before_request
 def before_request():
-    ALLOWED_URLS: list[str] = ["/api/",]
+    ALLOWED_URLS: list[str] = ["/api", "/api/"]
+    logging.info(f"Path: {request.path}")
 
     if request.path in ALLOWED_URLS:
         return
-    elif request.headers.get("X-crepeAuth", "") == \
-            config.get("SECRETS", "auth_key"):
+    elif request.headers.get("X-crepeAuth", "") == config.get("SECRETS", "auth_key"):
         return
     else:
         return {"status": "notAuthorized"}, status.HTTP_401_UNAUTHORIZED
