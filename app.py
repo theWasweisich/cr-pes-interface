@@ -1,6 +1,3 @@
-from asyncio import constants
-import base64
-import flask
 from flask import (
     Flask,
     flash,
@@ -22,7 +19,6 @@ import sys
 from user_handling import get_db, load_users
 import user_handling
 
-import os
 from dotenv import load_dotenv
 from config_loader import config
 
@@ -31,10 +27,6 @@ from api.api_helpers import get_crepes
 
 from classes import Crepes_Class, bcolors
 
-### Test
-from ua_parser.user_agent_parser import Parse
-from werkzeug.user_agent import UserAgent
-from werkzeug.utils import cached_property, secure_filename
 
 load_users()
 
@@ -55,16 +47,15 @@ load_dotenv()
 
 app.secret_key = config.get("SECRETS", 'secret_key')
 
-if app.secret_key == None:
+if app.secret_key is None:
     raise Exception("Es wurde kein secret_key definiert!")
 
 app.permanent_session_lifetime = timedelta(minutes=5)
 
 
 crêpes: list[Crepes_Class] | list[dict[str, str]] | None = get_crepes(as_dict=True)
-if crêpes == None | type(crêpes) == list[Crepes_Class]:
+if crêpes is None | type(crêpes) is list[Crepes_Class]:
     crêpes = []
-
 
 
 shifts = []
@@ -72,6 +63,7 @@ shifts = []
 
 global sales
 sales: list = []
+
 
 def valid_keys() -> list[str]:
     con, cur = get_db()
@@ -87,6 +79,7 @@ def valid_keys() -> list[str]:
 def serve_homepage():
     return render_template("index.jinja")
 
+
 @app.route("/einstellungen")
 def serve_einstellungen():
     try:
@@ -96,7 +89,7 @@ def serve_einstellungen():
             flash("settings")
             return redirect("/login")
 
-    except:
+    except Exception:
         flash("settings")
         return url_for("serve_login")
 
@@ -117,12 +110,12 @@ def serve_login():
 
         logging.info(str(user))
 
-        if user == None:
+        if user is None:
             logging.warning(f"Could not log user {user} in!")
             return render_template("login.jinja")
 
         try:
-            if user.current_key == None:
+            if user.current_key is None:
                 secret_key = secrets.token_hex(100)
                 session["secret"] = secret_key
 
@@ -131,7 +124,6 @@ def serve_login():
                 secret_key = user.get_key()
                 if not secret_key:
                     return redirect("/login")
-
 
             if user.priviledge == 10:
 
@@ -151,7 +143,6 @@ def serve_login():
                 session["secret"] = secret_key
                 return redirect("/schichten")
 
-
         except TypeError:
             return redirect("/login")
 
@@ -168,15 +159,17 @@ def serve_shifts():
         flash("shifts")
         return redirect("/login")
 
+
 @app.route("/dev")
 def serve_dev():
     return render_template("development.jinja")
+
 
 @app.route("/dashboard")
 def serve_dashboard():
     if request.method != "GET":
         return '', status.HTTP_405_METHOD_NOT_ALLOWED
-    
+
     return render_template("dashboard.jinja")
 
 
@@ -184,7 +177,8 @@ def serve_dashboard():
 def rick_roll():
     resp = redirect("https://youtu.be/dQw4w9WgXcQ")
     resp.headers.add("Du bist ein", "l'opfl")
-    return resp # Rickroll 😘
+    return resp  # Rickroll 😘
+
 
 @app.route("/favicon.ico")
 def serve_favicon():
@@ -194,6 +188,7 @@ def serve_favicon():
     resp.headers.set("Content-Type", "image/x-icon")
     resp.status_code = status.HTTP_200_OK
     return resp
+
 
 @app.route("/favicon_warn.ico")
 def serve_warning_favicon():
@@ -207,10 +202,10 @@ def serve_warning_favicon():
 
 @app.route("/init", methods=("GET", "POST"))
 def initialisation():
-    logging.debug(f"Sections: " + repr(config.sections()))
+    logging.debug("Sections: " + repr(config.sections()))
     if request.method == "GET":
         return render_template("init.jinja")
-    
+
     elif request.method == "POST":
         if request.json:
             if request.json["auth"] == config.get("SECRETS", "auth_key"):
@@ -231,7 +226,6 @@ def not_found(*args, **kwargs):
     return redirect("/")
 
 
-
 @app.before_request
 def do_before_request_stuff():
     session.permanent = True
@@ -243,19 +237,18 @@ def do_before_request_stuff():
         logger.setLevel(logging.DEBUG)
 
 
-
 def bad_request(e):
     if request.referrer:
         if "einstellungen" in request.referrer:
             return redirect("/einstellungen")
     return redirect("/")
-app.register_error_handler(404, bad_request)
 
+
+app.register_error_handler(404, bad_request)
 
 
 if __name__ == "__main__":
     logging.info("👋 app.py wurde ausgeführt!")
-
 
     if ('-p' in sys.argv) or ('--production' in sys.argv):
 
@@ -268,7 +261,6 @@ if __name__ == "__main__":
         import waitress
         print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
         waitress.serve(app, host="127.0.0.1", port=80)
-
 
     else:
         app.config['TEMPLATES_AUTO_RELOAD'] = True

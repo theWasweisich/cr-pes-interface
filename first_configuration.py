@@ -6,6 +6,7 @@ import email_validator
 import configparser
 from classes import bcolors, consolecontrolSequences
 
+
 def translate_exception(engl_text: str) -> str:
     regex = r"The domain name (?<address>.+) does not ((?<accept>accept email)|(?<send>send email)|(?<exist>exist))."
     subst = "Der Domain name ${address} ${accept:+akzeptiert keine E-Mails}${send:+versendet keine E-Mails!}${exist:+existiert nicht!}"
@@ -45,6 +46,7 @@ def translate_exception(engl_text: str) -> str:
 
     return translated
 
+
 config = configparser.ConfigParser(allow_no_value=True)
 
 config.add_section("SECRETS")
@@ -82,12 +84,13 @@ def setup_config_email():
                 finished = False
     return
 
+
 def create_config():
 
     def get_geheimschluessel() -> str:
         print("[*] Bitte wählen Sie einen Geheimschlüssel, welcher zur Anmeldung verwendet wird.\n\
             " + bcolors.UNDERLINE + bcolors.WARNING + "Bitte notieren Sie diesen Schlüssel, bevor sie fortfahren!" + bcolors.ENDC)
-        
+
         geheimschlüssel_valid = False
         failed_tries = 0
         geheimschlüssel: str = ""
@@ -103,15 +106,12 @@ def create_config():
                 print(bcolors.FAIL + f"[!] Achtung! Der geheimschlüssel muss mindestens 5 Buchstaben lang sein! [{failed_tries}/5]" + bcolors.ENDC)
         return geheimschlüssel
 
-
     print(bcolors.HEADER + "Konfigurationsdatei wird erstellt." + bcolors.ENDC)
 
     if os.path.isfile("./.env"):
         print(bcolors.WARNING + "[!] Eine Konfigurationsdatei besteht bereits [!]" + bcolors.ENDC)
         if input(consolecontrolSequences.RED + "Trotzdem Fortfahren? ([J]a/[N]ein) ") != "J":
             exit()
-
-
 
     geheimschlüssel = get_geheimschluessel()
 
@@ -128,22 +128,22 @@ def create_config():
     config.set("SECRETS", "secret_key", secret)
     print(bcolors.OKGREEN + "[+] Konfiguration erfolgreich abgeschlossen! \n" + bcolors.ENDC)
 
+
 def prepare_database():
     print(bcolors.HEADER + "[*] --- Datenbank wird vorbereitet --- [*]\n" + bcolors.ENDC)
     con = sqlite3.connect("datenbank.db")
-    
+
     cur = con.cursor()
-    with open ('datenbank-schema.sql', "r") as f:
+    with open('datenbank-schema.sql', "r") as f:
         script = f.read()
-    
+
     cur.executescript(script)
     con.commit(); con.close()
     print(bcolors.OKGREEN + "[+] Datenbank erfolgreich erstellt!\n" + bcolors.ENDC)
 
 
-
 if __name__ == "__main__":
-    
+
     print(bcolors.OKBLUE + bcolors.BOLD + "[*] --- Configuration --- [*]" + bcolors.ENDC)
 
     create_config()
@@ -154,7 +154,7 @@ if __name__ == "__main__":
         print(bcolors.ENDC)
         print(translate_exception(str(e)))
         exit()
-    except:
+    except Exception:
         print(bcolors.ENDC)
     print()
     prepare_database()
