@@ -262,11 +262,7 @@ def index():
 
 @api_bp.before_request
 def before_request():
-    ALLOWED_URLS: list[str] = ["/api/",]
-
-    if request.path in ALLOWED_URLS:
-        return
-    elif request.headers.get("X-crepeAuth", "") == config.get("SECRETS", "auth_key"):
+    if request.headers.get("X-crepeAuth", "") == config.get("SECRETS", "auth_key"):
         return
     else:
         return {"status": "notAuthorized"}, status.HTTP_401_UNAUTHORIZED

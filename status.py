@@ -29,7 +29,7 @@ def is_server_error(code):
     return code >= 500 and code <= 599
 
 
-## Information responses ##
+# Information responses #
 
 HTTP_100_CONTINUE = 100
 """This interim response indicates that the client should continue the request or ignore the response if the request is already finished."""
@@ -44,7 +44,7 @@ HTTP_103_EARLY_HINTS = 103
 """This status code is primarily intended to be used with the Link header, letting the user agent start preloading resources while the server prepares a response or preconnect to an origin from which the page will need resources."""
 
 
-## Successful responses ##
+# Successful responses #
 
 
 HTTP_200_OK = 200
@@ -83,7 +83,7 @@ HTTP_226_IM_USED = 226
 """The server has fulfilled a GET request for the resource, and the response is a representation of the result of one or more instance-manipulations applied to the current instance."""
 
 
-## Redirection messages ##
+# Redirection messages #
 
 
 HTTP_300_MULTIPLE_CHOICES = 300
@@ -118,7 +118,7 @@ HTTP_308_PERMANENT_REDIRECT = 308
 """This means that the resource is now permanently located at another URI, specified by the Location: HTTP Response header. This has the same semantics as the 301 Moved Permanently HTTP response code, with the exception that the user agent must not change the HTTP method used: if a POST was used in the first request, a POST must be used in the second request."""
 
 
-## Client error responses ##
+# Client error responses #
 
 
 HTTP_400_BAD_REQUEST = 400
@@ -220,7 +220,7 @@ HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS = 451
 """The user agent requested a resource that cannot legally be provided, such as a web page censored by a government."""
 
 
-## Server error responses ##
+# Server error responses #
 
 
 HTTP_500_INTERNAL_SERVER_ERROR = 500
