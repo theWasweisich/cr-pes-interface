@@ -11,7 +11,6 @@ from flask import (
 import flask_sitemap
 import status
 
-from datetime import timedelta
 import logging
 import secrets
 import sys
@@ -19,7 +18,6 @@ import sys
 from user_handling import get_db, load_users
 import user_handling
 
-from dotenv import load_dotenv
 from config_loader import config
 
 from api.api_blueprint import api_bp
@@ -43,14 +41,10 @@ ext = flask_sitemap.Sitemap(app=app)
 app.register_blueprint(api_bp, url_prefix="/api")
 
 
-load_dotenv()
-
 app.secret_key = config.get("SECRETS", 'secret_key')
 
 if app.secret_key is None:
-    raise Exception("Es wurde kein secret_key definiert!")
-
-app.permanent_session_lifetime = timedelta(minutes=5)
+    raise SystemExit("Es wurde kein secret_key definiert!")
 
 
 crêpes: list[Crepes_Class] | list[dict[str, str]] | None = get_crepes(as_dict=True)
