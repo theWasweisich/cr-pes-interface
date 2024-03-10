@@ -31,10 +31,6 @@ from api.api_helpers import get_crepes
 
 from classes import Crepes_Class, bcolors
 
-### Test
-from ua_parser.user_agent_parser import Parse
-from werkzeug.user_agent import UserAgent
-from werkzeug.utils import cached_property, secure_filename
 
 load_users()
 
