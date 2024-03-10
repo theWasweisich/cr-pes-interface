@@ -1,5 +1,7 @@
 # Crêpes Interface
 
+[![Python application](https://github.com/theWasweisich/crepes-interface/actions/workflows/python-app.yml/badge.svg)](https://github.com/theWasweisich/crepes-interface/actions/workflows/python-app.yml)
+
 ## Usecase
 
 This webserver is meant to be a application for crêpes sale by Evangelische Jugendschaft Zugvogel.
