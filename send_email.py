@@ -3,7 +3,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
-from typing import Annotated, Union, Any
+from typing import Annotated
 from classes import CrepeSale, bcolors
 import get_sales
 from jinja2 import Environment, FileSystemLoader
@@ -17,6 +17,7 @@ email_logger = logging.getLogger("EMAIL_LOGGER")
 email_logger.setLevel(logging.DEBUG)
 
 SUBJECT = "Crêpes Zusammenfassung vom **DATE**"
+
 
 def prepare_data(data: list[CrepeSale]) -> tuple[list[dict[Annotated[str, "The name of the crepe"], 
                                                             Annotated[int, "The id, saleID and amount"] | 
@@ -45,7 +46,8 @@ def prepare_data(data: list[CrepeSale]) -> tuple[list[dict[Annotated[str, "The n
     return (parsed_sales, total)
 
 
-html = str # Type alias
+html = str  # Type alias
+
 
 def prepare_html() -> html:
     data = get_sales.get_data()
@@ -62,6 +64,7 @@ def prepare_html() -> html:
 
     return rendered
 
+
 def prepare_email(from_mail: str, to_mail: str, subject: str, body: str) -> MIMEMultipart:
     message = MIMEMultipart()
     message["From"] = to_mail
@@ -70,6 +73,7 @@ def prepare_email(from_mail: str, to_mail: str, subject: str, body: str) -> MIME
 
     message.attach(MIMEText(body, "html"))
     return message
+
 
 def send_email(recipient: str, sender: str):
     """Sends the summary Email to the adress in specified in `emailConfig.env`
@@ -82,7 +86,7 @@ def send_email(recipient: str, sender: str):
     senderpasswd = os.getenv("SENDER_PASSWORD")
     receivermail = recipient
 
-    if (sendermail == None) or (senderpasswd == None) or (receivermail == None):
+    if (sendermail is None) or (senderpasswd is None) or (receivermail is None):
         raise Exception("Not all neccessary data has been given")
 
     email_logger.info("[+] Preparing HTML Data for email")
@@ -90,7 +94,6 @@ def send_email(recipient: str, sender: str):
     subject = SUBJECT.replace("**DATE**", time.strftime("%A, den %d. %B &Y"))
 
     body = prepare_html()
-
 
     message = prepare_email(from_mail=receivermail, to_mail=sendermail, subject=subject, body=body)
 
@@ -103,23 +106,25 @@ def send_email(recipient: str, sender: str):
         exit()
     email_logger.debug("Zusammenfassung versandt!")
 
+
 def setup() -> tuple[str, str]:
     load_dotenv("./emailConfig.env")
 
     reciever_email = os.getenv("RECEIVER_EMAIL")
     sender_email = os.getenv("SENDER_EMAIL")
 
-    if reciever_email != None:
+    if reciever_email is not None:
         email_validator.validate_email(reciever_email)
     else:
         raise Exception("Empfängeradresse nicht definiert!")
-    
-    if sender_email != None:
+
+    if sender_email is not None:
         email_validator.validate_email(sender_email)
     else:
         raise Exception("Senderadresse nicht definiert!")
-    
+
     return reciever_email, sender_email
+
 
 def api():
     re, se = setup()

@@ -1,8 +1,8 @@
 import json
-from pprint import pprint
 import sqlite3
 import datetime
 import os
+
 
 def func1():
     con = sqlite3.connect("datenbank.db")
@@ -18,12 +18,12 @@ def func1():
         else:
             exit()
 
-
     with open(filename, "w", encoding="UTF-8") as f:
         for line in con.iterdump():
             f.write(line)
 
     print("finished!")
+
 
 def func2():
     con = sqlite3.connect("datenbank.db")
@@ -35,6 +35,7 @@ def func2():
     print(res)
     print(type(res))
     print(json.dumps(res))
+
 
 if __name__ == "__main__":
     func2()

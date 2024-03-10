@@ -187,36 +187,37 @@ body {
 
     >.preselecter {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 1rem;
 
 
         >[data-value="5"] {
-            background-image: url("/static/assets/5_euro.webp");
+            background-image: url("/static/assets/5_euro.min.jpg");
         }
 
         >[data-value="10"] {
-            background-image: url("/static/assets/10_euro.webp");
+            background-image: url("/static/assets/10_euro.min.jpg");
         }
 
         >[data-value="20"] {
-            background-image: url("/static/assets/20_euro.webp");
+            background-image: url("/static/assets/20_euro.min.jpg");
         }
 
         >[data-value="50"] {
-            background-image: url("/static/assets/50_euro.webp");
+            background-image: url("/static/assets/50_euro.min.jpg");
         }
 
         >[data-value="100"] {
-            background-image: url("/static/assets/100_euro.webp");
+            background-image: url("/static/assets/100_euro.min.jpg");
         }
 
         >[data-value] {
             border: none;
             background-size: contain;
             background-repeat: no-repeat;
-            min-width: max-content;
-            aspect-ratio: auto;
+            background-color: transparent;
+            min-width: 200px;
+            aspect-ratio: 1.93;
         }
     }
 }

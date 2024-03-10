@@ -4,10 +4,12 @@ from flask.sessions import SessionMixin
 
 from classes import User
 
+
 def get_db():
     con = sqlite3.connect("datenbank.db")
     cur = con.cursor()
     return con, cur
+
 
 users: list[User] = []
 
@@ -57,7 +59,7 @@ def get_user_from_username_and_password(username: str, password: str) -> User | 
     return None
 
 
-def authenticate_user(session: SessionMixin, required_level: int)  -> bool:
+def authenticate_user(session: SessionMixin, required_level: int) -> bool:
     """Authenticates the user, if authentication fails, returns False
 
     Args:
@@ -72,7 +74,7 @@ def authenticate_user(session: SessionMixin, required_level: int)  -> bool:
         user = get_user_from_key(session["secret"])
         if not user:
             return False
-        
+
         if user.priviledge >= required_level:
             return True
         else:
@@ -80,4 +82,3 @@ def authenticate_user(session: SessionMixin, required_level: int)  -> bool:
     else:
         # logging.info("Secret NOT in session")
         return False
-

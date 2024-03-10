@@ -15,3 +15,5 @@ _venv_activate.bat
 /.flitzenv/
 node_modules
 *.ini
+
+!tox.ini
