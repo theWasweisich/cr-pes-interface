@@ -1,0 +1,61 @@
+[
+    {
+        "SaleId": 1,
+        "SaleTime": "2024-03-25T12:10:00",
+        "SaleTotal": 2.0,
+        "consumption": "customer",
+        "Crepes": [
+            {
+                "ID": 3,
+                "CrepeName": "Zimt & Zucker",
+                "CrepePrice": 2.5,
+                "CrepeIngredients": null,
+                "CrepeType": "süß"
+            },
+            {
+                "ID": 6,
+                "CrepeName": "Schoko & Banane",
+                "CrepePrice": 3.5,
+                "CrepeIngredients": null,
+                "CrepeType": "süß"
+            }
+        ]
+    },
+    {
+        "SaleId": 6,
+        "SaleTime": "2024-03-25T18:17:19",
+        "SaleTotal": 7.0,
+        "consumption": "own",
+        "Crepes": [
+            {
+                "ID": 3,
+                "CrepeName": "Zimt & Zucker",
+                "CrepePrice": 2.5,
+                "CrepeIngredients": null,
+                "CrepeType": "süß"
+            },
+            {
+                "ID": 3,
+                "CrepeName": "Zimt & Zucker",
+                "CrepePrice": 2.5,
+                "CrepeIngredients": null,
+                "CrepeType": "süß"
+            }
+        ]
+    },
+    {
+        "SaleId": 8,
+        "SaleTime": "2024-03-25T22:32:12",
+        "SaleTotal": 10.0,
+        "consumption": "own",
+        "Crepes": [
+            {
+                "ID": 13,
+                "CrepeName": "Italiano",
+                "CrepePrice": 4.5,
+                "CrepeIngredients": null,
+                "CrepeType": "deftig"
+            }
+        ]
+    }
+]
