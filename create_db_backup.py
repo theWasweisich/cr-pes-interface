@@ -35,6 +35,7 @@ def func2():
     print(res)
     print(type(res))
     print(json.dumps(res))
+    con.close()
 
 
 if __name__ == "__main__":

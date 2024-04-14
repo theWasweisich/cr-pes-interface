@@ -5,6 +5,7 @@ __pycache__
 .laptopvenv
 .venv
 .hintrc
+.snyk
 *.log
 key.pem
 cert.pem

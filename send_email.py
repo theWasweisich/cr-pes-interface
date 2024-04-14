@@ -52,7 +52,7 @@ html = str  # Type alias
 def prepare_html() -> html:
     data = get_sales.get_data()
 
-    env = Environment(loader=FileSystemLoader("."))
+    env = Environment(loader=FileSystemLoader("."), autoescape=True)
     template = env.get_template("email_template.html")
     to_jinja = {}
 

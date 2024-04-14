@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import (
     Flask,
     flash,
@@ -24,9 +25,12 @@ from api.api_blueprint import api_bp
 from api.api_helpers import get_crepes
 
 from classes import Crepes_Class, bcolors
-
+import atexit
 
 load_users()
+
+access_logger = logging.getLogger("Access Logger")
+access_logger.addHandler(logging.StreamHandler())
 
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
 # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # Activate if logs should be print to console
@@ -224,6 +228,12 @@ def not_found(*args, **kwargs):
 def do_before_request_stuff():
     session.permanent = True
 
+    match request.path:
+        case "/":
+            access_logger.info(f"{datetime.now().isoformat()} - - {request.remote_addr} accessed the homepage!")
+        case "/einstellungen":
+            access_logger.warning(bcolors.WARNING + f"{request.remote_addr} accessed settings!" + bcolors.ENDC)
+
     logger = logging.getLogger("werkzeug")
     if request.path.startswith("/static"):
         logger.setLevel(logging.ERROR)
@@ -241,6 +251,11 @@ def bad_request(e):
 app.register_error_handler(404, bad_request)
 
 
+@atexit.register
+def exit():
+    print(bcolors.ENDC)
+
+
 if __name__ == "__main__":
     logging.info("👋 app.py wurde ausgeführt!")
 
@@ -248,6 +263,8 @@ if __name__ == "__main__":
 
         import waitress
         print(bcolors.OKGREEN + "Production-Ready Server" + bcolors.ENDC)
+
+        print(bcolors.OKBLUE + "Port: ".ljust(10, ".") + " 80" + bcolors.ENDC)
         waitress.serve(app, host="0.0.0.0", port=80)
 
     elif ('-w' in sys.argv) or ('--waitress' in sys.argv):
@@ -260,4 +277,4 @@ if __name__ == "__main__":
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
-        app.run(host='127.0.0.1', port=80, debug=True)
+        app.run(host='127.0.0.1', port=80)

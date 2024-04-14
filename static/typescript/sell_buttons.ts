@@ -167,16 +167,24 @@ function change_dialog_handler() {
     // console.debug("Need some change?")
     const dialog = document.getElementById("cashback-dialog-main") as HTMLDialogElement
     const dial_opener = document.querySelector('#sell_buttons>[data-function="pay_back"]') as HTMLButtonElement
+    const payedDisplay = document.getElementById("cashback-payed") as HTMLInputElement
+    const cashback_to_hand_out = document.getElementById("cashback-leftover") as HTMLInputElement
 
+    var selectedValue: number = 0.0
     dialog.addEventListener('click', (event) => {
         let eventElem = event.target as HTMLElement
-        var selectedValue: number = 0.0
 
         if (eventElem.nodeName == "BUTTON") {
             let value = eventElem.getAttribute("data-value")
             let numValue = Number(value)
 
-            selectedValue += numValue
+            selectedValue = numValue
+            console.log("Value: " + selectedValue)
+            console.log(typeof selectedValue)
+            let stringValue = formatter.format(selectedValue)
+            payedDisplay.disabled = false
+            payedDisplay.value = stringValue
+            payedDisplay.disabled = true
         }
 
         // Schließt den Dialog, wenn außerhalb geklickt wird
@@ -184,9 +192,8 @@ function change_dialog_handler() {
         var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
             rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
         
-        
         if (!isInDialog) {
-            dialog.close()
+            close_dialog()
         }
     })
     
