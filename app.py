@@ -20,6 +20,7 @@ from user_handling import get_db, load_users
 import user_handling
 
 from config_loader import config
+import argparse
 
 from api.api_blueprint import api_bp
 from api.api_helpers import get_crepes
@@ -29,8 +30,17 @@ import atexit
 
 load_users()
 
+parser = argparse.ArgumentParser(prog="Crêpes Application")
+parser.add_argument('--verbose', '-v', action="store_true", dest='verbose')
+
+args = parser.parse_args()
+VERBOSE = False
+if args.verbose:
+    VERBOSE = True
+
 access_logger = logging.getLogger("Access Logger")
 access_logger.addHandler(logging.StreamHandler())
+access_logger.addHandler(logging.FileHandler("access.log"))
 
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
 # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # Activate if logs should be print to console
@@ -232,7 +242,7 @@ def do_before_request_stuff():
         case "/":
             access_logger.info(f"{datetime.now().isoformat()} - - {request.remote_addr} accessed the homepage!")
         case "/einstellungen":
-            access_logger.warning(bcolors.WARNING + f"{request.remote_addr} accessed settings!" + bcolors.ENDC)
+            access_logger.warning(f"{datetime.now().isoformat()} - - {request.remote_addr} accessed settings!")
 
     logger = logging.getLogger("werkzeug")
     if request.path.startswith("/static"):
