@@ -14,12 +14,13 @@ import status
 
 import logging
 import secrets
-import sys
+# import sys
 
 from user_handling import get_db, load_users
 import user_handling
 
 from config_loader import config
+import argparse
 import argparse
 
 from api.api_blueprint import api_bp
@@ -31,16 +32,51 @@ import atexit
 load_users()
 
 parser = argparse.ArgumentParser(prog="Crêpes Application")
-parser.add_argument('--verbose', '-v', action="store_true", dest='verbose')
 
-args = parser.parse_args()
+parser.add_argument(
+    "-v",
+    "--verbose",
+    action="store_true", 
+    dest="verbose", 
+    default=False,
+    help="Run in verbose Mode"
+)
+
+parser.add_argument(
+    "-p", 
+    "--production", 
+    action="store_true", 
+    dest="runProd", 
+    default=False,
+    help="Configure Server to simulate production environment"
+)
+
+parser.add_argument(
+    "-w", 
+    "--waitress", 
+    action="store_true", 
+    dest="runWaitress", 
+    default=False,
+    help="Configure Server to use waitress to serve app"
+)
+
+
+class ArgumentError(Exception):
+    pass
+
+
 VERBOSE = False
+args = parser.parse_args()
+if args.runWaitress and args.runProd:
+    raise ArgumentError("Es kann nicht gleichzeitig der Waitress-Modus und Produktionsmodus aktiviert sein!")
 if args.verbose:
     VERBOSE = True
 
+
 access_logger = logging.getLogger("Access Logger")
-access_logger.addHandler(logging.StreamHandler())
-access_logger.addHandler(logging.FileHandler("access.log"))
+if VERBOSE:
+    access_logger.addHandler(logging.StreamHandler())
+access_logger.addHandler(logging.FileHandler("access.log", encoding="UTF-8"))
 
 logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
 # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # Activate if logs should be print to console
@@ -269,7 +305,7 @@ def exit():
 if __name__ == "__main__":
     logging.info("👋 app.py wurde ausgeführt!")
 
-    if ('-p' in sys.argv) or ('--production' in sys.argv):
+    if args.runProd:
 
         import waitress
         print(bcolors.OKGREEN + "Production-Ready Server" + bcolors.ENDC)
@@ -277,7 +313,7 @@ if __name__ == "__main__":
         print(bcolors.OKBLUE + "Port: ".ljust(10, ".") + " 80" + bcolors.ENDC)
         waitress.serve(app, host="0.0.0.0", port=80)
 
-    elif ('-w' in sys.argv) or ('--waitress' in sys.argv):
+    elif args.runWaitress:
 
         import waitress
         print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
