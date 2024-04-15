@@ -35,7 +35,7 @@ def startup_questions():
     answ = inquirer.prompt(entry_questions, theme=BlueComposure())
     if not answ: exit()
     if not answ["read"]:
-        webbrowser.open(f"file:///{os.path.realpath("readme.html")}", 2)
+        webbrowser.open(f"file:///{os.path.realpath('readme.html')}", 2)
         exit()
 
 
