@@ -90,7 +90,7 @@ async function payed_func(own_consumption: boolean = false) {
         setFavicon(false)
         reset_list_func();
         return false;
-    };
+    }
 }
 
 /**

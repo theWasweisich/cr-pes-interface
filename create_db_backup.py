@@ -22,6 +22,7 @@ def func1():
         for line in con.iterdump():
             f.write(line)
 
+    con.close()
     print("finished!")
 
 
