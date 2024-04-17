@@ -155,27 +155,30 @@ function change_dialog_handler() {
     const dialog = document.getElementById("cashback-dialog-main");
     const dial_opener = document.querySelector('#sell_buttons>[data-function="pay_back"]');
     const payedDisplay = document.getElementById("cashback-payed");
-    const cashback = document.getElementById("cashback-leftover");
+    const cashback_to_hand_out = document.getElementById("cashback-leftover");
     var selectedValue = 0.0;
     dialog.addEventListener('click', (event) => {
-        let eventElem = event.target;
-        if (eventElem.nodeName == "BUTTON") {
-            let value = eventElem.getAttribute("data-value");
-            let numValue = Number(value);
-            selectedValue = numValue;
-            console.log("Value: " + selectedValue);
-            console.log(typeof selectedValue);
-            let stringValue = formatter.format(selectedValue);
-            payedDisplay.disabled = false;
-            payedDisplay.value = stringValue;
-            payedDisplay.disabled = true;
-        }
         // Schließt den Dialog, wenn außerhalb geklickt wird
         var rect = dialog.getBoundingClientRect();
         var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
             rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
         if (!isInDialog) {
-            dialog.close();
+            close_dialog();
+        }
+    });
+    dialog.addEventListener('click', (event) => {
+        let eventElem = event.target;
+        if (eventElem.nodeName == "BUTTON") {
+            let upperElem = eventElem.parentElement;
+            let value = upperElem.getAttribute("data-value");
+            let numValue = Number.parseInt(value);
+            if (eventElem.classList.contains("overlay-add")) {
+                selectedValue += numValue;
+            }
+            else if (eventElem.classList.contains("overlay-remove")) {
+                selectedValue += numValue;
+            }
+            payedDisplay.value = formatter.format(selectedValue);
         }
     });
     function open_dialog() {

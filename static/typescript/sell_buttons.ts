@@ -188,16 +188,19 @@ function change_dialog_handler() {
         let eventElem = event.target as HTMLElement;
 
         if (eventElem.nodeName == "BUTTON") {
-            let value = eventElem.getAttribute("data-value")
-            let numValue = Number(value)
+            let upperElem = eventElem.parentElement as HTMLElement
+            let value = upperElem.getAttribute("data-value");
+            let numValue = Number.parseInt(value);
 
-            selectedValue = numValue
-            console.log("Value: " + selectedValue)
-            console.log(typeof selectedValue)
-            let stringValue = formatter.format(selectedValue)
-            payedDisplay.disabled = false
-            payedDisplay.value = stringValue
-            payedDisplay.disabled = true
+
+            if (eventElem.classList.contains("overlay-add")) {
+                selectedValue += numValue;            
+            }
+            else if (eventElem.classList.contains("overlay-remove")) {
+                selectedValue -= numValue;
+            }
+
+            payedDisplay.value = formatter.format(selectedValue);
         }
 
     })
