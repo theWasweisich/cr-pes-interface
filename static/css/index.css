@@ -206,6 +206,12 @@ body {
         }
 
         >[data-value] {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+
             font-size: 5em;
             border: 10px solid black;
             color: white;
@@ -213,19 +219,27 @@ body {
             background-size: cover;
         }
 
-        >[data-value] > div {
-            position: absolute;
-            z-index: 50;
-            color: white;
-            -webkit-text-stroke: 5px black;
-            font-weight: bold;
+        >[data-value] > button.overlay-add {
+            grid-area: "plus";
+            background-color: rgba(0, 151, 0, 0.527);
+        }
+        >[data-value] > button.overlay-remove {
+            grid-area: "minus";
+            background-color: rgba(151, 0, 0, 0.527);
+        }
+        >[data-value] > button {
+            font-size: larger;
+            text-align: center;
 
-            .overlay-add {
-                transform: translateX(-50%);
-            }
+
+            min-width: 50%;
+            height: 100%;
+
+            border: none;
         }
 
         >img {
+            position: absolute;
             width: max-content;
             height: auto;
         }
@@ -233,19 +247,15 @@ body {
         /* >[data-value="5"] {
             background-image: url("/static/assets/5_euro.min.jpg");
         } */
-
         >[data-value="10"] {
             background-image: url("/static/assets/10_euro.min.jpg");
         }
-
         >[data-value="20"] {
             background-image: url("/static/assets/20_euro.min.jpg");
         }
-
         >[data-value="50"] {
             background-image: url("/static/assets/50_euro.min.jpg");
         }
-
         >[data-value="100"] {
             background-image: url("/static/assets/100_euro.min.jpg");
         }
@@ -258,7 +268,6 @@ body {
 
         >[data-value],
         >[data-value] > img {
-            position: relative;
             border: none;
             background-size: contain;
             background-repeat: no-repeat;
@@ -266,6 +275,10 @@ body {
             width: 200px;
             object-fit: scale-down;
             aspect-ratio: 1.93;
+        }
+
+        >[data-value] > img {
+            z-index: -1;
         }
     }
 
