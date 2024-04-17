@@ -21,6 +21,7 @@ import user_handling
 
 from config_loader import config
 import argparse
+import argparse
 
 from api.api_blueprint import api_bp
 from api.api_helpers import get_crepes
@@ -277,7 +278,7 @@ def do_before_request_stuff():
         case "/":
             access_logger.info(f"{datetime.now().isoformat()} - - {request.remote_addr} accessed the homepage!")
         case "/einstellungen":
-            access_logger.warning(bcolors.WARNING + f"{request.remote_addr} accessed settings!" + bcolors.ENDC)
+            access_logger.warning(f"{datetime.now().isoformat()} - - {request.remote_addr} accessed settings!")
 
     logger = logging.getLogger("werkzeug")
     if request.path.startswith("/static"):

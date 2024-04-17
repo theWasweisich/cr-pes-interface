@@ -169,10 +169,23 @@ function change_dialog_handler() {
     const dial_opener = document.querySelector('#sell_buttons>[data-function="pay_back"]') as HTMLButtonElement
     const payedDisplay = document.getElementById("cashback-payed") as HTMLInputElement
     const cashback_to_hand_out = document.getElementById("cashback-leftover") as HTMLInputElement
-
+    
     var selectedValue: number = 0.0
+    
     dialog.addEventListener('click', (event) => {
-        let eventElem = event.target as HTMLElement
+        
+        // Schließt den Dialog, wenn außerhalb geklickt wird
+        var rect = dialog.getBoundingClientRect()
+        var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+            rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+        
+        if (!isInDialog) {
+            close_dialog()
+        }
+    })
+
+    dialog.addEventListener('click', (event) => {
+        let eventElem = event.target as HTMLElement;
 
         if (eventElem.nodeName == "BUTTON") {
             let value = eventElem.getAttribute("data-value")
@@ -187,14 +200,6 @@ function change_dialog_handler() {
             payedDisplay.disabled = true
         }
 
-        // Schließt den Dialog, wenn außerhalb geklickt wird
-        var rect = dialog.getBoundingClientRect()
-        var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-            rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-        
-        if (!isInDialog) {
-            close_dialog()
-        }
     })
     
     function open_dialog(): boolean {
