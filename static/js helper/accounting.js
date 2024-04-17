@@ -117,7 +117,7 @@
 	 */
 	function checkPrecision(val, base) {
 		val = Math.round(Math.abs(val));
-		return isNaN(val)? base : val;
+		return Number.isNaN(val)? base : val;
 	}
 
 
