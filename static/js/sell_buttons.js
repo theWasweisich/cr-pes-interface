@@ -85,7 +85,6 @@ function payed_func(own_consumption = false) {
             reset_list_func();
             return false;
         }
-        ;
     });
 }
 /**
@@ -156,7 +155,9 @@ function change_dialog_handler() {
     const dial_opener = document.querySelector('#sell_buttons>[data-function="pay_back"]');
     const payedDisplay = document.getElementById("cashback-payed");
     const cashback_to_hand_out = document.getElementById("cashback-leftover");
+    const cashback_still_needed = document.getElementById("cashback-needed");
     var selectedValue = 0.0;
+    calculate_still_needed();
     dialog.addEventListener('click', (event) => {
         // Schließt den Dialog, wenn außerhalb geklickt wird
         var rect = dialog.getBoundingClientRect();
@@ -169,18 +170,51 @@ function change_dialog_handler() {
     dialog.addEventListener('click', (event) => {
         let eventElem = event.target;
         if (eventElem.nodeName == "BUTTON") {
-            let upperElem = eventElem.parentElement;
-            let value = upperElem.getAttribute("data-value");
-            let numValue = Number.parseInt(value);
-            if (eventElem.classList.contains("overlay-add")) {
-                selectedValue += numValue;
+            if (eventElem.classList.contains("reset-btn")) {
+                selectedValue = 0;
             }
-            else if (eventElem.classList.contains("overlay-remove")) {
-                selectedValue += numValue;
+            else {
+                let upperElem = eventElem.parentElement;
+                let value = upperElem.getAttribute("data-value");
+                let numValue = Number.parseInt(value);
+                if (eventElem.classList.contains("overlay-add")) {
+                    selectedValue += numValue;
+                }
+                else if (eventElem.classList.contains("overlay-remove")) {
+                    selectedValue -= numValue;
+                }
+            }
+            if (selectedValue <= 0) {
+                selectedValue = 0;
             }
             payedDisplay.value = formatter.format(selectedValue);
+            calculate_cashback();
         }
     });
+    function calculate_cashback() {
+        let to_cash_out = selectedValue - table.getTotalValue();
+        let to_cash_out_formatted = formatter.format(to_cash_out);
+        if (to_cash_out <= 0) {
+            to_cash_out_formatted = "-,-- €";
+        }
+        calculate_still_needed();
+        cashback_to_hand_out.disabled = false;
+        cashback_to_hand_out.value = to_cash_out_formatted;
+        cashback_to_hand_out.disabled = true;
+    }
+    function calculate_still_needed() {
+        let still_to_pay = selectedValue - table.getTotalValue();
+        let still_to_pay_formatted = formatter.format(still_to_pay);
+        if (still_to_pay >= 0) {
+            still_to_pay_formatted = "-,-- €";
+        }
+        else {
+            still_to_pay_formatted = formatter.format(Math.abs(still_to_pay));
+        }
+        cashback_still_needed.disabled = false;
+        cashback_still_needed.value = still_to_pay_formatted;
+        cashback_still_needed.disabled = true;
+    }
     function open_dialog() {
         if (table.getTotalValue() == 0) {
             dial_opener.style.backgroundColor = "red";

@@ -65,17 +65,20 @@
                 <img src="/static/assets/100_euro.min.jpg" alt="100 Euro">
 
             </div>
+            <div class="cashback-reset">
+                <button class="reset-btn">Zurücksetzen</button>
+            </div>
         </div>
         <br>
         <div id="calcOut">
-            <div>
-                <label for="cashback-payed">Gezahlter Betrag:</label>
-                <input id="cashback-payed" type="text" disabled>
-            </div>
-            <div>
-                <label for="cashback-payed">Rückgabe:</label>
-                <input id="cashback-leftover" type="text" disabled>
-            </div>
+            <label for="cashback-payed">Bereits gezahlter Betrag:</label>
+            <input id="cashback-payed" type="text" value="-,-- €" disabled>
+
+            <label for="cashback-needed">Noch zu bezahlender Betrag:</label>
+            <input type="text" id="cashback-needed" value="-,-- €" disabled>
+
+            <label for="cashback-payed">Rückgabe:</label>
+            <input id="cashback-leftover" type="text" value="-,-- €" disabled>
         </div>
     </dialog>
     <div id="grid-main">
@@ -103,13 +106,25 @@
         <div id="side_nav">
 
             <p class="side-nav-menu">Bestellung<span class="collapse_sidemenu"><a href="/help" target="_blank"><span
-                            class="material-symbols-outlined">question_mark</span></a></span></p>
+                            class="help material-symbols-outlined">question_mark</span></a></span></p>
 
             <div id="sell_buttons">
-                <button data-function="payed">Bezahlt</button>
-                <button data-function="pay_back">Rückgeld</button>
-                <button data-function="own_consumption">Eigenverbrauch</button>
-                <button data-function="reset">Zurücksetzen</button>
+                <button data-function="payed">
+                    <p>Bezahlt</p>
+                    <span class="icon material-symbols-outlined">shopping_cart_checkout</span>
+                </button>
+                <button data-function="pay_back">
+                    <p>Rückgeld</p>
+                    <span class="icon icon-payback"></span>
+                </button>
+                <button data-function="own_consumption">
+                    <span class="icon icon-own-consumption"></span>
+                    <p>Eigenverbrauch</p>
+                </button>
+                <button data-function="reset">
+                    <span class="icon icon-reset"></span>
+                    <p>Zurücksetzen</p>
+                </button>
             </div>
 
             <h2>Gesamt: <span>0 €</span>
