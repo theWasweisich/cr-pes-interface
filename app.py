@@ -1,13 +1,14 @@
 from datetime import datetime
+import json
 from flask import (
     Flask,
     flash,
     make_response,
     redirect,
-    render_template,
     request,
     session,
     url_for,
+    send_from_directory,
 )
 import flask_sitemap
 import status
@@ -21,7 +22,6 @@ import user_handling
 
 from config_loader import config
 import argparse
-import argparse
 
 from api.api_blueprint import api_bp
 from api.api_helpers import get_crepes
@@ -31,8 +31,8 @@ import atexit
 
 load_users()
 
-parser = argparse.ArgumentParser(prog="Crêpes Application")
 
+parser = argparse.ArgumentParser(prog="Crêpes Application")
 parser.add_argument(
     "-v",
     "--verbose",
@@ -74,12 +74,17 @@ if args.verbose:
 
 
 access_logger = logging.getLogger("Access Logger")
+access_logger.propagate = False
+
 if VERBOSE:
     access_logger.addHandler(logging.StreamHandler())
 access_logger.addHandler(logging.FileHandler("access.log", encoding="UTF-8"))
 
-logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
+
+logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(name)s)", level=logging.DEBUG)
 # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # Activate if logs should be print to console
+
+access_logger.removeHandler(logging.FileHandler("server.log", "w", encoding="UTF-8"))
 
 flask_sitemap.config.SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS = True
 flask_sitemap.config.SITEMAP_IGNORE_ENDPOINTS = "/sitemap.xml"
@@ -121,20 +126,18 @@ def valid_keys() -> list[str]:
 
 @app.route("/")
 def serve_homepage():
-    return render_template("index.jinja")
+    return send_from_directory("./static/html/", "index.html")
 
 
 @app.route("/einstellungen")
 def serve_einstellungen():
     try:
         if user_handling.authenticate_user(session, 10):
-            return render_template("settings.jinja", crepes=crêpes)
+            return send_from_directory("./static/html/", "settings.html")
         else:
-            flash("settings")
             return redirect("/login")
 
     except Exception:
-        flash("settings")
         return url_for("serve_login")
 
 
@@ -142,7 +145,11 @@ def serve_einstellungen():
 def serve_login():
 
     if request.method == "GET":
-        return render_template("login.jinja")
+        req = send_from_directory("./static/html/", "login.html")
+        req.headers.add_header("X-crepeData", json.dumps({
+            ...
+        }))
+        return send_from_directory("./static/html/", "login.html")
 
     elif request.method == "POST":
         username = request.form["username"]
@@ -156,7 +163,7 @@ def serve_login():
 
         if user is None:
             logging.warning(f"Could not log user {user} in!")
-            return render_template("login.jinja")
+            return redirect("/login", status.HTTP_303_SEE_OTHER)
 
         try:
             if user.current_key is None:
@@ -197,16 +204,18 @@ def serve_login():
 
 @app.route("/schichten")
 def serve_shifts():
-    if user_handling.authenticate_user(session, 5):
-        return render_template("shifts.jinja", shifts=shifts)
-    else:
-        flash("shifts")
-        return redirect("/login")
+    return redirect("/")
+
+    # if user_handling.authenticate_user(session, 5):
+    #     return render_template("shifts.jinja", shifts=shifts)
+    # else:
+    #     flash("shifts")
+    #     return redirect("/login")
 
 
 @app.route("/dev")
 def serve_dev():
-    return render_template("development.jinja")
+    return send_from_directory("./static/html/", "development.html")
 
 
 @app.route("/dashboard")
@@ -214,7 +223,7 @@ def serve_dashboard():
     if request.method != "GET":
         return '', status.HTTP_405_METHOD_NOT_ALLOWED
 
-    return render_template("dashboard.jinja")
+    return send_from_directory("./static/html/", "dashboard.html")
 
 
 @app.route("/help")
@@ -248,7 +257,7 @@ def serve_warning_favicon():
 def initialisation():
     logging.debug("Sections: " + repr(config.sections()))
     if request.method == "GET":
-        return render_template("init.jinja")
+        return send_from_directory("./static/html/", "init.html")
 
     elif request.method == "POST":
         if request.json:
