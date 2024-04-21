@@ -4,7 +4,7 @@ from flask import (
     Blueprint,
     request
 )
-import flask
+# import flask
 from flask_classful import FlaskView, route
 import logging
 import sqlite3
@@ -18,6 +18,19 @@ import get_sales
 from config_loader import config
 
 from api.api_helpers import get_db, parse_price, get_crepes
+
+api_logger = logging.getLogger("API Logger")
+api_logger.propagate = True
+
+blocked_routes = [
+    "/api/banana"
+]
+"""
+All routes, that are blocked.
+
+Must start with '/api/{route}'
+"""
+
 
 time_zone = pytz.timezone("Europe/Berlin")
 
@@ -58,7 +71,7 @@ class CrepesView(FlaskView):
                 cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?",
                             [id, name])
             else:
-                logging.exception("Der zu löschende Crepe wurde nicht \
+                api_logger.exception("Der zu löschende Crepe wurde nicht \
                                   gefunden!")
                 error_detail = f"requested crepe not found! ({name})"
                 break
@@ -89,7 +102,7 @@ class CrepesView(FlaskView):
 
             color: str = data["color"]
 
-            logging.info(f"Parsed Crêpes: {name} || {price} || {ingredients} \
+            api_logger.info(f"Parsed Crêpes: {name} || {price} || {ingredients} \
                          || {color}")
 
             con, cur = get_db()
@@ -118,7 +131,7 @@ class CrepesView(FlaskView):
     def edit_crepe():
         con, cur = get_db()
         data = request.get_json()
-        logging.debug(f"Edited Crêpes arrived!\nData: {data}")
+        api_logger.debug(f"Edited Crêpes arrived!\nData: {data}")
         for crepe in data:
             id = crepe["id"]
             name = crepe["name"]
@@ -130,13 +143,13 @@ class CrepesView(FlaskView):
             db_name = res[0]
             db_price = res[1]
             db_price_str = str(db_price).replace("\xa0", " ")
-            logging.debug(f"DB_Data: {db_name} ({type(db_name)}) :: {db_price} ({type(db_price)})")
+            api_logger.debug(f"DB_Data: {db_name} ({type(db_name)}) :: {db_price} ({type(db_price)})")
 
             if (db_price != price_str):
-                logging.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
+                api_logger.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
                 cur.execute("UPDATE Crêpes SET price=? WHERE id=?", (price, id))
             if name != db_name:
-                logging.info(f"Database & Edited are not the same! {name} vs {db_name}")
+                api_logger.info(f"Database & Edited are not the same! {name} vs {db_name}")
                 cur.execute("UPDATE Crêpes SET name=? WHERE id=?", (name, id))
 
         con.commit()
@@ -152,7 +165,7 @@ class CrepesView(FlaskView):
             if (data is None):
                 return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
 
-            logging.debug(f"New Crêpes: {data}")
+            api_logger.debug(f"New Crêpes: {data}")
 
             to_db: list[tuple] = []
 
@@ -160,10 +173,10 @@ class CrepesView(FlaskView):
                 cur.execute("SELECT MAX(saleID) FROM sales")
                 saleID_next = int(cur.fetchone()[0]) + 1
             except Exception as e:
-                logging.error(f"There has been an error: {e}")
+                api_logger.error(f"There has been an error: {e}")
                 saleID_next = 0
 
-            logging.debug(f"Next SaleID: {saleID_next}")
+            api_logger.debug(f"Next SaleID: {saleID_next}")
 
             now_time = datetime.datetime.now().isoformat()
             for crepe in data:
@@ -175,22 +188,22 @@ class CrepesView(FlaskView):
                 if 'ownConsumption' in request.headers:
                     consumpt = request.headers["ownConsumption"]
                 else:
-                    logging.fatal("Own Consumption not found in headers!")
+                    api_logger.fatal("Own Consumption not found in headers!")
 
                 to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time, consumpt))
 
-                logging.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}; OWNCONSUMPTION: {consumpt}")
+                api_logger.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}; OWNCONSUMPTION: {consumpt}")
 
             cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, time, Consumption) VALUES (?, ?, ?, ?, ?, ?)", to_db)
 
-            logging.debug("Inserted Crêpes!")
-            logging.debug(cur.fetchone())
+            api_logger.debug("Inserted Crêpes!")
+            api_logger.debug(cur.fetchone())
 
             cur.connection.commit()
             con.commit()
             con.close()
         except Exception as e:
-            logging.exception(e)
+            api_logger.exception(e)
             con.close()
             con.close()
             return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -217,7 +230,7 @@ class SalesView(FlaskView):
             if (data is None):
                 return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
 
-            logging.debug(f"New Crêpes: {data}")
+            api_logger.debug(f"New Crêpes: {data}")
 
             to_db: list[tuple] = []
 
@@ -225,10 +238,10 @@ class SalesView(FlaskView):
                 cur.execute("SELECT MAX(saleID) FROM sales")
                 saleID_next = int(cur.fetchone()[0]) + 1
             except Exception as e:
-                logging.error(f"There has been an error: {e}")
+                api_logger.error(f"There has been an error: {e}")
                 saleID_next = 0
 
-            logging.debug(f"Next SaleID: {saleID_next}")
+            api_logger.debug(f"Next SaleID: {saleID_next}")
 
             now_time = datetime.datetime.now().isoformat()
             for crepe in data:
@@ -239,7 +252,7 @@ class SalesView(FlaskView):
 
                 to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time))
 
-                logging.debug(f"Sold: ID: {cID}; NAME: {cNAME}; \
+                api_logger.debug(f"Sold: ID: {cID}; NAME: {cNAME}; \
                               PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
 
             cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, \
@@ -247,7 +260,7 @@ class SalesView(FlaskView):
 
             con.commit()
         except Exception as e:
-            logging.exception(e)
+            api_logger.exception(e)
             con.close()
             return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
         con.close()
@@ -266,21 +279,17 @@ class SalesView(FlaskView):
         return json.dumps(data), status.HTTP_200_OK
 
 
-@api_bp.get("/")
-@api_bp.get("/<file>")
-def index(file: str | None = None):
-    if not file:
-        return flask.send_file("api/docs/index.html")
-    else:
-        return flask.send_from_directory("api/docs", file), status.HTTP_200_OK
-
-
 @api_bp.before_request
 def before_request():
+    for forbidden_path in blocked_routes:
+        if forbidden_path == request.path:
+            return {"status": "forbidden",
+                    "description": "This HTTP-Route has been forbidden. Please check the corresponding blueprint file."}, status.HTTP_403_FORBIDDEN
+
     if request.headers.get("X-crepeAuth", "") == config.get("SECRETS", "auth_key"):
-        return
+        return                                                                      # Go on with routing
     else:
-        return {"status": "notAuthorized"}, status.HTTP_401_UNAUTHORIZED
+        return {"status": "notAuthorized"}, status.HTTP_401_UNAUTHORIZED            # Stop unauthorized access
 
 
 @api_bp.get("/checkAuth")

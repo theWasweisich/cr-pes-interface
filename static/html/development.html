@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development</title>
+
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="/static/css/global.css">
+    <link rel="stylesheet" href="/static/css/header_style.css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <script defer src="/static/js/dev.js"></script>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #storageButton {
+            border-radius: 1em;
+        }
+    </style>
+
+</head>
+<body>
+    <header>
+        <h1>
+            <span class="header-icon">code</span>
+            <p>DEVELOPMENT</p>
+        </h1>
+        <div class="header-nav-bar">
+            <a href="/"><button type="button" class="crepe-button">Kasse</button></a>
+            <a href="/einstellungen"><button type="button" class="crepe-button">Einstellungen</button></a>
+            <a href="/schichten"><button type="button" class="crepe-button disabled" disabled>Schichten</button></a>
+        </div>
+        <p id="clock"></p>
+        <script>
+        const clock=document.getElementById("clock");function alignClock(){setInterval((()=>{var e=(new Date).getUTCSeconds();1==e&&(clearInterval(e),setInterval(setTime,3e4))}),10)}function setTime(){var e=new Date,t=e.getHours(),n=e.getMinutes();if(t<10)t="0"+String(t);if(n<10)n="0"+String(n);clock.innerText=`${t}:${n} Uhr`}setTime(),alignClock();
+        </script>
+    </header>
+
+
+    <div>
+        <fieldset>
+            <legend>Get LocalStorage</legend>
+            <button id="storageButton" onclick="outputStorage(); console.log('HI')">Output Local Storage</button>
+            <p>
+                <output id="storageOut"></output>
+            </p>
+        </fieldset>
+    </div>
+</body>
+</html>

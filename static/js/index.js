@@ -25,14 +25,14 @@ function button_pressed_action(target, crepes_class, button) {
             var new_amount = table.add_one_crepe(crepes_class);
         }
         else if (button.classList.contains('remove')) {
-            // console.groupCollapsed("Removing");
-            // console.log("Removing!")
-            // console.log(crepes_class)
-            // console.groupEnd()
+            if (crepes_class.amount == 0) {
+                return;
+            }
             table.remove_one_crepe(crepes_class); // FIXME
             var new_amount = crepes_class.amount;
         }
     }
+    console.assert(target != null, "Wasn da los?");
     handle_amount_counter(target, new_amount);
 }
 /**
@@ -74,7 +74,7 @@ function event_listener(ev) {
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
         yield insertEverything().then((status) => {
-            if (!status) {
+            if (status == false) {
                 // Keine Crêpes konnten geladen werden
                 const container = document.getElementById("main-content");
                 const root = document.createElement("div");
@@ -84,14 +84,18 @@ function setup() {
                 container.appendChild(root);
                 throw Error("Keine Crêpes konnten geladen werden");
             }
+            const mainContent = document.getElementById('main-content');
+            if (mainContent.childElementCount == 0) {
+                throw Error("Es scheint einen Fehler gegeben zu haben!");
+            }
             var crepes = document.getElementsByClassName('crepe_container');
             var crepes_list = Array.from(crepes);
-            crepes_list.forEach(crepe => {
-                crepe.addEventListener("click", (ev) => event_listener(ev), true);
-                set_data(crepe);
-                let price = formatter.format(Number(crepe.getAttribute('data-preis')));
-                crepe.querySelector('[name="price"]').innerHTML = price;
-            });
+            // crepes_list.forEach(crepe => {
+            //     crepe.addEventListener("click", (ev) => event_listener(ev), true);
+            //     set_data(crepe);
+            //     let price = formatter.format(Number(crepe.getAttribute('data-preis')));
+            //     (crepe.querySelector('[name="preis"]') as HTMLElement).innerHTML = price;
+            // });
         });
     });
 }

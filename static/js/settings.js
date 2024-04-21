@@ -50,13 +50,13 @@ function getCurrentCrepes() {
                 let htmlString = templ.innerHTML;
                 htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId));
                 htmlString = htmlString.replace(/!! NAME !!/g, crepe.name);
-                htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.preis));
-                htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.preis));
-                htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.color);
+                htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.price));
+                htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.price));
+                htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.colour);
                 let newElem = document.createElement("div");
                 newElem.innerHTML = htmlString;
                 var elem = toAppendTo.appendChild(newElem);
-                elem.querySelector('input[name="Crêpes Preis"]').value = formatter.format(crepe.preis);
+                elem.querySelector('input[name="Crêpes Preis"]').value = formatter.format(crepe.price);
             }
         }
     });

@@ -1,37 +1,87 @@
+from datetime import datetime
 from flask import (
     Flask,
     flash,
     make_response,
     redirect,
-    render_template,
     request,
     session,
     url_for,
+    send_from_directory,
 )
 import flask_sitemap
 import status
 
-from datetime import timedelta
 import logging
 import secrets
-import sys
+# import sys
 
-from user_handling import get_db, load_users
+from user_handling import get_db
 import user_handling
 
-from dotenv import load_dotenv
 from config_loader import config
+import argparse
 
 from api.api_blueprint import api_bp
 from api.api_helpers import get_crepes
 
 from classes import Crepes_Class, bcolors
+import atexit
 
 
-load_users()
+parser = argparse.ArgumentParser(prog="Crêpes Application")
+parser.add_argument(
+    "-v",
+    "--verbose",
+    action="store_true", 
+    dest="verbose", 
+    default=False,
+    help="Run in verbose Mode"
+)
 
-logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(filename)s; %(funcName)s; %(name)s)", level=logging.DEBUG)
+parser.add_argument(
+    "-p", 
+    "--production", 
+    action="store_true", 
+    dest="runProd", 
+    default=False,
+    help="Configure Server to simulate production environment"
+)
+
+parser.add_argument(
+    "-w", 
+    "--waitress", 
+    action="store_true", 
+    dest="runWaitress", 
+    default=False,
+    help="Configure Server to use waitress to serve app"
+)
+
+
+class ArgumentError(Exception):
+    pass
+
+
+VERBOSE = False
+args = parser.parse_args()
+if args.runWaitress and args.runProd:
+    raise ArgumentError("Es kann nicht gleichzeitig der Waitress-Modus und Produktionsmodus aktiviert sein!")
+if args.verbose:
+    VERBOSE = True
+
+
+access_logger = logging.getLogger("Access Logger")
+access_logger.propagate = False
+
+if VERBOSE:
+    access_logger.addHandler(logging.StreamHandler())
+access_logger.addHandler(logging.FileHandler("access.log", encoding="UTF-8"))
+
+
+logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(name)s)", level=logging.DEBUG)
 # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # Activate if logs should be print to console
+
+access_logger.removeHandler(logging.FileHandler("server.log", "w", encoding="UTF-8"))
 
 flask_sitemap.config.SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS = True
 flask_sitemap.config.SITEMAP_IGNORE_ENDPOINTS = "/sitemap.xml"
@@ -43,14 +93,10 @@ ext = flask_sitemap.Sitemap(app=app)
 app.register_blueprint(api_bp, url_prefix="/api")
 
 
-load_dotenv()
-
 app.secret_key = config.get("SECRETS", 'secret_key')
 
 if app.secret_key is None:
-    raise Exception("Es wurde kein secret_key definiert!")
-
-app.permanent_session_lifetime = timedelta(minutes=5)
+    raise SystemExit("Es wurde kein secret_key definiert!")
 
 
 crêpes: list[Crepes_Class] | list[dict[str, str]] | None = get_crepes(as_dict=True)
@@ -77,20 +123,18 @@ def valid_keys() -> list[str]:
 
 @app.route("/")
 def serve_homepage():
-    return render_template("index.jinja")
+    return send_from_directory("./static/html/", "index.html")
 
 
 @app.route("/einstellungen")
 def serve_einstellungen():
     try:
         if user_handling.authenticate_user(session, 10):
-            return render_template("settings.jinja", crepes=crêpes)
+            return send_from_directory("./static/html/", "settings.html")
         else:
-            flash("settings")
             return redirect("/login")
 
     except Exception:
-        flash("settings")
         return url_for("serve_login")
 
 
@@ -98,21 +142,20 @@ def serve_einstellungen():
 def serve_login():
 
     if request.method == "GET":
-        return render_template("login.jinja")
+        return send_from_directory("./static/html/", "login.html")
 
     elif request.method == "POST":
+
+        # Cheffe Password: LassMichRein
+
         username = request.form["username"]
         password = request.form["password"]
-        comming_from = request.form["from"]
 
-        logging.info(f"Username: {username} Password: {password}")
         user = user_handling.get_user_from_username_and_password(username, password)
 
-        logging.info(str(user))
-
         if user is None:
-            logging.warning(f"Could not log user {user} in!")
-            return render_template("login.jinja")
+            logging.warning(f"Failed Login Attempt! User: {user}")
+            return redirect("/login?login=failed", status.HTTP_303_SEE_OTHER)
 
         try:
             if user.current_key is None:
@@ -127,17 +170,13 @@ def serve_login():
 
             if user.priviledge == 10:
 
-                logging.debug("User priviledge is 10")
                 resp = redirect("/einstellungen")
                 resp.set_cookie('secret', secret_key, 3600)
                 session["secret"] = secret_key
-                if comming_from == "shifts":
-                    return redirect("/schichten")
                 return redirect("/einstellungen")
 
             elif user.priviledge == 5:
 
-                logging.debug("User priviledge is 5")
                 resp = redirect("/schichten")
                 resp.set_cookie('secret', secret_key, 3600)
                 session["secret"] = secret_key
@@ -153,16 +192,18 @@ def serve_login():
 
 @app.route("/schichten")
 def serve_shifts():
-    if user_handling.authenticate_user(session, 5):
-        return render_template("shifts.jinja", shifts=shifts)
-    else:
-        flash("shifts")
-        return redirect("/login")
+    return redirect("/")
+
+    # if user_handling.authenticate_user(session, 5):
+    #     return render_template("shifts.jinja", shifts=shifts)
+    # else:
+    #     flash("shifts")
+    #     return redirect("/login")
 
 
 @app.route("/dev")
 def serve_dev():
-    return render_template("development.jinja")
+    return send_from_directory("./static/html/", "development.html")
 
 
 @app.route("/dashboard")
@@ -170,7 +211,7 @@ def serve_dashboard():
     if request.method != "GET":
         return '', status.HTTP_405_METHOD_NOT_ALLOWED
 
-    return render_template("dashboard.jinja")
+    return send_from_directory("./static/html/", "dashboard.html")
 
 
 @app.route("/help")
@@ -204,7 +245,7 @@ def serve_warning_favicon():
 def initialisation():
     logging.debug("Sections: " + repr(config.sections()))
     if request.method == "GET":
-        return render_template("init.jinja")
+        return send_from_directory("./static/html/", "init.html")
 
     elif request.method == "POST":
         if request.json:
@@ -230,6 +271,12 @@ def not_found(*args, **kwargs):
 def do_before_request_stuff():
     session.permanent = True
 
+    match request.path:
+        case "/":
+            access_logger.info(f"{datetime.now().isoformat()} - - {request.remote_addr} accessed the homepage!")
+        case "/einstellungen":
+            access_logger.warning(f"{datetime.now().isoformat()} - - {request.remote_addr} accessed settings!")
+
     logger = logging.getLogger("werkzeug")
     if request.path.startswith("/static"):
         logger.setLevel(logging.ERROR)
@@ -247,16 +294,23 @@ def bad_request(e):
 app.register_error_handler(404, bad_request)
 
 
+@atexit.register
+def exit():
+    print(bcolors.ENDC)
+
+
 if __name__ == "__main__":
     logging.info("👋 app.py wurde ausgeführt!")
 
-    if ('-p' in sys.argv) or ('--production' in sys.argv):
+    if args.runProd:
 
         import waitress
         print(bcolors.OKGREEN + "Production-Ready Server" + bcolors.ENDC)
+
+        print(bcolors.OKBLUE + "Port: ".ljust(10, ".") + " 80" + bcolors.ENDC)
         waitress.serve(app, host="0.0.0.0", port=80)
 
-    elif ('-w' in sys.argv) or ('--waitress' in sys.argv):
+    elif args.runWaitress:
 
         import waitress
         print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
@@ -266,4 +320,4 @@ if __name__ == "__main__":
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
-        app.run(host='127.0.0.1', port=80, debug=True)
+        app.run(host='127.0.0.1', port=80)

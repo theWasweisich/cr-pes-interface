@@ -1,30 +1,38 @@
+
+import hashlib
+import bcrypt
 import sqlite3
-import logging
 from flask.sessions import SessionMixin
 
 from classes import User
 
 
 def get_db():
-    con = sqlite3.connect("datenbank.db")
+    con = sqlite3.connect("datenbank.db")  # type: ignore
     cur = con.cursor()
     return con, cur
 
 
+def hash_password_with_salt(password: bytes, salt: bytes): 
+    return hashlib.sha256(password + salt)
+
+
+def make_password_storable(password: str) -> tuple[bytes, bytes]:
+    """Takes password, generates salt and returns db-ready data
+
+    Args:
+        password (str): The password that needs to be stored
+
+    Returns:
+        tuple[bytes, bytes]: First: Hashed Password, Second: salt
+    """
+
+    salt = bcrypt.gensalt()
+    pswd = hash_password_with_salt(password.encode(), salt)
+    return (pswd.hexdigest().encode(), salt)
+
+
 users: list[User] = []
-
-
-def load_users():
-    "Loads all users and puts them into the `users` list."
-    con, cur = get_db()
-
-    cur.execute("SELECT * FROM users")
-
-    res = cur.fetchall()
-    con.close()
-
-    for result in res:
-        users.append(User(result[1], result[2], result[3], result[4]))
 
 
 def get_user_from_key(key: str) -> User | None:
@@ -52,11 +60,34 @@ def get_user_from_username_and_password(username: str, password: str) -> User | 
     Returns:
         User | None: The `User` class, if found. Else None
     """
-    logging.debug(f"All Users: {str(users)}")
-    for user in users:
-        if user.username == username and user.password == password:
-            return user
+    SQL1 = "SELECT id, username, password, salt, current_key, priviledge FROM users WHERE username= ? "
+    con, cur = get_db()
+    cur.execute(SQL1, [username])
+
+    res = cur.fetchone()
+
+    con.close()
+
+    id, username_, password_, salt, current_key, priviledge = res
+    assert type(password_) is str
+
+    assert type(password)
+
+    hashed_pass = hashlib.sha256((password + salt).encode()).hexdigest()
+
+    if str(password_) == hashed_pass:
+
+        return User(username=username, priviledge=priviledge, current_key=current_key)
     return None
+
+
+def get_id_from_name(username: str) -> int:
+    SQL = "SELECT id FROM users WHERE username = '%s'"
+    con, cur = get_db()
+    cur.execute(SQL % username)
+    res = cur.fetchone()
+    con.close()
+    return res[0]
 
 
 def authenticate_user(session: SessionMixin, required_level: int) -> bool:
