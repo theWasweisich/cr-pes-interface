@@ -26,7 +26,7 @@ class TableEntry {
         price.setAttribute("data-type", "price");
         amount.innerHTML = this.crepe.amount.toString() + "x";
         name.innerHTML = this.crepe.name;
-        price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.crepe.preis);
+        price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.crepe.price);
         this.row = tr; // The row that this TableEntry lives in. Needed for deletion
         return tr;
     }
@@ -78,7 +78,7 @@ class Table {
         var total_elem = total_heading.children[0];
         var total_value = 0;
         for (let item of this.items) {
-            total_value += item.crepe.amount * item.crepe.preis;
+            total_value += item.crepe.amount * item.crepe.price;
         }
         total_elem.innerHTML = formatter.format(total_value);
         return total_value;
@@ -89,7 +89,7 @@ class Table {
     getTotalValue() {
         var total = 0;
         for (let item of this.items) {
-            total += item.crepe.amount * item.crepe.preis;
+            total += item.crepe.amount * item.crepe.price;
         }
         return total;
     }
@@ -124,7 +124,7 @@ class Table {
         var amount_elem = row.querySelector(`[data-type="amount"]`);
         var price_elem = row.querySelector(`[data-type="price"]`);
         amount_elem.innerHTML = crepe.amount.toString() + "x";
-        price_elem.innerHTML = Intl.NumberFormat("de-DE", { style: 'currency', currency: 'EUR' }).format(crepe.preis * crepe.amount);
+        price_elem.innerHTML = Intl.NumberFormat("de-DE", { style: 'currency', currency: 'EUR' }).format(crepe.price * crepe.amount);
         return;
     }
     /**
@@ -197,8 +197,13 @@ class Table {
      * @returns The new number of Crêpes there are
      */
     remove_one_crepe(crepe) {
-        var entry = this.find_crepe_in_items(crepe);
-        var crepe = entry.crepe;
+        try {
+            var entry = this.find_crepe_in_items(crepe);
+            var crepe = entry.crepe;
+        }
+        catch (_a) {
+            return;
+        }
         if (crepe.amount > 1) {
             crepe.amount -= 1;
             console.assert(crepe.amount === entry.crepe.amount, "Nicht se same!");

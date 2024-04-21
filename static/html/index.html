@@ -51,13 +51,13 @@
                 <button class="overlay-add">+</button>
                 <button class="overlay-remove">-</button>
                 <img src="/static/assets/20_euro.min.jpg" alt="20 Euro">
-                
+
             </div>
             <div data-value="50">
                 <button class="overlay-add">+</button>
                 <button class="overlay-remove">-</button>
                 <img src="/static/assets/50_euro.min.jpg" alt="50 Euro">
-                
+
             </div>
             <div data-value="100">
                 <button class="overlay-add">+</button>
@@ -105,30 +105,25 @@
         </div>
         <div id="side_nav">
 
-            <p class="side-nav-menu">Bestellung<span class="collapse_sidemenu"><a href="/help" target="_blank"><span
-                            class="help material-symbols-outlined">question_mark</span></a></span></p>
+            <h3>Bedienung</h3>
 
             <div id="sell_buttons">
                 <button data-function="payed">
                     <p>Bezahlt</p>
-                    <span class="icon material-symbols-outlined">shopping_cart_checkout</span>
                 </button>
                 <button data-function="pay_back">
                     <p>Rückgeld</p>
-                    <span class="icon icon-payback"></span>
                 </button>
+                <div class="flex-force-break"></div>
                 <button data-function="own_consumption">
-                    <span class="icon icon-own-consumption"></span>
                     <p>Eigenverbrauch</p>
                 </button>
                 <button data-function="reset">
-                    <span class="icon icon-reset"></span>
                     <p>Zurücksetzen</p>
                 </button>
             </div>
 
-            <h2>Gesamt: <span>0 €</span>
-            </h2>
+            <h2>Gesamt: <span>0 €</span></h2>
             <table id="crepe_table">
                 <tr data-id="XXX">
                     <th>Anzahl</th>
@@ -139,9 +134,8 @@
 
         </div>
     </div>
-    <template>
-        <div class="crepe_container" data-name="" data-preis=""
-            data-color="" data-id="" onload="set_data(this);">
+    <template id="crepeTemplate">
+        <div class="crepe_container" data-name="" data-preis="" data-color="" data-id="" onload="set_data(this);">
             <div class="crepecontrol">
                 <button class="remove">-</button>
                 <button class="add">+</button>

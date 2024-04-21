@@ -73,12 +73,9 @@ function insertEverything() {
         }
         removeAllCrêpes();
         crêpes.forEach(crêpe => {
-            var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], 0, crêpe["colour"]);
-            console.assert(typeof (new_crêpe.color) === "string", "WHAI?");
+            let html_root = insertCrêpe(crêpe);
+            var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], 0, crêpe["colour"], html_root);
             crepelist.push(new_crêpe);
-        });
-        crepelist.forEach(crêpe => {
-            insertCrêpe(crêpe);
         });
         return true;
     });
@@ -88,16 +85,15 @@ function insertEverything() {
  * @param crêpe The Crêpe to insert
  */
 function insertCrêpe(crêpe) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (crêpe === null) {
-            throw Error("DU DUMM DU TROTTL");
-        }
-        const container = document.getElementById("main-content");
+    if (crêpe === null) {
+        throw Error("DU DUMM DU TROTTL");
+    }
+    function basic() {
         const root = document.createElement("div");
         root.classList.add("crepe_container");
         root.setAttribute("data-name", crêpe.name);
-        root.setAttribute("data-preis", crêpe.preis.toString());
-        root.setAttribute("data-color", crêpe.color);
+        root.setAttribute("data-preis", crêpe.price.toString());
+        root.setAttribute("data-color", crêpe.colour);
         root.setAttribute("data-id", crêpe.crepeId.toString());
         const crepecontrol = document.createElement("div");
         crepecontrol.classList.add("crepecontrol");
@@ -114,7 +110,7 @@ function insertCrêpe(crêpe) {
         name.innerText = crêpe.name;
         const price = document.createElement("p");
         price.setAttribute("name", "price");
-        price.innerText = formatter.format(crêpe.preis);
+        price.innerText = formatter.format(crêpe.price);
         root.appendChild(crepecontrol);
         root.appendChild(name);
         root.appendChild(price);
@@ -123,7 +119,24 @@ function insertCrêpe(crêpe) {
         crepecontrol.appendChild(counter);
         container.appendChild(root);
         crêpe.root_element = root;
-    });
+    }
+    const container = document.getElementById("main-content");
+    const templ = document.getElementById("crepeTemplate");
+    const clone = templ.content.cloneNode(true);
+    const root = clone.querySelector(".crepe_container");
+    root.setAttribute("onload", "set_data(this);");
+    root.classList.add("crepe_container");
+    root.setAttribute("data-name", crêpe.name);
+    root.setAttribute("data-preis", crêpe.price.toString());
+    root.setAttribute("data-color", crêpe.colour);
+    root.setAttribute("data-id", crêpe.id.toString());
+    root.querySelector('h4').innerText = crêpe.name;
+    let priceElem = root.querySelector('p[type="price"]');
+    priceElem.innerText = formatter.format(crêpe.price);
+    root.addEventListener("click", (ev) => event_listener(ev), true);
+    container.appendChild(root);
+    let inserted = container.childNodes[container.childNodes.length - 1];
+    return inserted;
 }
 function removeAllCrêpes() {
     table.remove_all_table_entries();

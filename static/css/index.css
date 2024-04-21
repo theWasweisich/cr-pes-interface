@@ -2,7 +2,7 @@
 @import url(/static/css/colors.css);
 @import url(/static/css/index_alert.css);
 
-@media (max-width: 660px) {
+@media (max-width: 620px) {
     body * {
         display: none;
     }
@@ -52,19 +52,12 @@ body {
         margin-inline: 0.5%;
     }
 
-    span.help {
-        float: right;
-        margin-right: 5px;
-    }
-
-    h2 {
-        border-bottom: 1px solid;
+    h2, h3 {
+        margin: 5%;
     }
 
     table {
-        margin-left: 5%;
-
-        margin-right: 5%;
+        margin-inline: 5%;
 
         width: 90%;
     }
@@ -91,7 +84,7 @@ body {
 #main-content {
     display: grid;
     grid-template-columns:
-        repeat(auto-fit, minmax(350px, 1fr));
+        repeat(auto-fit, minmax(300px, 1fr));
     gap: 15px;
     /* position: sticky;
     top: 230px;
@@ -153,35 +146,19 @@ body {
     margin: 5%;
     display: flex;
     flex-wrap: wrap;
-    flex-direction: column;
+    flex-direction: row;
     gap: 15px;
-
-    /* >[data-function="payed"] {
-        background-color: aquamarine;
-    } */
-
     
-    .icon {
-        display: inline;
-        
-        > img {
-            color: white;
-            max-width: 5%;
-            max-height: 5%;
-        }
+    .flex-force-break {
+        flex-basis: 100%;
     }
-    
+
     button {
-        width: 100%;
+        width: fit-content;
         height: 50px;
         display: block;
         text-wrap: pretty;
         transition: background 200ms linear;
-
-        
-        > p {
-            display: inline;
-        }
     }
 }
 

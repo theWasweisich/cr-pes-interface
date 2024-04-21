@@ -75,18 +75,18 @@ var crepelist = [];
 var crepemap = new Map();
 var connectionError = false;
 class Crêpe {
-    constructor(id, name, preis, amount, color, root_element, table_root_element) {
+    constructor(id, name, price, amount, colour, root_element, table_root_element) {
         this.table_element = undefined;
         this.crepeId = id;
         this.name = name;
-        this.preis = preis;
+        this.price = price;
         this.amount = amount;
-        this.color = color;
+        this.colour = colour;
         this.root_element = root_element;
         this.table_element = table_root_element;
     }
     toString() {
-        return `\n${this.crepeId} ; ${this.name} ; ${this.preis} ; ${this.amount}\n`;
+        return `\n${this.crepeId} ; ${this.name} ; ${this.price} ; ${this.amount}\n`;
     }
 }
 /**
@@ -94,16 +94,16 @@ class Crêpe {
  * @param root_element The root element of the crepe
  * @param crepeId The id of the crepe
  * @param crepeName The name of the crepe
- * @param crepePreis the Price of the crepe
+ * @param crepeprice the Price of the crepe
  * @returns Nothing
  */
-function set_data(root_element, crepeId, crepeName, crepePreis) {
-    if (crepeName == undefined && crepePreis == undefined && crepeId == undefined) {
+function set_data(root_element, crepeId, crepeName, crepeprice) {
+    if (crepeName == undefined && crepeprice == undefined && crepeId == undefined) {
         crepeName = root_element.getAttribute('data-name');
-        crepePreis = (root_element.getAttribute('data-preis'));
+        crepeprice = (root_element.getAttribute('data-price'));
         crepeId = (root_element.getAttribute('data-id'));
     }
-    crepelist.push(new Crêpe(Number(crepeId), crepeName, Number(crepePreis), 0, null, root_element));
+    crepelist.push(new Crêpe(Number(crepeId), crepeName, Number(crepeprice), 0, null, root_element));
     return;
 }
 /**
@@ -119,7 +119,7 @@ const formatter = new Intl.NumberFormat('de-DE', {
  * @param new_amount The value to update to
  */
 function handle_amount_counter(root, new_amount) {
-    const counter = root.querySelector(".crepecontrol .crepes_counter");
+    const counter = root.querySelector(".crepes_counter");
     if (new_amount == 0) {
         counter.innerHTML = "";
     }

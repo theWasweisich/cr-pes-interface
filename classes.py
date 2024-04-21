@@ -1,13 +1,14 @@
+from dataclasses import dataclass
 import datetime
 import json
 import logging
 from typing import TypedDict
 
 
+@dataclass
 class User:
-    def __init__(self, username, password, priviledge, current_key) -> None:
+    def __init__(self, username, priviledge, current_key) -> None:
         self.username = username
-        self.password = password
         self.priviledge = priviledge
         self.current_key = current_key
 
@@ -22,7 +23,7 @@ class User:
         self.current_key = key
 
     def __str__(self):
-        return f"Username: {self.username} || Password: {self.password} || Priviledge: {self.priviledge}"
+        return f"Username: {self.username} || Priviledge: {self.priviledge}"
 
 
 class CrepeSaleDict(TypedDict):

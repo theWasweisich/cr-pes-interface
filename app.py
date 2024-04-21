@@ -1,5 +1,4 @@
 from datetime import datetime
-import json
 from flask import (
     Flask,
     flash,
@@ -17,7 +16,7 @@ import logging
 import secrets
 # import sys
 
-from user_handling import get_db, load_users
+from user_handling import get_db
 import user_handling
 
 from config_loader import config
@@ -28,8 +27,6 @@ from api.api_helpers import get_crepes
 
 from classes import Crepes_Class, bcolors
 import atexit
-
-load_users()
 
 
 parser = argparse.ArgumentParser(prog="Crêpes Application")
@@ -145,25 +142,20 @@ def serve_einstellungen():
 def serve_login():
 
     if request.method == "GET":
-        req = send_from_directory("./static/html/", "login.html")
-        req.headers.add_header("X-crepeData", json.dumps({
-            ...
-        }))
         return send_from_directory("./static/html/", "login.html")
 
     elif request.method == "POST":
+
+        # Cheffe Password: LassMichRein
+
         username = request.form["username"]
         password = request.form["password"]
-        comming_from = request.form["from"]
 
-        logging.info(f"Username: {username} Password: {password}")
         user = user_handling.get_user_from_username_and_password(username, password)
 
-        logging.info(str(user))
-
         if user is None:
-            logging.warning(f"Could not log user {user} in!")
-            return redirect("/login", status.HTTP_303_SEE_OTHER)
+            logging.warning(f"Failed Login Attempt! User: {user}")
+            return redirect("/login?login=failed", status.HTTP_303_SEE_OTHER)
 
         try:
             if user.current_key is None:
@@ -178,17 +170,13 @@ def serve_login():
 
             if user.priviledge == 10:
 
-                logging.debug("User priviledge is 10")
                 resp = redirect("/einstellungen")
                 resp.set_cookie('secret', secret_key, 3600)
                 session["secret"] = secret_key
-                if comming_from == "shifts":
-                    return redirect("/schichten")
                 return redirect("/einstellungen")
 
             elif user.priviledge == 5:
 
-                logging.debug("User priviledge is 5")
                 resp = redirect("/schichten")
                 resp.set_cookie('secret', secret_key, 3600)
                 session["secret"] = secret_key

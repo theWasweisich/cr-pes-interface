@@ -37,7 +37,7 @@ class TableEntry {
 
         amount.innerHTML = this.crepe.amount.toString() + "x";
         name.innerHTML = this.crepe.name;
-        price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.crepe.preis)
+        price.innerHTML = Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.crepe.price)
 
 
         this.row = tr; // The row that this TableEntry lives in. Needed for deletion
@@ -108,7 +108,7 @@ class Table {
         var total_value: number = 0
 
         for (let item of this.items) {
-            total_value += item.crepe.amount * item.crepe.preis
+            total_value += item.crepe.amount * item.crepe.price
         }
 
         total_elem.innerHTML = formatter.format(total_value);
@@ -121,7 +121,7 @@ class Table {
     getTotalValue() {
         var total: number = 0;
         for (let item of this.items) {
-            total += item.crepe.amount * item.crepe.preis
+            total += item.crepe.amount * item.crepe.price
         }
         return total
     }
@@ -160,7 +160,7 @@ class Table {
         var price_elem = row.querySelector(`[data-type="price"]`) as HTMLTableCellElement
 
         amount_elem.innerHTML = crepe.amount.toString() + "x";
-        price_elem.innerHTML = Intl.NumberFormat("de-DE", { style: 'currency', currency: 'EUR' }).format(crepe.preis * crepe.amount);
+        price_elem.innerHTML = Intl.NumberFormat("de-DE", { style: 'currency', currency: 'EUR' }).format(crepe.price * crepe.amount);
         return;
     }
 
@@ -240,8 +240,12 @@ class Table {
      * @returns The new number of Crêpes there are
      */
     remove_one_crepe(crepe: Crêpe): number {
-        var entry = this.find_crepe_in_items(crepe);
-        var crepe = entry.crepe;
+        try {
+            var entry = this.find_crepe_in_items(crepe);
+            var crepe = entry.crepe;
+        } catch {
+            return
+        }
 
         if (crepe.amount > 1) {
             crepe.amount -= 1;

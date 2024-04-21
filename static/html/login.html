@@ -22,6 +22,8 @@
 </script>
 <body>
 
+    <p style="opacity: 0;" id="alarmMessage" hidden>Login fehlgeschlagen!</p>
+
     <div id="loginForm">
         <div id="form_head">
             <h1>Login</h1>
@@ -37,5 +39,20 @@
             <input type="submit" value="Einloggen">
         </form>
     </div>
+
+    <script defer>
+        const urlParams = new URLSearchParams(window.location.search);
+        const alarm = document.getElementById("alarmMessage");
+        alarm.hidden = false
+        setTimeout(() => {
+            if (urlParams.has("login", "failed")) {
+                setTimeout(() => {
+                    alarm.style.opacity = 1;
+                }, 50)
+            }
+
+        }, 50)
+
+    </script>
 </body>
 </html>
