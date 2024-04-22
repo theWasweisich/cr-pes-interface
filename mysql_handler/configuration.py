@@ -13,11 +13,13 @@ just_fix_windows_console()
 
 PATH = os.path.join(os.path.dirname(__file__), ".env")
 
+
 def set_everything(host: str, user: str, password: str, database: str):
     dotenv.set_key(PATH, key_to_set="HOST", value_to_set=host)
     dotenv.set_key(PATH, key_to_set="USER", value_to_set=user)
     dotenv.set_key(PATH, key_to_set="PASSWORD", value_to_set=password)
     dotenv.set_key(PATH, key_to_set="DATABASE", value_to_set=database)
+
 
 def startup_questions():
     print()
@@ -33,7 +35,8 @@ def startup_questions():
         inquirer.Confirm("read", message="Haben Sie die Dokumentation bereits gelesen? ")
     ]
     answ = inquirer.prompt(entry_questions, theme=BlueComposure())
-    if not answ: exit()
+    if not answ: 
+        exit()
     if not answ["read"]:
         webbrowser.open(f"file:///{os.path.realpath('readme.html')}", 2)
         exit()
@@ -42,7 +45,6 @@ def startup_questions():
 def main():
 
     startup_questions()
-
 
     questions = [
         inquirer.Text(name="host", message="Auf welchem Host läuft die Datenbank?", default="localhost"),
@@ -57,6 +59,7 @@ def main():
         exit(0)
     else:
         pprint(answs)
+
 
 if __name__ == "__main__":
     main()

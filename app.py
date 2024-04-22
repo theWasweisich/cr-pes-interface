@@ -23,9 +23,8 @@ from config_loader import config
 import argparse
 
 from api.api_blueprint import api_bp
-from api.api_helpers import get_crepes
 
-from classes import Crepes_Class, bcolors
+from classes import bcolors
 import atexit
 
 
@@ -97,11 +96,6 @@ app.secret_key = config.get("SECRETS", 'secret_key')
 
 if app.secret_key is None:
     raise SystemExit("Es wurde kein secret_key definiert!")
-
-
-crêpes: list[Crepes_Class] | list[dict[str, str]] | None = get_crepes(as_dict=True)
-if crêpes is None | type(crêpes) is list[Crepes_Class]:
-    crêpes = []
 
 
 shifts = []

@@ -1,10 +1,11 @@
 from datetime import datetime
 import random
 import mysql.connector
-from mysql.connector import MySQLConnection, errorcode
+from mysql.connector import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
-from util_classes import Sale, Crêpe, Ingredient, Ingredient_Item
+from .util_classes import Sale, Crêpe, Ingredient, Ingredient_Item
 from typing import Any, Literal
+
 
 class SaleHandling:
 
@@ -28,7 +29,7 @@ class SaleHandling:
             insertSalesSQL = insertSales % (str(sale.time.strftime("%Y-%m-%d %H:%M:%S")), sale.total, 0 if sale.ownConsumption else 1)
             cur.execute(insertSalesSQL)
             salesId = cur.lastrowid
-            if type(salesId) != int:
+            if type(salesId) is not int:
                 raise
             return salesId
 
@@ -47,7 +48,7 @@ class SaleHandling:
 
         salesId = insertSale(sale=sale)    
         insertSaleItems(crepes=sale.crêpes, own=sale.ownConsumption)
-        
+
         con.commit()
 
     @staticmethod
@@ -74,11 +75,10 @@ class SaleHandling:
 
         for sale in res:
             saleID = sale[0]
-            if type(sale[1]) == datetime:
+            if type(sale[1]) is datetime:
                 saleTime: datetime = sale[1]
             else:
                 raise Exception
-
 
             dict_: dict[str, Any] = {
                 "SaleId": sale[0],
@@ -91,7 +91,7 @@ class SaleHandling:
 
             cur.execute(SQL2)
             res2 = cur.fetchall()
-            
+
             crepeList: list[dict[str, Any]] = []
 
             for crepe in res2:
@@ -102,7 +102,7 @@ class SaleHandling:
                         "ID": x[0],
                         "CrepeName": x[1],
                         "CrepePrice": x[2],
-                        "CrepeIngredients": x[3] if x[3] == None else None,
+                        "CrepeIngredients": x[3] if x[3] is None else None,
                         "CrepeType": x[4]
                     }
                     crepeList.append(crepeDict)
@@ -125,9 +125,12 @@ class IngredientHandler:
         to_return = []
 
         for ingr in res:
-            if type(ingr[0]) != int: raise Exception
-            if type(ingr[1]) != str: raise Exception
-            if type(ingr[2]) != str: raise Exception
+            if type(ingr[0]) is not int: 
+                raise Exception
+            if type(ingr[1]) is not str: 
+                raise Exception
+            if type(ingr[2]) is not str: 
+                raise Exception
 
             to_return.append(Ingredient(ingr[0], ingr[1], ingr[2]))
         return to_return
@@ -162,7 +165,6 @@ class IngredientHandler:
             int | None: Returns last_row_id or None on failure
         """
 
-
         crepeID = ingredientItem.crêpeID
         iID = ingredientItem.ingredientID
         aUsed = ingredientItem.amountUsed
@@ -175,6 +177,7 @@ class IngredientHandler:
         database[1].execute(preparedSQL)
         database[0].commit()
         return database[1].lastrowid
+
 
 class CrepeHandler:
 
@@ -192,11 +195,15 @@ class CrepeHandler:
         for crps in res:
             id, name, price, type_ = crps
 
-            if type(id) != int: raise Exception
-            if type(name) != str: raise Exception
-            if type(price) != float: raise Exception
-            if type(type_) != str: raise Exception
-            
+            if type(id) is not int: 
+                raise Exception
+            if type(name) is not str: 
+                raise Exception
+            if type(price) is not float: 
+                raise Exception
+            if type(type_) is not str: 
+                raise Exception
+
             real_type: Literal["süß", "deftig", "spezial", "sonstiges"] = "sonstiges"
 
             match type_:
@@ -208,5 +215,5 @@ class CrepeHandler:
                     real_type = "spezial"
 
             to_return.append(Crêpe(id, name, price, real_type))
-        
+
         return to_return

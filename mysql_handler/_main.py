@@ -11,13 +11,13 @@ from methods import SaleHandling, IngredientHandler, CrepeHandler
 import inquirer
 
 
-
 def getSales():
     with getCrepeDB() as conTuple:
         all_sales = SaleHandling.get_all_sales(conTuple)
         pprint(all_sales)
         with open("output/first2.json", "w", encoding="UTF-8") as f:
             json.dump(all_sales, f, ensure_ascii=False)
+
 
 def newSale():
     with getCrepeDB() as conTuple:
@@ -40,15 +40,15 @@ def newSale():
             if not res:
                 raise Exception
             (id, name, price, ingredients, type_) = res
-            if type(id) != int:
+            if type(id) is not int:
                 raise Exception("CrepeID has wrong type")
-            if type(name) != str:
+            if type(name) is not str:
                 raise Exception("CrepeName has wrong type")
-            if type(price) != float:
+            if type(price) is not float:
                 raise Exception("CrepePrice has wrong type")
-            if type(ingredients) != list and ingredients != None:
+            if type(ingredients) is not list and ingredients is not None:
                 raise Exception("CrepeIngredients has wrong type")
-            if type(type_) != str:
+            if type(type_) is not str:
                 raise Exception("CrepeType has wrong type")
 
             typeLiteral: Literal["süß", "deftig", "spezial", "sonstiges"]
@@ -61,13 +61,14 @@ def newSale():
                 typeLiteral = "spezial"
             else:
                 typeLiteral = "sonstiges"
-            
+
             finishedcrêpes.append(Crêpe(id, name, price, typeLiteral))
-        finished_sale = Sale(id=None, time=datetime.now(),crêpes=finishedcrêpes, total=10)
+        finished_sale = Sale(id=None, time=datetime.now(), crêpes=finishedcrêpes, total=10)
 
         SaleHandling.save_sale(conTuple, finished_sale)
         con.commit()
         con.close()
+
 
 class Ingredient_(NamedTuple):
     """
@@ -77,6 +78,7 @@ class Ingredient_(NamedTuple):
     name: str | None
     longname: str | None
 
+
 def createIngredient(ingredients: list[Ingredient_] | Ingredient_ | None = None):
 
     if not ingredients:
@@ -84,7 +86,7 @@ def createIngredient(ingredients: list[Ingredient_] | Ingredient_ | None = None)
 
     insertionReady: list[Ingredient] = []
 
-    if type(ingredients) == list:
+    if type(ingredients) is list:
         for ingr in ingredients:
             insertionReady.append(Ingredient(id=None, name=ingr.name, longname=ingr.longname))
 
@@ -92,11 +94,12 @@ def createIngredient(ingredients: list[Ingredient_] | Ingredient_ | None = None)
             for insert in insertionReady:
                 IngredientHandler.create_ingredient(conTuple, insert)
 
-    elif type(ingredients) == Ingredient_:
+    elif type(ingredients) is Ingredient_:
         with getCrepeDB() as conTuple:
             IngredientHandler.create_ingredient(database=conTuple, ingredient=Ingredient(None, ingredients.name, ingredients.longname))
     else:
         raise NotImplementedError("Input nicht erlaubt!")
+
 
 def genereteIngredientClasses(ingr: list[Annotated[tuple[str, str], 2]]) -> list[Ingredient_]:
     to_return: list[Ingredient_] = []
@@ -107,15 +110,16 @@ def genereteIngredientClasses(ingr: list[Annotated[tuple[str, str], 2]]) -> list
         to_return.append(Ingredient_(name, longname))
     return to_return
 
+
 def selectStuff(crepes: list[Crêpe], ingrs: list[Ingredient]):
     q = inquirer.List(name="crepe", message="Bei welchem Crêpe sollen Zutaten hinzugefügt werden?",
                       choices=crepes)
 
     q2 = inquirer.List(name="ingrs", message="Und welche Zutat?",
                        choices=ingrs)
-    
-    answ = inquirer.prompt([q,q2])
-    if type(answ) == dict:
+
+    answ = inquirer.prompt([q, q2])
+    if type(answ) is dict:
         return (answ["crepe"], answ["ingrs"])
 
 
@@ -142,8 +146,6 @@ if __name__ == "__main__":
                 answ = selectStuff(crepes=crepes, ingrs=ingredients)
                 print(answ)
                 print(type(answ))
-
-
 
     else:
         print()

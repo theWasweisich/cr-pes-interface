@@ -2,12 +2,14 @@ from typing import Literal
 from datetime import datetime
 from dataclasses import dataclass
 
+
 @dataclass
 class Crêpe:
     id: int
     name: str
     price: float
     type_: Literal["süß"] | Literal["deftig"] | Literal["spezial"] | Literal["sonstiges"]
+
 
 @dataclass
 class Sale:

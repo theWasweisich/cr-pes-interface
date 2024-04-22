@@ -44,7 +44,7 @@ class CrepesView(FlaskView):
     def get():
         crepes = get_crepes(as_dict=True)
         if (crepes):
-            return get_crepes(as_dict=True)
+            return crepes
         else:
             return {"status": "failed"}, status.HTTP_204_NO_CONTENT
 

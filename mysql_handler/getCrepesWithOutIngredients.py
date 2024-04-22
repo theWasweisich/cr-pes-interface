@@ -4,6 +4,7 @@ from _database_handling import getCrepeDB
 SQL1 = "SELECT id, crepename FROM crêpes;"
 SQL2 = "SELECT crêpeID FROM ingredientitem;"
 
+
 def initCrêpes() -> list[tuple]:
     crêpes: list[tuple] = []
     with getCrepeDB() as (con, cur):
@@ -12,6 +13,7 @@ def initCrêpes() -> list[tuple]:
     for id, name in res:
         crêpes.append((id, name))
     return crêpes
+
 
 def initItems() -> list:
     items: list = []
@@ -22,12 +24,14 @@ def initItems() -> list:
         items.append(id)
     return items
 
+
 def getStufflessCrepe(crepes: list[tuple], ingredients: list):
     stuffless: list[tuple] = []
     for (id, name) in crepes:
         if id in ingredients:
             stuffless.append((id, name))
     return stuffless
+
 
 if __name__ == "__main__":
     pprint.pprint(getStufflessCrepe(initCrêpes(), initItems()))
