@@ -7,6 +7,10 @@ __pycache__
 .hintrc
 .snyk
 *.log
+*.log.1
+*.log.2
+*.log.3
+*.log.4
 key.pem
 cert.pem
 _venv_activate.bat

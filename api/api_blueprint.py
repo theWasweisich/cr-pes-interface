@@ -9,6 +9,7 @@ from flask_classful import FlaskView, route
 import logging
 import sqlite3
 import status
+# import status
 
 import datetime
 import pytz
@@ -36,6 +37,8 @@ time_zone = pytz.timezone("Europe/Berlin")
 
 api_bp = Blueprint('api_bp', __name__)
 
+CHANGE_DB = False
+
 
 class CrepesView(FlaskView):
 
@@ -55,7 +58,11 @@ class CrepesView(FlaskView):
         Function to delete the crêpes specified by the given data
         Data should contain: `id`, `name`
         """
+
         data_list = request.get_json()
+
+        if not CHANGE_DB:
+            return {"status": "success", "deleted": data_list}
 
         con, cur = get_db()
         error_detail: str | None = None
@@ -87,6 +94,9 @@ class CrepesView(FlaskView):
     @route("/new", methods=("PUT",))
     def new_crepe():
         data_list = request.get_json()
+
+        if not CHANGE_DB:
+            return {"status": "success"}
 
         if len(data_list) == 0:
             return {"status": "failed", "type": "noting_changed"}
@@ -129,6 +139,10 @@ class CrepesView(FlaskView):
     @staticmethod
     @route("/edit", methods=("PATCH",))
     def edit_crepe():
+
+        if not CHANGE_DB:
+            return {"status": "success"}
+
         con, cur = get_db()
         data = request.get_json()
         api_logger.debug(f"Edited Crêpes arrived!\nData: {data}")
@@ -159,6 +173,10 @@ class CrepesView(FlaskView):
     @staticmethod
     @route("/sold", methods=("POST",))
     def crepe_sold():
+
+        if not CHANGE_DB:
+            return {"status": "success"}
+
         con, cur = get_db()
         try:
             data = request.json
@@ -305,4 +323,4 @@ SalesView.register(api_bp, route_base="/sales")
 
 
 if __name__ == "__main__":
-    print("Du dulli")
+    raise NotImplementedError('File not runnable.\nPlease use app.py')
