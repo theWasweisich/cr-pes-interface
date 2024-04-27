@@ -1,4 +1,7 @@
+from setup_logger import access_logger, handler
+
 from datetime import datetime
+import sys
 from flask import (
     Flask,
     flash,
@@ -9,6 +12,7 @@ from flask import (
     url_for,
     send_from_directory,
 )
+from flask.logging import default_handler
 import flask_sitemap
 import status
 
@@ -23,13 +27,17 @@ from config_loader import config
 import argparse
 
 from api.api_blueprint import api_bp
-from api.api_helpers import get_crepes
 
-from classes import Crepes_Class, bcolors
+from classes import bcolors
 import atexit
 
 
-parser = argparse.ArgumentParser(prog="Crêpes Application")
+parser = argparse.ArgumentParser(
+    usage="The Crêpes Application",
+)
+
+group = parser.add_mutually_exclusive_group(required=True)
+
 parser.add_argument(
     "-v",
     "--verbose",
@@ -39,7 +47,7 @@ parser.add_argument(
     help="Run in verbose Mode"
 )
 
-parser.add_argument(
+group.add_argument(
     "-p", 
     "--production", 
     action="store_true", 
@@ -48,13 +56,22 @@ parser.add_argument(
     help="Configure Server to simulate production environment"
 )
 
-parser.add_argument(
+group.add_argument(
     "-w", 
     "--waitress", 
     action="store_true", 
     dest="runWaitress", 
     default=False,
     help="Configure Server to use waitress to serve app"
+)
+
+group.add_argument(
+    "-d", 
+    "--debug", 
+    action="store_true", 
+    dest="runDebug", 
+    default=False,
+    help="Configure Server to run in development configuration"
 )
 
 
@@ -70,15 +87,10 @@ if args.verbose:
     VERBOSE = True
 
 
-access_logger = logging.getLogger("Access Logger")
-access_logger.propagate = False
-
 if VERBOSE:
     access_logger.addHandler(logging.StreamHandler())
-access_logger.addHandler(logging.FileHandler("access.log", encoding="UTF-8"))
 
 
-logging.basicConfig(filename="server.log", filemode="w", encoding="UTF-8", format="%(asctime)s %(levelname)s: %(message)s (%(name)s)", level=logging.DEBUG)
 # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # Activate if logs should be print to console
 
 access_logger.removeHandler(logging.FileHandler("server.log", "w", encoding="UTF-8"))
@@ -89,6 +101,8 @@ flask_sitemap.config.SITEMAP_IGNORE_ENDPOINTS = "/sitemap.xml"
 app = Flask(__name__)
 ext = flask_sitemap.Sitemap(app=app)
 
+app.logger.removeHandler(default_handler)
+app.logger.addHandler(handler)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
@@ -97,11 +111,6 @@ app.secret_key = config.get("SECRETS", 'secret_key')
 
 if app.secret_key is None:
     raise SystemExit("Es wurde kein secret_key definiert!")
-
-
-crêpes: list[Crepes_Class] | list[dict[str, str]] | None = get_crepes(as_dict=True)
-if crêpes is None | type(crêpes) is list[Crepes_Class]:
-    crêpes = []
 
 
 shifts = []
@@ -316,8 +325,10 @@ if __name__ == "__main__":
         print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
         waitress.serve(app, host="127.0.0.1", port=80)
 
-    else:
+    elif args.runDebug:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
         app.run(host='127.0.0.1', port=80)
+    else:
+        parser.print_help(sys.stderr)

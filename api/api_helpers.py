@@ -3,6 +3,9 @@ import json
 import sqlite3
 import uuid
 from classes import Crepes_Class
+from mysql_handler._database_handling import getCrepeDB
+
+from mysql_handler.methods import CrepeHandler
 
 
 def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: str, shift_staff: str):
@@ -44,7 +47,42 @@ def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: 
     con.commit(); con.close()
 
 
+def get_crepes_alt(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]]:
+    """Like `get_crepes(as_dict: bool = False)`, but gets data from the mysql database
+
+    Args:
+        as_dict (bool, optional): If it should be returned as a dict. Defaults to False.
+
+    Returns:
+        list[Crepes_Class] | list[dict[str, str]]: The data
+    """
+    res_crepes: list[Crepes_Class] = []
+    as_dict_list: list[dict[str, str]] = []
+
+    with getCrepeDB() as database:
+        res = CrepeHandler.get_all_crepes(database=database)
+
+    for crepe in res:
+        crepe = Crepes_Class(crepe.id, crepe.name, price=crepe.price, ingredients=[], color=crepe.type_)
+        res_crepes.append(crepe)
+        as_dict_list.append(crepe.return_as_dict())
+
+    if as_dict:
+        return as_dict_list
+    else:
+        return res_crepes
+
+
 def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]] | None:
+    """_summary_
+
+    Args:
+        as_dict (bool, optional): _description_. Defaults to False.
+
+    Returns:
+        list[Crepes_Class] | list[dict[str, str]] | None: _description_
+    """
+
     con, cur = get_db()
 
     cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')

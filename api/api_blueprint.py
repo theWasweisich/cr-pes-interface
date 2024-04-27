@@ -6,9 +6,9 @@ from flask import (
 )
 # import flask
 from flask_classful import FlaskView, route
-import logging
 import sqlite3
 import status
+# import status
 
 import datetime
 import pytz
@@ -16,11 +16,11 @@ import json
 import get_sales
 # import configparser
 from config_loader import config
+import time
 
 from api.api_helpers import get_db, parse_price, get_crepes
+from setup_logger import api_logger
 
-api_logger = logging.getLogger("API Logger")
-api_logger.propagate = True
 
 blocked_routes = [
     "/api/banana"
@@ -36,6 +36,13 @@ time_zone = pytz.timezone("Europe/Berlin")
 
 api_bp = Blueprint('api_bp', __name__)
 
+CHANGE_DB = False
+"""If False, does not write changes to the database"""
+
+if not CHANGE_DB:
+    time.sleep(0.25)  # Leave space for app.py to initiate
+    api_logger.warning("Data is not written to the database!")
+
 
 class CrepesView(FlaskView):
 
@@ -44,7 +51,7 @@ class CrepesView(FlaskView):
     def get():
         crepes = get_crepes(as_dict=True)
         if (crepes):
-            return get_crepes(as_dict=True)
+            return crepes
         else:
             return {"status": "failed"}, status.HTTP_204_NO_CONTENT
 
@@ -55,7 +62,12 @@ class CrepesView(FlaskView):
         Function to delete the crêpes specified by the given data
         Data should contain: `id`, `name`
         """
+
         data_list = request.get_json()
+
+        if not CHANGE_DB:
+            api_logger.info("Crêpe deleted")
+            return {"status": "success", "deleted": data_list}
 
         con, cur = get_db()
         error_detail: str | None = None
@@ -87,6 +99,10 @@ class CrepesView(FlaskView):
     @route("/new", methods=("PUT",))
     def new_crepe():
         data_list = request.get_json()
+
+        if not CHANGE_DB:
+            api_logger.info("Created Crêpe")
+            return {"status": "success"}
 
         if len(data_list) == 0:
             return {"status": "failed", "type": "noting_changed"}
@@ -129,6 +145,11 @@ class CrepesView(FlaskView):
     @staticmethod
     @route("/edit", methods=("PATCH",))
     def edit_crepe():
+
+        if not CHANGE_DB:
+            api_logger.info("Edited Crêpe")
+            return {"status": "success"}
+
         con, cur = get_db()
         data = request.get_json()
         api_logger.debug(f"Edited Crêpes arrived!\nData: {data}")
@@ -159,6 +180,11 @@ class CrepesView(FlaskView):
     @staticmethod
     @route("/sold", methods=("POST",))
     def crepe_sold():
+
+        if not CHANGE_DB:
+            api_logger.info("Sold Crêpes")
+            return {"status": "success"}
+
         con, cur = get_db()
         try:
             data = request.json
@@ -305,4 +331,4 @@ SalesView.register(api_bp, route_base="/sales")
 
 
 if __name__ == "__main__":
-    print("Du dulli")
+    raise NotImplementedError('File not runnable.\nPlease use app.py')
