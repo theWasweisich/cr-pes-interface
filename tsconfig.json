@@ -4,10 +4,10 @@
         "moduleResolution": "Node",
         "lib": ["es2015", "DOM"],
         "outDir": "./static/js/",
-        "rootDirs": ["static/typescript", "static/js"],
+        "rootDirs": ["app/static/typescript", "app/static/js"],
         "forceConsistentCasingInFileNames": true,
     },
     "exclude": [
-        "static/js/*.js",
+        "app/static/js/*.js",
     ],
 }
