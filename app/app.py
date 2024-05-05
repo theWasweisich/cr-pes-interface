@@ -1,7 +1,6 @@
 from setup_logger import access_logger, handler
 
 from datetime import datetime
-import sys
 from flask import (
     Flask,
     flash,
@@ -326,10 +325,9 @@ if __name__ == "__main__":
         print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
         waitress.serve(app, host="127.0.0.1", port=80)
 
-    elif args.runDebug:
+    # elif args.runDebug:
+    else:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
         app.run(host='127.0.0.1', port=80)
-    else:
-        parser.print_help(sys.stderr)

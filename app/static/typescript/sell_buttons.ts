@@ -12,8 +12,6 @@ function set_listeners_up() {
     reset_button.addEventListener('click', reset_list_func)
 }
 
-set_listeners_up();
-
 async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: string) {
     console.log("SENDING");
     let url: string = urls.newsale; // urls defined in global

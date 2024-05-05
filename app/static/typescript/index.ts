@@ -108,7 +108,11 @@ async function setup() {
     })
 
 }
-setup();
+
+document.onload = () => {
+    set_listeners_up();
+    setup();
+}
 
 /**
  * Use this whenever accessing the Table
