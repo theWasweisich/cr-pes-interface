@@ -1,4 +1,4 @@
-from setup_logger import access_logger, handler
+from setup_logger import access_logger, handler, server_handler
 import os
 
 from datetime import datetime
@@ -161,8 +161,13 @@ def serve_login():
 
     elif request.method == "POST":
 
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        if not username:
+            return redirect("/login?login=failed", status.HTTP_303_SEE_OTHER)
+        if not password:
+            return redirect("/login?login=failed", status.HTTP_303_SEE_OTHER)
 
         user = user_handling.get_user_from_username_and_password(username, password)
 
@@ -313,7 +318,8 @@ def exit():
 
 
 if __name__ == "__main__":
-    logging.info("👋 app.py wurde ausgeführt!")
+    app.logger.handlers.clear()
+    app.logger.addHandler(server_handler)
 
     if args.runProd:
 
@@ -334,4 +340,7 @@ if __name__ == "__main__":
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
-        app.run(host='127.0.0.1', port=80)
+
+        logging.getLogger("werkzeug").setLevel(logging.FATAL)
+        app.run(host='127.0.0.1', port=80, debug=False)
+        logging.getLogger("werkzeug").setLevel(logging.INFO)
