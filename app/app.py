@@ -110,7 +110,7 @@ app.register_blueprint(api_bp, url_prefix="/api")
 app.secret_key = config.get("SECRETS", 'secret_key')
 
 if app.secret_key is None:
-    raise SystemExit("Es wurde kein secret_key definiert!")
+    raise SystemExit("Es wurde kein secret_key definiert! Bitte first_configuration.py ausführen!")
 
 
 shifts = []
@@ -154,8 +154,6 @@ def serve_login():
         return send_from_directory("./static/html/", "login.html")
 
     elif request.method == "POST":
-
-        # Cheffe Password: LassMichRein
 
         username = request.form["username"]
         password = request.form["password"]
@@ -325,7 +323,7 @@ if __name__ == "__main__":
         print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
         waitress.serve(app, host="127.0.0.1", port=80)
 
-    # elif args.runDebug:
+    # elif args.runDebug: <-- This does not work, because waitress cannot create an instance if directed from outside
     else:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
