@@ -262,6 +262,7 @@ def serve_warning_favicon():
 @app.route("/init", methods=("GET", "POST"))
 def initialisation():
     logging.debug("Sections: " + repr(config.sections()))
+
     if request.method == "GET":
         return send_from_directory("./static/html/", "init.html")
 
@@ -271,9 +272,9 @@ def initialisation():
                 return {
                     "status": "success",
                     "key": str(config.get("SECRETS", "auth_key"))
-                    }
+                    }, status.HTTP_200_OK
             else:
-                return {"status": "failed", "error": "Code does not match"}
+                return {"status": "failed", "error": "Code does not match"}, status.HTTP_401_UNAUTHORIZED
 
     return 'METHOD NOT ALLOWED', status.HTTP_405_METHOD_NOT_ALLOWED
 
@@ -342,5 +343,5 @@ if __name__ == "__main__":
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
 
         logging.getLogger("werkzeug").setLevel(logging.FATAL)
-        app.run(host='127.0.0.1', port=80, debug=False)
+        app.run(host='127.0.0.1', port=80, debug=True)
         logging.getLogger("werkzeug").setLevel(logging.INFO)

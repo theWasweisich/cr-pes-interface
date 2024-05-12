@@ -156,7 +156,7 @@ function prepare_dialog() {
         dur_2.value = duration_range.value;
     });
     dur_2.addEventListener('input', function () {
-        duration_range.value = duration_range.value;
+        // duration_range.value = duration_range.value
     });
 }
 prepare_dialog();

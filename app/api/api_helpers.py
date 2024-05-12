@@ -2,8 +2,9 @@ import datetime
 import json
 import sqlite3
 import uuid
-from classes import Crepes_Class
-from mysql_handler._database_handling import getCrepeDB
+
+from api.api_blueprint import getCrepeDB, Crepes_Class
+import os
 
 from mysql_handler.methods import CrepeHandler
 
@@ -92,13 +93,11 @@ def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str
     res_crêpes: list[Crepes_Class] | None = []
     as_dict_list: list[dict[str, str]] | None = []
 
-    crepes_class_list: list[Crepes_Class] = []
-
     for crepe in crêpes_res:
-        crepes_class_list.append(Crepes_Class(int(crepe[0]), crepe[1], float(crepe[2]), crepe[3], crepe[4]))
+        res_crêpes.append(Crepes_Class(id=int(crepe[0]), name=crepe[1], price=float(crepe[2]), ingredients=crepe[3], color=crepe[4]))
 
     if as_dict:
-        for crepe in crepes_class_list:
+        for crepe in res_crêpes:
             as_dict_list.append(crepe.return_as_dict())
 
     if (len(as_dict_list) == 0):
@@ -131,6 +130,9 @@ def parse_price(start: str) -> float:
 
 
 def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
+
+    os.chdir(os.path.join(os.path.dirname(__file__), "../db/"))
+
     conn = sqlite3.connect("datenbank.db")
     cur = conn.cursor()
     return (conn, cur)

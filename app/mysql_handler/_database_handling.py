@@ -34,7 +34,7 @@ class getCrepeDB:
         if not path.exists(DB_PATH):
             raise DatabaseException("Es wurde keine gültige Datenbank gefunden!")
 
-        self.sql3: sqlite3ConTuple
+        self.sql3 = sqlite3ConTuple
         self.sql3.con = sqlite3.connect(DB_PATH)
         self.sql3.cur = self.sql3.con.cursor()
 
@@ -65,8 +65,14 @@ class getCrepeDB:
 
     def __exit__(self, exc_type, exc_value, exc_tb):
 
-        if self.mydb:
+        try:
             self.mydb.close()
-        elif self.sql3:
+        except AttributeError:
+            pass
+
+        try:
             self.sql3.con.close()
+        except AttributeError:
+            pass
+
         return False  # Propagates Exception

@@ -10,11 +10,9 @@
 
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
 
-    <!-- <link rel="stylesheet" href="/static/css/external/w3.css"> -->
-
     <link rel="stylesheet" href="/static/css/index.css">
 
-    <link rel="stylesheet" href="/static/css/index_crepecontrol.css">
+    <!-- <link rel="stylesheet" href="/static/css/index_crepecontrol.css"> -->
 
     <link rel="stylesheet" href="/static/css/global.css">
 
@@ -24,16 +22,16 @@
     <!-- JS Files -->
 
     <script src="/static/js/index.js"></script>
-    <script src="/static/js/sell_buttons.js"></script>
+    <script src="/static/js/sell_buttons.js" defer></script>
     <script src="/static/js/table_funcs.js"></script>
     <script src="/static/js/global.js"></script>
-    <script src="/static/js/list_crêpes.js"></script>
+    <script src="/static/js/list_crepes.js"></script>
 
     <title>Crêpes</title>
 
 </head>
 
-<body>
+<body onload="crepes_onload();">
     <dialog id="cashback-dialog-main">
         <h2>Rückgeldrechner</h2>
         <div class="preselecter">

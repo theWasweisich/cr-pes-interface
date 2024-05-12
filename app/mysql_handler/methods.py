@@ -1,8 +1,7 @@
 from datetime import datetime
 import random
 import mysql.connector
-from mysql.connector import MySQLConnection
-from mysql.connector.cursor import MySQLCursor
+from sqlite3 import Connection, Cursor
 from .util_classes import Sale, Crêpe, Ingredient, Ingredient_Item
 from typing import Any, Literal
 
@@ -10,7 +9,7 @@ from typing import Any, Literal
 class SaleHandling:
 
     @staticmethod
-    def save_sale(database: tuple[MySQLConnection, MySQLCursor], sale: Sale):
+    def save_sale(database: tuple[Connection, Cursor], sale: Sale):
         con = database[0]
         cur = database[1]
 
@@ -52,7 +51,7 @@ class SaleHandling:
         con.commit()
 
     @staticmethod
-    def get_all_sales(database: tuple[MySQLConnection, MySQLCursor]) -> list[dict[str, Any]]:
+    def get_all_sales(database: tuple[Connection, Cursor]) -> list[dict[str, Any]]:
         """Returns a dictionary of all sales in the database
 
         Args:
@@ -115,7 +114,7 @@ class SaleHandling:
 class IngredientHandler:
 
     @staticmethod
-    def get_all_ingredients(database: tuple[MySQLConnection, MySQLCursor]) -> list[Ingredient]:
+    def get_all_ingredients(database: tuple[Connection, Cursor]) -> list[Ingredient]:
         SQL = "SELECT * FROM ingredient"
         con, cur = database
 
@@ -136,7 +135,7 @@ class IngredientHandler:
         return to_return
 
     @staticmethod
-    def create_ingredient(database: tuple[MySQLConnection, MySQLCursor], ingredient: Ingredient) -> int | None:
+    def create_ingredient(database: tuple[Connection, Cursor], ingredient: Ingredient) -> int | None:
         """Creates a new Ingredient
 
         Args:
@@ -158,7 +157,7 @@ class IngredientHandler:
         return cur.lastrowid
 
     @staticmethod
-    def add_Ingredient_to_Crêpe(database: tuple[MySQLConnection, MySQLCursor], ingredientItem: Ingredient_Item) -> int | None:
+    def add_Ingredient_to_Crêpe(database: tuple[Connection, Cursor], ingredientItem: Ingredient_Item) -> int | None:
         """Adds an Ingredient to a Crêpe
 
         Returns:
@@ -182,8 +181,8 @@ class IngredientHandler:
 class CrepeHandler:
 
     @staticmethod
-    def get_all_crepes(database: tuple[MySQLConnection, MySQLCursor]) -> list[Crêpe]:
-        SQL = "SELECT * FROM crêpes;"
+    def get_all_crepes(database: tuple[Connection, Cursor]) -> list[Crêpe]:
+        SQL = "SELECT * FROM Crêpes;"
 
         id = name = price = type_ = None
 

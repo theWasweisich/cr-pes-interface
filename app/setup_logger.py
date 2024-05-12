@@ -21,7 +21,7 @@ access_logger.addHandler(logging.FileHandler(ACCESS_PATH, encoding="UTF-8", mode
 api_logger = logging.getLogger("API Logger")
 
 root_logger = logging.getLogger()
-server_handler = logging.FileHandler(SERVER_PATH, encoding="UTF-8", delay=True)
+server_handler = logging.FileHandler(SERVER_PATH, encoding="UTF-8", delay=False)
 root_logger.addHandler(server_handler)
 
 logging.basicConfig(filename=SERVER_PATH, filemode="a", format=LOGGING_FORMAT, encoding="UTF-8", level=logging.DEBUG)

@@ -18,7 +18,6 @@ function set_listeners_up() {
     own_consumption.addEventListener('click', own_consumption_func);
     reset_button.addEventListener('click', reset_list_func);
 }
-set_listeners_up();
 function send_sell_to_server(sale, own_consumption) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("SENDING");
@@ -51,8 +50,8 @@ function send_sell_to_server(sale, own_consumption) {
         }
     });
 }
-function payed_func(own_consumption = false) {
-    return __awaiter(this, void 0, void 0, function* () {
+function payed_func() {
+    return __awaiter(this, arguments, void 0, function* (own_consumption = false) {
         function appendToLocalStorage() {
             var current_sold = localStorage.getItem("sold");
             var to_storage = [];

@@ -18,9 +18,15 @@ import get_sales
 from config_loader import config
 import time
 
+from classes import Crepes_Class
+from mysql_handler._database_handling import getCrepeDB
 from api.api_helpers import get_db, parse_price, get_crepes
 from setup_logger import api_logger
 
+a: Crepes_Class
+
+with getCrepeDB():
+    pass
 
 blocked_routes = [
     "/api/banana"
@@ -315,6 +321,7 @@ def before_request():
     if request.headers.get("X-crepeAuth", "") == config.get("SECRETS", "auth_key"):
         return                                                                      # Go on with routing
     else:
+        api_logger.critical(f"Unauthorized access! {request.headers.get(key="X-crepeAuth", default="NOT_GIVEN")}")
         return {"status": "notAuthorized"}, status.HTTP_401_UNAUTHORIZED            # Stop unauthorized access
 
 
