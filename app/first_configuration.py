@@ -5,6 +5,12 @@ import sqlite3
 import email_validator
 import configparser
 from classes import bcolors, consolecontrolSequences
+import logging
+import atexit
+
+
+os.chdir(os.path.dirname(__file__))
+logging.info(f"{os.getcwd()=}")
 
 
 def translate_exception(engl_text: str) -> str:
@@ -58,7 +64,7 @@ config.set("DEFAULT", "IS_EMAIL_ACTIVE", "no")
 
 
 def setup_config_email():
-    print(bcolors.OKBLUE + "[+] Soll eine Backup-Email eingerichtet werden? ([J]a/[N]ein) " + bcolors.ENDC)
+    print(bcolors.OKBLUE + "[+] Soll eine Backup-Email eingerichtet werden? ([J]a/[N]ein)" + bcolors.ENDC)
     if input(" ") == "J":
         finished = False
         while not finished:
@@ -141,6 +147,12 @@ def prepare_database():
     con.commit(); con.close()
     print(bcolors.OKGREEN + "[+] Datenbank erfolgreich erstellt!\n" + bcolors.ENDC)
 
+
+def exitfunc():
+    print(bcolors.ENDC)
+
+
+atexit.register(exitfunc)
 
 if __name__ == "__main__":
 

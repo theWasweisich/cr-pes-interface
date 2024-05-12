@@ -1,8 +1,10 @@
 import logging
 import logging.config
+from pathlib import Path
+from os import path
 
-ACCESS_PATH = "./logs/access.log"
-SERVER_PATH = "./logs/server.log"
+ACCESS_PATH = Path(path.join(path.dirname(__file__), "./logs/access.log"))
+SERVER_PATH = Path(path.join(path.dirname(__file__), "./logs/server.log"))
 
 LOGGING_FORMAT = "%(asctime)s %(levelname)s: %(message)s (%(name)s)"
 

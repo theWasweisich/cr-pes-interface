@@ -14,3 +14,4 @@ python-dotenv==1.0.1
 pytz==2024.1
 waitress==3.0.0
 Werkzeug==3.0.1
+gunicorn==22.0.0

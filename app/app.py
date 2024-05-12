@@ -1,4 +1,5 @@
 from setup_logger import access_logger, handler
+import os
 
 from datetime import datetime
 from flask import (
@@ -30,6 +31,7 @@ from api.api_blueprint import api_bp
 from classes import bcolors
 import atexit
 
+os.chdir(os.path.dirname(__file__))
 
 parser = argparse.ArgumentParser(
     usage="The Crêpes Application",
@@ -106,8 +108,11 @@ app.logger.addHandler(handler)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
-
-app.secret_key = config.get("SECRETS", 'secret_key')
+try:
+    app.secret_key = config.get("SECRETS", 'secret_key')
+except Exception:
+    logging.critical(f"Key: {config.sections()}")
+    raise SystemExit("Die Konfiguration spinnt!")
 
 if app.secret_key is None:
     raise SystemExit("Es wurde kein secret_key definiert! Bitte first_configuration.py ausführen!")
