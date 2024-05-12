@@ -31,7 +31,8 @@ from api.api_blueprint import api_bp
 from classes import bcolors
 import atexit
 
-os.chdir(os.path.dirname(__file__))
+
+os.chdir(os.path.dirname(__file__))  # Set current working directory to the app/ folder, in order for relative paths to work :)
 
 parser = argparse.ArgumentParser(
     usage="The Crêpes Application",
