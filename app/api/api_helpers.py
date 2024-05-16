@@ -1,12 +1,11 @@
 import datetime
 import json
-import sqlite3
 import uuid
+from app.classes import Crepes_Class
+from api.sqlite3_handler import getDB
+# from mysql_handler._database_handling import getCrepeDB
 
-from api.api_blueprint import getCrepeDB, Crepes_Class
-import os
-
-from mysql_handler.methods import CrepeHandler
+# from mysql_handler.methods import CrepeHandler
 
 
 def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: str, shift_staff: str):
@@ -20,7 +19,6 @@ def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: 
         shift_staff (str): A JSON encoded string of a list of all the staff's name
     """
     shift_uuid = uuid.uuid4()
-    con, cur = get_db()
 
     # date format: 'jjjj-mm-dd' || time format: 'HH:MM:SS'
 
@@ -28,50 +26,23 @@ def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: 
     s_time = datetime.time.fromisoformat(shift_start)
     e_time = datetime.time.fromisoformat(shift_end)
 
-    cur.execute("SELECT id FROM shifts WHERE date = ? AND time_start = ? AND time_end = ?", (
-        date.isoformat(),
-        s_time.isoformat(timespec='seconds'),
-        e_time.isoformat(timespec='seconds')
-    ))
-    if cur.fetchone != ():
-        raise Exception
+    with getDB() as (con, cur):
+        cur.execute("SELECT id FROM shifts WHERE date = ? AND time_start = ? AND time_end = ?", (
+            date.isoformat(),
+            s_time.isoformat(timespec='seconds'),
+            e_time.isoformat(timespec='seconds')
+        ))
+        if cur.fetchone != ():
+            raise Exception
 
-    cur.execute("INSERT INTO shifts (date, time_start, time_end, shift_name, staff, uuid) VALUES (?, ?, ?, ?, ?);", (
-        date.strftime("%Y-%m-%d"),
-        s_time.isoformat(timespec='seconds'),
-        e_time.isoformat(timespec='seconds'),
-        shift_name.strip("\\").strip("'").strip('"'),
-        json.dumps(shift_staff),
-        shift_uuid
-    ))
-
-    con.commit(); con.close()
-
-
-def get_crepes_alt(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]]:
-    """Like `get_crepes(as_dict: bool = False)`, but gets data from the mysql database
-
-    Args:
-        as_dict (bool, optional): If it should be returned as a dict. Defaults to False.
-
-    Returns:
-        list[Crepes_Class] | list[dict[str, str]]: The data
-    """
-    res_crepes: list[Crepes_Class] = []
-    as_dict_list: list[dict[str, str]] = []
-
-    with getCrepeDB() as database:
-        res = CrepeHandler.get_all_crepes(database=database)
-
-    for crepe in res:
-        crepe = Crepes_Class(crepe.id, crepe.name, price=crepe.price, ingredients=[], color=crepe.type_)
-        res_crepes.append(crepe)
-        as_dict_list.append(crepe.return_as_dict())
-
-    if as_dict:
-        return as_dict_list
-    else:
-        return res_crepes
+        cur.execute("INSERT INTO shifts (date, time_start, time_end, shift_name, staff, uuid) VALUES (?, ?, ?, ?, ?);", (
+            date.strftime("%Y-%m-%d"),
+            s_time.isoformat(timespec='seconds'),
+            e_time.isoformat(timespec='seconds'),
+            shift_name.strip("\\").strip("'").strip('"'),
+            json.dumps(shift_staff),
+            shift_uuid
+        ))
 
 
 def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]] | None:
@@ -84,14 +55,14 @@ def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str
         list[Crepes_Class] | list[dict[str, str]] | None: _description_
     """
 
-    con, cur = get_db()
+    with getDB() as (con, cur):
+        cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
+        crêpes_res = cur.fetchall()
 
-    cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
-    crêpes_res = cur.fetchall()
-    con.close()
+    res_crêpes: list[Crepes_Class] = []
+    as_dict_list: list[dict[str, str]] = []
 
-    res_crêpes: list[Crepes_Class] | None = []
-    as_dict_list: list[dict[str, str]] | None = []
+    crepes_class_list: list[Crepes_Class] = []
 
     for crepe in crêpes_res:
         res_crêpes.append(Crepes_Class(id=int(crepe[0]), name=crepe[1], price=float(crepe[2]), ingredients=crepe[3], color=crepe[4]))
@@ -99,12 +70,6 @@ def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str
     if as_dict:
         for crepe in res_crêpes:
             as_dict_list.append(crepe.return_as_dict())
-
-    if (len(as_dict_list) == 0):
-        as_dict_list = None
-
-    if (len(res_crêpes) == 0):
-        res_crêpes = None
 
     if (as_dict):
         return as_dict_list
@@ -127,12 +92,3 @@ def parse_price(start: str) -> float:
     price_str = price_str.replace(".", "")
     price_str = price_str.replace(",", ".", 1)
     return float(price_str)  # type: ignore
-
-
-def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
-
-    os.chdir(os.path.join(os.path.dirname(__file__), "../db/"))
-
-    conn = sqlite3.connect("datenbank.db")
-    cur = conn.cursor()
-    return (conn, cur)
