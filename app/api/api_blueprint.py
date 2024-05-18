@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Callable
 from flask import (
     Blueprint,
     request
@@ -20,11 +20,17 @@ import time
 
 from classes import Crepes_Class
 from mysql_handler._database_handling import getCrepeDB
-from api.api_helpers import parse_price, get_crepes
+
 from api.sqlite3_handler import getDB
 from setup_logger import api_logger
 
 a: Crepes_Class
+
+
+def get_helpers() -> tuple[Callable, Callable]:
+    from api.api_helpers import parse_price, get_crepes
+    return parse_price, get_crepes
+
 
 with getCrepeDB():
     pass
@@ -51,11 +57,16 @@ if not CHANGE_DB:
     api_logger.warning("Data is not written to the database!")
 
 
+def get_api_bp() -> Blueprint:
+    return api_bp
+
+
 class CrepesView(FlaskView):
 
     @staticmethod
     @route("/get", methods=("GET",))
     def get():
+        _, get_crepes = get_helpers()
         crepes = get_crepes(as_dict=True)
         if (crepes):
             return crepes
@@ -151,6 +162,8 @@ class CrepesView(FlaskView):
         if not CHANGE_DB:
             api_logger.info("Edited Crêpe")
             return {"status": "success"}
+
+        parse_price, _ = get_helpers()
 
         with getDB() as (con, cur):
             data = request.get_json()

@@ -1,7 +1,7 @@
 import datetime
 import json
 import uuid
-from app.classes import Crepes_Class
+from ..classes import Crepes_Class
 from api.sqlite3_handler import getDB
 # from mysql_handler._database_handling import getCrepeDB
 

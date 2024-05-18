@@ -26,11 +26,12 @@ import user_handling
 from config_loader import config
 import argparse
 
-from api.api_blueprint import api_bp
+from api.api_blueprint import get_api_bp
 
 from classes import bcolors
 import atexit
 
+api_bp = get_api_bp()
 
 os.chdir(os.path.dirname(__file__))  # Set current working directory to the app/ folder, in order for relative paths to work :)
 

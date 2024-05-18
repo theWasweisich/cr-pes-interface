@@ -3,9 +3,11 @@ from typing import Annotated, Literal, Optional, Union, overload
 import typing
 from classes import CrepeSale
 import datetime
+from sqlite3 import Connection, Cursor
 
 
-def import_db():
+def import_db() -> tuple[Connection, Cursor]:
+    raise DeprecationWarning("Nope")
     from api.api_helpers import get_db
     return get_db
 
@@ -30,7 +32,7 @@ def get_data(as_string: Optional[Literal[True]] = None) -> Union[list[CrepeSale]
     Returns:
         list[CrepeSale | str]: A list containing either the CrepeSales or strings (see parameter as_string)
     """
-    con, cur = import_db()()
+    con, cur = import_db()
 
     return_list = []
 
