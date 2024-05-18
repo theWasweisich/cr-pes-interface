@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated, Literal, Optional, Union, overload
 import typing
 from classes import CrepeSale
@@ -109,6 +110,8 @@ def get_dict():
         }
     """
     data_start = get_data()
+
+    logging.info("Getting as dict!")
 
     tmp_data: dict[int, list[dict[str, int | str | float]] | str | float] = {}
 

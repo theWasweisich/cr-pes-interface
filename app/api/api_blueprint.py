@@ -7,7 +7,7 @@ from flask import (
 # import flask
 from flask_classful import FlaskView, route
 import sqlite3
-import status
+from . import status
 # import status
 
 import datetime
@@ -21,7 +21,9 @@ import time
 from classes import Crepes_Class
 from mysql_handler._database_handling import getCrepeDB
 from api.api_helpers import get_db, parse_price, get_crepes
-from setup_logger import api_logger
+import logging
+
+api_logger = logging.getLogger("API Logger")
 
 a: Crepes_Class
 
@@ -184,11 +186,15 @@ class CrepesView(FlaskView):
         return {"status": "success"}
 
     @staticmethod
-    @route("/sold", methods=("POST",))
+    @route("/sold", methods=("POST", "GET",))
     def crepe_sold():
 
-        if not CHANGE_DB:
+        if CHANGE_DB:
             api_logger.info("Sold Crêpes")
+        else:
+            api_logger.info("Sold Crêpes, but did not write to db")
+
+        if not CHANGE_DB:
             return {"status": "success"}
 
         con, cur = get_db()
@@ -326,11 +332,19 @@ def before_request():
 
 
 @api_bp.get("/checkAuth")
-def check_auth():
-    if request.headers.get("X-crepeAuth", "PPP") == os.getenv("AUTH_KEY"):
+def check_auth() -> tuple[dict, int]:
+    if (verify_auth(request.headers.get("X-crepeAuth", "nope"))):
         return {"authStatus": "authorized"}, status.HTTP_200_OK
     else:
         return {"authStatus": "unauthorized"}, status.HTTP_401_UNAUTHORIZED
+
+
+def verify_auth(token: str) -> bool:
+    correct = os.getenv("AUTH_KEY")
+    if token == correct:
+        return True
+    else:
+        return False
 
 
 CrepesView.register(api_bp, route_base="/crepes")

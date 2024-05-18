@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
  * These are all urls pointing to the api. For quick access
  */
 const urls = {
-    newsale: "/api/sales/sold",
+    newsale: "/api/crepes/sold",
     resistor: "/api/sales/failResister",
     getsales: "/api/sales/get",
     getcrepes: "/api/crepes/get",

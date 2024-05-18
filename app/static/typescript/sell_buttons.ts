@@ -26,6 +26,7 @@ async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: str
         "X-crepeAuth": api_key,
     }
 
+    console.log("Have to send!")
 
     var response = await fetch(url, {
         method: "POST",

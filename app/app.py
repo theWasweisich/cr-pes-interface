@@ -1,11 +1,11 @@
-from setup_logger import access_logger, handler, server_handler
+from setup_logger import access_logger, access_handler, server_handler
 import os
 
 from datetime import datetime
 from flask import (
     Flask,
     flash,
-    make_response,
+    # make_response,
     redirect,
     request,
     session,
@@ -105,7 +105,7 @@ app = Flask(__name__)
 ext = flask_sitemap.Sitemap(app=app)
 
 app.logger.removeHandler(default_handler)
-app.logger.addHandler(handler)
+app.logger.addHandler(access_handler)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
@@ -241,9 +241,13 @@ def rick_roll():
 
 @app.route("/favicon.ico")
 def serve_favicon():
-    with open("static/assets/icons/favicon.ico", "rb") as f:
-        data = f.read()
-    resp = make_response(data)
+    # with open("./static/assets/icons/favicon.ico", "rb") as f:
+    #     data = f.read()
+    # resp = make_response(data)
+
+    static_folder = app.static_folder if app.static_folder is not None else "ERROR"
+
+    resp = send_from_directory(static_folder, "assets/icons/favicon.ico")
     resp.headers.set("Content-Type", "image/x-icon")
     resp.status_code = status.HTTP_200_OK
     return resp
@@ -251,9 +255,12 @@ def serve_favicon():
 
 @app.route("/favicon_warn.ico")
 def serve_warning_favicon():
-    with open('static/assets/icons/favicon_warning.ico', "rb") as f:
-        data = f.read()
-    resp = make_response(data)
+    # with open('static/assets/icons/favicon_warning.ico', "rb") as f:
+    #     data = f.read()
+    # resp = make_response(data)
+    static_folder = app.static_folder if app.static_folder is not None else "ERROR"
+
+    resp = send_from_directory(static_folder, "assets/icons/favicon_warning.ico")
     resp.headers.set("Content-Type", "image/x-icon")
     resp.status_code = status.HTTP_200_OK
     return resp
@@ -336,6 +343,13 @@ if __name__ == "__main__":
         print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
         waitress.serve(app, host="127.0.0.1", port=80)
 
+    elif args.runDebug:
+        print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
+
+        logging.getLogger("werkzeug").setLevel(logging.FATAL)
+        app.run(host='127.0.0.1', port=80, debug=True)
+        logging.getLogger("werkzeug").setLevel(logging.INFO)
+
     # elif args.runDebug: <-- This does not work, because waitress cannot create an instance if directed from outside
     else:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -343,5 +357,5 @@ if __name__ == "__main__":
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
 
         logging.getLogger("werkzeug").setLevel(logging.FATAL)
-        app.run(host='127.0.0.1', port=80, debug=True)
+        app.run(host='127.0.0.1', port=80, debug=False)
         logging.getLogger("werkzeug").setLevel(logging.INFO)

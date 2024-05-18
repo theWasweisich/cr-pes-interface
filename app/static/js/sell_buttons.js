@@ -30,6 +30,7 @@ function send_sell_to_server(sale, own_consumption) {
             "ownConsumption": String(own_consumption),
             "X-crepeAuth": api_key,
         };
+        console.log("Have to send!");
         var response = yield fetch(url, {
             method: "POST",
             mode: "same-origin",
