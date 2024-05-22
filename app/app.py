@@ -1,4 +1,4 @@
-from setup_logger import access_logger, access_handler, server_handler
+from setup_logger import access_logger, server_handler, werkzeug_handler
 import os
 
 from datetime import datetime
@@ -30,6 +30,7 @@ from api.api_blueprint import get_api_bp
 
 from classes import bcolors
 import atexit
+
 
 api_bp = get_api_bp()
 
@@ -106,7 +107,7 @@ app = Flask(__name__)
 ext = flask_sitemap.Sitemap(app=app)
 
 app.logger.removeHandler(default_handler)
-app.logger.addHandler(access_handler)
+app.logger.addHandler(server_handler)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
@@ -328,7 +329,7 @@ def exit():
 
 if __name__ == "__main__":
     app.logger.handlers.clear()
-    app.logger.addHandler(server_handler)
+    app.logger.addHandler(werkzeug_handler)
 
     if args.runProd:
 

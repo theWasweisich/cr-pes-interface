@@ -1,10 +1,8 @@
 import datetime
 import json
-import sqlite3
 import uuid
 
 from api.api_blueprint import getCrepeDB, Crepes_Class
-import os
 
 from mysql_handler.methods import CrepeHandler
 
@@ -20,7 +18,6 @@ def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: 
         shift_staff (str): A JSON encoded string of a list of all the staff's name
     """
     shift_uuid = uuid.uuid4()
-    con, cur = get_db()
 
     # date format: 'jjjj-mm-dd' || time format: 'HH:MM:SS'
 
@@ -28,24 +25,24 @@ def create_shift(shift_date: str, shift_start: str, shift_end: str, shift_name: 
     s_time = datetime.time.fromisoformat(shift_start)
     e_time = datetime.time.fromisoformat(shift_end)
 
-    cur.execute("SELECT id FROM shifts WHERE date = ? AND time_start = ? AND time_end = ?", (
-        date.isoformat(),
-        s_time.isoformat(timespec='seconds'),
-        e_time.isoformat(timespec='seconds')
-    ))
-    if cur.fetchone != ():
-        raise Exception
+    with getCrepeDB() as (_, cur):
 
-    cur.execute("INSERT INTO shifts (date, time_start, time_end, shift_name, staff, uuid) VALUES (?, ?, ?, ?, ?);", (
-        date.strftime("%Y-%m-%d"),
-        s_time.isoformat(timespec='seconds'),
-        e_time.isoformat(timespec='seconds'),
-        shift_name.strip("\\").strip("'").strip('"'),
-        json.dumps(shift_staff),
-        shift_uuid
-    ))
+        cur.execute("SELECT id FROM shifts WHERE date = ? AND time_start = ? AND time_end = ?", (
+            date.isoformat(),
+            s_time.isoformat(timespec='seconds'),
+            e_time.isoformat(timespec='seconds')
+        ))
+        if cur.fetchone != ():
+            raise Exception
 
-    con.commit(); con.close()
+        cur.execute("INSERT INTO shifts (date, time_start, time_end, shift_name, staff, uuid) VALUES (?, ?, ?, ?, ?);", (
+            date.strftime("%Y-%m-%d"),
+            s_time.isoformat(timespec='seconds'),
+            e_time.isoformat(timespec='seconds'),
+            shift_name.strip("\\").strip("'").strip('"'),
+            json.dumps(shift_staff),
+            shift_uuid
+        ))
 
 
 def get_crepes_alt(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]]:
@@ -74,21 +71,19 @@ def get_crepes_alt(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str,
         return res_crepes
 
 
-def get_crepes(as_dict: bool = False) -> list[Crepes_Class] | list[dict[str, str]] | None:
-    """_summary_
+def get_crepes(as_dict: bool = True) -> list[Crepes_Class] | list[dict[str, str]] | None:
+    """Returns all currently available crêpes in the database.
 
     Args:
-        as_dict (bool, optional): _description_. Defaults to False.
+        as_dict (bool, optional): Wether to output the Crêpes as a dict [True] or as class [False]. Defaults to True.
 
     Returns:
-        list[Crepes_Class] | list[dict[str, str]] | None: _description_
+        list[Crepes_Class] | list[dict[str, str]] | None: Specified output format, or None if there have been no crêpes found
     """
 
-    con, cur = get_db()
-
-    cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
-    crêpes_res = cur.fetchall()
-    con.close()
+    with getCrepeDB() as (_, cur):
+        cur.execute('SELECT id, name, price, ingredients, colour FROM Crêpes')
+        crêpes_res = cur.fetchall()
 
     res_crêpes: list[Crepes_Class] | None = []
     as_dict_list: list[dict[str, str]] | None = []
@@ -127,12 +122,3 @@ def parse_price(start: str) -> float:
     price_str = price_str.replace(".", "")
     price_str = price_str.replace(",", ".", 1)
     return float(price_str)  # type: ignore
-
-
-def get_db() -> tuple[sqlite3.Connection, sqlite3.Cursor]:
-
-    os.chdir(os.path.join(os.path.dirname(__file__), "../db/"))
-
-    conn = sqlite3.connect("datenbank.db")
-    cur = conn.cursor()
-    return (conn, cur)
