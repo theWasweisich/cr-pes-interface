@@ -12,7 +12,7 @@ function set_listeners_up() {
     reset_button.addEventListener('click', reset_list_func)
 }
 
-async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: string) {
+async function send_sell_to_server(sale: Crêpe[] | string, own_consumption: boolean | string) {
     console.log("SENDING");
     let url: string = urls.newsale; // urls defined in global
 
@@ -79,7 +79,7 @@ async function payed_func(own_consumption: boolean = false) {
         return
     }
 
-    let response = await send_sell_to_server(crepes, own_consumption ? "own" : "foreign");
+    let response = await send_sell_to_server(crepes, own_consumption ? true : false);
 
     if (response) {
         setFavicon(true);

@@ -74,7 +74,7 @@ function payed_func() {
         if (crepes.length == 0) {
             return;
         }
-        let response = yield send_sell_to_server(crepes, own_consumption ? "own" : "foreign");
+        let response = yield send_sell_to_server(crepes, own_consumption ? true : false);
         if (response) {
             setFavicon(true);
             reset_list_func();

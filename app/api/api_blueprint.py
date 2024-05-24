@@ -48,7 +48,7 @@ time_zone = pytz.timezone("Europe/Berlin")
 
 api_bp = Blueprint('api_bp', __name__)
 
-CHANGE_DB = False
+CHANGE_DB = True
 """If False, does not write changes to the database"""
 
 if not CHANGE_DB:
@@ -194,9 +194,9 @@ class CrepesView(FlaskView):
             api_logger.info("Sold Crêpes")
         else:
             api_logger.info("Sold Crêpes, but did not write to db")
-
-        if not CHANGE_DB:
             return {"status": "success"}
+
+        to_return = {}, 0
 
         with getCrepeDB() as (_, cur):
             try:
@@ -204,7 +204,7 @@ class CrepesView(FlaskView):
                 if (data is None):
                     return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
 
-                api_logger.debug(f"New Crêpes: {data}")
+                api_logger.debug(f"New Sale: {data}")
 
                 to_db: list[tuple] = []
 
@@ -215,13 +215,37 @@ class CrepesView(FlaskView):
                     api_logger.error(f"There has been an error: {e}")
                     saleID_next = 0
 
-                api_logger.debug(f"Next SaleID: {saleID_next}")
-
                 now_time = datetime.datetime.now().isoformat()
+                SQL_SALE = "INSERT INTO sales (saletime, total, ownConsumption) VALUES (?, ?, ?)"
+
+                # match request.headers["ownConsumption"]:
+                #     case "true":
+                #         consumpt = "own"
+                #     case "false":
+                #         consumpt = "foreign"
+                #     case _:
+                #         consumpt = "unknown"
+
+                consumpt = request.headers["ownConsumption"]
+
+                total: float = 0.0
+
+                for crepe in data:
+                    total += float(crepe["price"])
+
+                api_logger.info(f"Total Value: {total=}")
+
+                api_logger.info(f"{now_time=} || {total=} || {consumpt=}")
+
+                cur.execute(SQL_SALE, (now_time, total, consumpt))
+                saleID = cur.lastrowid
+
+                SQL_SALE_ITEM = "INSERT INTO salesItem (`crêpesId`, saleId, amount, price) VALUES (?, ?, ?, ?)"
+
                 for crepe in data:
                     cID = crepe["crepeId"]
                     cNAME = crepe["name"]
-                    cPREIS = crepe["preis"]
+                    cPREIS = crepe["price"]
                     cAMOUNT = crepe["amount"]
 
                     if 'ownConsumption' in request.headers:
@@ -229,20 +253,24 @@ class CrepesView(FlaskView):
                     else:
                         api_logger.fatal("Own Consumption not found in headers!")
 
-                    to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time, consumpt))
+                    if saleID is None: 
+                        raise Exception("Unerwartete Daten!")
+
+                    api_logger.info(f"{SQL_SALE_ITEM=} || ({cID=}, {saleID=}, {cAMOUNT=}, {cPREIS=})")
+                    cur.execute(SQL_SALE_ITEM, (cID, saleID, cAMOUNT, cPREIS))
 
                     api_logger.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}; OWNCONSUMPTION: {consumpt}")
 
-                cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, time, Consumption) VALUES (?, ?, ?, ?, ?, ?)", to_db)
+                api_logger.info(f"{to_db=}")
 
-                api_logger.debug("Inserted Crêpes!")
-                api_logger.debug(cur.fetchone())
-
-                cur.connection.commit()
+                api_logger.debug("Inserted Sale!")
             except Exception as e:
                 api_logger.exception(e)
-                return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
-        return {"status": "success"}, status.HTTP_200_OK
+                to_return = {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            else:
+                to_return = {"status": "success"}, status.HTTP_200_OK
+            finally:
+                cur.connection.commit()
 
 
 class SalesView(FlaskView):
