@@ -1,16 +1,10 @@
 
 import hashlib
 import bcrypt
-import sqlite3
 from flask.sessions import SessionMixin
 
 from classes import User
-
-
-def get_db():
-    con = sqlite3.connect("datenbank.db")  # type: ignore
-    cur = con.cursor()
-    return con, cur
+from mysql_handler._database_handling import getCrepeDB
 
 
 def hash_password_with_salt(password: bytes, salt: bytes): 
@@ -61,12 +55,10 @@ def get_user_from_username_and_password(username: str, password: str) -> User | 
         User | None: The `User` class, if found. Else None
     """
     SQL1 = "SELECT id, username, password, salt, current_key, priviledge FROM users WHERE username= ? "
-    con, cur = get_db()
-    cur.execute(SQL1, [username])
+    with getCrepeDB() as (_, cur):
+        cur.execute(SQL1, [username])
 
-    res = cur.fetchone()
-
-    con.close()
+        res = cur.fetchone()
 
     id, username_, password_, salt, current_key, priviledge = res
     assert type(password_) is str
@@ -83,10 +75,9 @@ def get_user_from_username_and_password(username: str, password: str) -> User | 
 
 def get_id_from_name(username: str) -> int:
     SQL = "SELECT id FROM users WHERE username = '%s'"
-    con, cur = get_db()
-    cur.execute(SQL % username)
-    res = cur.fetchone()
-    con.close()
+    with getCrepeDB() as (_, cur):
+        cur.execute(SQL % username)
+        res = cur.fetchone()
     return res[0]
 
 

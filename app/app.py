@@ -21,7 +21,7 @@ import logging
 import secrets
 # import sys
 
-from user_handling import get_db
+from mysql_handler._database_handling import getCrepeDB
 import user_handling
 
 from config_loader import config
@@ -83,10 +83,9 @@ sales: list = []
 
 
 def valid_keys() -> list[str]:
-    con, cur = get_db()
-    cur.execute("SELECT s_key FROM secret_keys")
-    keys = cur.fetchall()
-    con.close()
+    with getCrepeDB() as (_, cur):
+        cur.execute("SELECT s_key FROM secret_keys")
+        keys = cur.fetchall()
     for i in range(len(keys)):
         keys[i] = keys[i][0]
     return keys
