@@ -8,7 +8,6 @@ from classes import bcolors, consolecontrolSequences
 import logging
 import atexit
 
-
 os.chdir(os.path.dirname(__file__))
 logging.info(f"{os.getcwd()=}")
 
@@ -136,13 +135,29 @@ def create_config():
 
 
 def prepare_database():
+
+    def ask_force_db_change() -> bool:
+        print(bcolors.FAIL + "[X] Die Datenbank existiert bereits! Geben Sie jetzt \"force\" ein, um die Datenbank zu überschreiben und eine leere zu generieren" + bcolors.ENDC)
+        try:
+            match input(""):
+                case "force":
+                    return True
+                case _:
+                    return False
+        except KeyboardInterrupt:
+            print("[!] Die Datenbank wird nicht überschrieben!")
+            return False
+
     print(bcolors.HEADER + "[*] --- Datenbank wird vorbereitet --- [*]\n" + bcolors.ENDC)
-    if os.path.exists("./db/"):
-        if os.path.exists("./db/datenbank.db"):
+    if not os.path.exists("./db/"):
+        os.mkdir("./db/")
+
+    if not os.path.exists("./db/datenbank.db"):
+        if not ask_force_db_change():
             return
         try:
-            open("./db/datenbank.db", "w").close()
-        except FileExistsError:
+            os.remove("./db/datenbank.db")
+        except FileNotFoundError:
             pass
 
     con = sqlite3.connect("./db/datenbank.db")
@@ -150,6 +165,7 @@ def prepare_database():
     cur = con.cursor()
     with open('./db/datenbank.schema', "r") as f:
         script = f.read()
+    script = script.replace("\n", "")
 
     cur.executescript(script)
     con.commit(); con.close()

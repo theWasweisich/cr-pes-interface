@@ -1,4 +1,5 @@
-from setup_logger import access_logger, server_handler, werkzeug_handler
+import json
+from setup_logger import access_logger, server_handler, werkzeug_handler, root_logger
 import os
 
 from datetime import datetime
@@ -223,7 +224,8 @@ def serve_warning_favicon():
 
 @app.route("/init", methods=("GET", "POST"))
 def initialisation():
-    app.logger.debug("Sections: " + repr(config.sections()))
+    # root_logger.critical("Sections: " + repr(config.sections()))
+    # root_logger.critical("Auth Key: " + repr(config.get("SECRETS", "auth_key")))
 
     if request.method == "GET":
         return send_from_directory("./static/html/", "init.html")
@@ -236,6 +238,7 @@ def initialisation():
                     "key": str(config.get("SECRETS", "auth_key"))
                     }, status.HTTP_200_OK
             else:
+                root_logger.critical("Failed password: " + json.dumps(request.json))
                 return {"status": "failed", "error": "Code does not match"}, status.HTTP_401_UNAUTHORIZED
 
     return 'METHOD NOT ALLOWED', status.HTTP_405_METHOD_NOT_ALLOWED
@@ -265,12 +268,14 @@ def do_before_request_stuff():
         logger.setLevel(logging.DEBUG)
 
 
-@app.register_error_handler(404)
 def bad_request(e):
     if request.referrer:
         if "einstellungen" in request.referrer:
             return redirect("/einstellungen")
     return redirect("/")
+
+
+app.register_error_handler(404, bad_request)
 
 
 @atexit.register
