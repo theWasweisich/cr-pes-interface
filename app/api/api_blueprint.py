@@ -348,7 +348,7 @@ def before_request():
     if request.headers.get("X-crepeAuth", "") == config.get("SECRETS", "auth_key"):
         return                                                                      # Go on with routing
     else:
-        api_logger.critical(f"Unauthorized access! {request.headers.get(key="X-crepeAuth", default="NOT_GIVEN")}")
+        api_logger.critical(f"Unauthorized access! {request.headers.get(key='X-crepeAuth', default='NOT_GIVEN')}")
         return {"status": "notAuthorized"}, status.HTTP_401_UNAUTHORIZED            # Stop unauthorized access
 
 
