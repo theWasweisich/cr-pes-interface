@@ -1,0 +1,60 @@
+[
+    {
+        "id": 0,
+        "saleTime": "2024-05-25T19:03:17.660000+00:00",
+        "total": 2.3,
+        "ownConsumption": "false",
+        "saleItems": [
+            {
+                "id": 0,
+                "crepesId": 5,
+                "saleId": 0,
+                "amount": 1,
+                "price": 3.5,
+                "crepe": {
+                    "id": 0,
+                    "name": "Kinderschokolade",
+                    "price": 3.5,
+                    "ingredients": "null",
+                    "colour": null
+                }
+            },
+            {
+                "id": 1,
+                "crepesId": 7,
+                "saleId": 0,
+                "amount": 2,
+                "price": 6,
+                "crepe": {
+                    "id": 1,
+                    "name": "Schinken",
+                    "price": 3,
+                    "ingredients": "null",
+                    "colour": null
+                }
+            }
+        ]
+    },
+    {
+        "id": 1,
+        "saleTime": "2024-05-20T19:03:17.660000+00:00",
+        "total": 6,
+        "ownConsumption": "false",
+        "saleItems": [
+            {
+                "id": 2,
+                "crepesId": 11,
+                "saleId": 1,
+                "amount": 1,
+                "price": 6,
+                "crepe": {
+                    "id": 2,
+                    "name": "Italiano",
+                    "price": 4.5,
+                    "ingredients": "null",
+                    "colour": null
+                }
+            }
+        ]
+    }
+]

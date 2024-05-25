@@ -117,7 +117,7 @@ def get_all_saleItems(saleId: int):
 
 
 def create_sale_map():
-    salemap = []
+    salemap = {}
     sales: list[SingularSale] = get_all_sales()
     for singular in sales:
         items = get_all_saleItems(singular.id)
@@ -125,7 +125,7 @@ def create_sale_map():
             continue
         for item in items:
             singular.saleItems.append(item.__dict__)
-        salemap.append(singular.__dict__)
+        salemap[singular.id](singular.__dict__)
     return json.dumps(salemap)
 
 

@@ -1,31 +1,8 @@
 
-var sales: SingularSale[] = [];
-
-/**
- * Represents a singular Sale for the dashboard
- */
-class SingularSale {
-    time: string;
-    id: number;
-    name: string;
-    price: number;
-    amount: number;
-    total: number;
-    consumption: string;
-
-    constructor (id: number, name: string, price: number, amount: number, time: string, consumption: string) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.amount = amount;
-        this.total = this.price * this.amount;
-        this.time = time;
+class SingleSale {
+    constructor(id: number, saleTime: Date, total: number, ownConsumption: boolean | "unknown") {
+        
     }
-}
-
-class SaleGroup {
-    saleID: number;
-    items: SingularSale[];
 }
 
 /**
@@ -33,13 +10,27 @@ class SaleGroup {
  * @param url The relative uri endpoint where to fetch from
  * @returns The response, or false if the request fails
  */
-async function get_data(url: string) {
+async function get_data(url: string): Promise<Response> {
     var result = await send_server(url, "GET")
 
     if (result.ok) {
-        return await result.json();
+        return result;
     } else {
         throw Error("ALARM");
     }
 }
 
+async function init() {
+    let data = await get_data("/api/sales/get");
+    console.log(data);
+    document.getElementById("testing").innerHTML = String(data);
+}
+
+function populate_sales_table(sale) {
+    let tableBody = document.getElementById("sales-tbody") as HTMLTableElement;
+    let template = document.getElementById("saleTable_template") as HTMLTemplateElement;
+
+    const clone = template.content.cloneNode(true) as HTMLElement;
+    const row = clone.querySelector("tr");
+    
+}
