@@ -1,0 +1,62 @@
+CREATE TABLE sqlite_sequence(name,seq);
+CREATE TABLE IF NOT EXISTS "shifts" (
+	"id"	INTEGER,
+	"time_start"	TEXT,
+	"time_end"	TEXT,
+	"shift_name"	TEXT DEFAULT 'standard',
+	"staff"	TEXT,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+CREATE TABLE IF NOT EXISTS "secret_keys" (
+	"ID"	INTEGER,
+	"s_key"	text,
+	PRIMARY KEY("ID" AUTOINCREMENT)
+);
+CREATE TABLE IF NOT EXISTS "Crêpes" (
+	"id"	INTEGER,
+	"name"	TEXT NOT NULL UNIQUE,
+	"price"	REAL NOT NULL,
+	"ingredients" TEXT,
+	"colour"	TEXT, type TEXT DEFAULT "unknown",
+	PRIMARY KEY("id")
+);
+CREATE TABLE IF NOT EXISTS "users" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"username"	TEXT NOT NULL,
+	"password"	TEXT NOT NULL, salt TEXT,
+	"current_key"	TEXT,
+	"priviledge"	INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+CREATE TABLE IF NOT EXISTS "ingredient" (
+	"id"	INTEGER NOT NULL,
+	"name"	TEXT NOT NULL UNIQUE,
+	"description"	TEXT,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+CREATE TABLE IF NOT EXISTS "ingredientitem" (
+	"id"	INTEGER NOT NULL,
+	"ingredientId"	INTEGER NOT NULL,
+	"crêpeId"	INTEGER NOT NULL,
+	"amountUsed"	INTEGER NOT NULL,
+	"amountUnit"	TEXT NOT NULL,
+	FOREIGN KEY("ingredientId") REFERENCES "ingredient"("id"),
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+CREATE TABLE IF NOT EXISTS "sales" (
+	"id"	INTEGER NOT NULL,
+	"saletime"	TEXT NOT NULL,
+	"total"	REAL,
+	"ownConsumption"	INTEGER NOT NULL DEFAULT 'false' CHECK(ownConsumption = "true" OR ownConsumption = "false"),
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+CREATE TABLE IF NOT EXISTS "salesItem" (
+	"id"	INTEGER NOT NULL,
+	"crêpesId"	INTEGER,
+	"saleId"	INTEGER,
+	"amount"	INTEGER,
+	"price"	REAL,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("saleId") REFERENCES "sales"("id"),
+	FOREIGN KEY("crêpesId") REFERENCES "Crêpes"("id")
+);

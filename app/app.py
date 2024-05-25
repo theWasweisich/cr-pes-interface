@@ -1,10 +1,11 @@
-from setup_logger import access_logger, handler
+from setup_logger import access_logger, server_handler, werkzeug_handler
+import os
 
 from datetime import datetime
 from flask import (
     Flask,
     flash,
-    make_response,
+    # make_response,
     redirect,
     request,
     session,
@@ -25,11 +26,15 @@ import user_handling
 from config_loader import config
 import argparse
 
-from api.api_blueprint import api_bp
+from api.api_blueprint import get_api_bp
 
 from classes import bcolors
 import atexit
 
+
+api_bp = get_api_bp()
+
+os.chdir(os.path.dirname(__file__))  # Set current working directory to the app/ folder, in order for relative paths to work :)
 
 parser = argparse.ArgumentParser(
     usage="The Crêpes Application",
@@ -102,15 +107,18 @@ app = Flask(__name__)
 ext = flask_sitemap.Sitemap(app=app)
 
 app.logger.removeHandler(default_handler)
-app.logger.addHandler(handler)
+app.logger.addHandler(server_handler)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
-
-app.secret_key = config.get("SECRETS", 'secret_key')
+try:
+    app.secret_key = config.get("SECRETS", 'secret_key')
+except Exception:
+    logging.critical(f"Key: {config.sections()}")
+    raise SystemExit("Die Konfiguration spinnt!")
 
 if app.secret_key is None:
-    raise SystemExit("Es wurde kein secret_key definiert!")
+    raise SystemExit("Es wurde kein secret_key definiert! Bitte first_configuration.py ausführen!")
 
 
 shifts = []
@@ -155,10 +163,13 @@ def serve_login():
 
     elif request.method == "POST":
 
-        # Cheffe Password: LassMichRein
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-        username = request.form["username"]
-        password = request.form["password"]
+        if not username:
+            return redirect("/login?login=failed", status.HTTP_303_SEE_OTHER)
+        if not password:
+            return redirect("/login?login=failed", status.HTTP_303_SEE_OTHER)
 
         user = user_handling.get_user_from_username_and_password(username, password)
 
@@ -232,9 +243,13 @@ def rick_roll():
 
 @app.route("/favicon.ico")
 def serve_favicon():
-    with open("static/assets/icons/favicon.ico", "rb") as f:
-        data = f.read()
-    resp = make_response(data)
+    # with open("./static/assets/icons/favicon.ico", "rb") as f:
+    #     data = f.read()
+    # resp = make_response(data)
+
+    static_folder = app.static_folder if app.static_folder is not None else "ERROR"
+
+    resp = send_from_directory(static_folder, "assets/icons/favicon.ico")
     resp.headers.set("Content-Type", "image/x-icon")
     resp.status_code = status.HTTP_200_OK
     return resp
@@ -242,9 +257,12 @@ def serve_favicon():
 
 @app.route("/favicon_warn.ico")
 def serve_warning_favicon():
-    with open('static/assets/icons/favicon_warning.ico', "rb") as f:
-        data = f.read()
-    resp = make_response(data)
+    # with open('static/assets/icons/favicon_warning.ico', "rb") as f:
+    #     data = f.read()
+    # resp = make_response(data)
+    static_folder = app.static_folder if app.static_folder is not None else "ERROR"
+
+    resp = send_from_directory(static_folder, "assets/icons/favicon_warning.ico")
     resp.headers.set("Content-Type", "image/x-icon")
     resp.status_code = status.HTTP_200_OK
     return resp
@@ -253,6 +271,7 @@ def serve_warning_favicon():
 @app.route("/init", methods=("GET", "POST"))
 def initialisation():
     logging.debug("Sections: " + repr(config.sections()))
+
     if request.method == "GET":
         return send_from_directory("./static/html/", "init.html")
 
@@ -262,9 +281,9 @@ def initialisation():
                 return {
                     "status": "success",
                     "key": str(config.get("SECRETS", "auth_key"))
-                    }
+                    }, status.HTTP_200_OK
             else:
-                return {"status": "failed", "error": "Code does not match"}
+                return {"status": "failed", "error": "Code does not match"}, status.HTTP_401_UNAUTHORIZED
 
     return 'METHOD NOT ALLOWED', status.HTTP_405_METHOD_NOT_ALLOWED
 
@@ -309,7 +328,8 @@ def exit():
 
 
 if __name__ == "__main__":
-    logging.info("👋 app.py wurde ausgeführt!")
+    app.logger.handlers.clear()
+    app.logger.addHandler(werkzeug_handler)
 
     if args.runProd:
 
@@ -325,9 +345,19 @@ if __name__ == "__main__":
         print(bcolors.OKCYAN + "Running with waitress" + bcolors.ENDC)
         waitress.serve(app, host="127.0.0.1", port=80)
 
-    # elif args.runDebug:
+    elif args.runDebug:
+        print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
+
+        logging.getLogger("werkzeug").setLevel(logging.FATAL)
+        app.run(host='127.0.0.1', port=80, debug=True)
+        logging.getLogger("werkzeug").setLevel(logging.INFO)
+
+    # elif args.runDebug: <-- This does not work, because waitress cannot create an instance if directed from outside
     else:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
-        app.run(host='127.0.0.1', port=80)
+
+        logging.getLogger("werkzeug").setLevel(logging.FATAL)
+        app.run(host='127.0.0.1', port=80, debug=False)
+        logging.getLogger("werkzeug").setLevel(logging.INFO)

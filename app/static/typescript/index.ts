@@ -1,4 +1,5 @@
 var in_table = []
+var table: Table;
 
 // Imported: formatter, set_data, Crêpes2, crepelist, set_color from global
 
@@ -9,14 +10,14 @@ var in_table = []
  * @param button (optional) The button that has been clicked on
  */
 function button_pressed_action(target: HTMLElement, crepes_class: Crêpe, button?: HTMLButtonElement) {
-
+    var new_amount: number = 0;
     if (button == undefined) {
         console.error("Undefined Button!")
-        var new_amount = table.add_one_crepe(crepes_class);
+        new_amount = table.add_one_crepe(crepes_class);
     } else 
     {
         if (button.classList.contains('add')) {
-            var new_amount = table.add_one_crepe(crepes_class)
+            new_amount = table.add_one_crepe(crepes_class)
         } 
         else if (button.classList.contains('remove')) {
             if (crepes_class.amount == 0) {
@@ -24,7 +25,7 @@ function button_pressed_action(target: HTMLElement, crepes_class: Crêpe, button
             }
             
             table.remove_one_crepe(crepes_class) // FIXME
-            var new_amount = crepes_class.amount;
+            new_amount = crepes_class.amount;
         }
     }
     console.assert(target != null, "Wasn da los?")
@@ -109,15 +110,15 @@ async function setup() {
 
 }
 
-document.onload = () => {
+function crepes_onload() {
     set_listeners_up();
     setup();
+    /**
+     * Use this whenever accessing the Table
+     */
+    table = new Table()
 }
 
-/**
- * Use this whenever accessing the Table
- */
-var table = new Table()
 
 /**
  * Funktion, mit der man mithilfe des HTMLElementes den Crêpe bekommt

@@ -45,7 +45,7 @@ class CrepeSale():
         self.time = time
 
     def __str__(self) -> str:
-        return f"ID: {self.id}; SaleID: {self.saleID}; Name: {self.name}; Amount: {self.amount}; Preis: {self.price}; Zeit: {self.time.strftime("%d-%m-%Y, %H:%M:%S")}"  # noqa
+        return f"ID: {self.id}; SaleID: {self.saleID}; Name: {self.name}; Amount: {self.amount}; Preis: {self.price}; Zeit: {self.time.strftime('%d-%m-%Y, %H:%M:%S')}"  # noqa
 
     def __object__(self) -> CrepeSaleDict:
         return CrepeSaleDict({"id": self.id, "saleID": self.saleID, "name": self.name, "amount": self.amount, "price": self.price, "time": self.time})
@@ -71,6 +71,11 @@ class Crepes_Class():
             "ingredients": json.dumps(self.ingredients),
             "colour": self.color
          }
+
+
+@dataclass
+class Crepes_Ingredient():
+    id: int
 
 
 class bcolors:

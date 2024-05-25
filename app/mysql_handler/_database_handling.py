@@ -1,7 +1,26 @@
+from dataclasses import dataclass
 import mysql.connector
 import mysql.connector.cursor
 from dotenv import load_dotenv
 import os
+from os import path
+import sqlite3
+
+DOTENV_PATH2 = path.join(path.dirname(__file__), "../")
+DOTENV_PATH2 = path.join(DOTENV_PATH2, ".env")
+DOTENV_PATH = path.join(path.dirname(__file__), ".env")
+
+DB_PATH = path.join(path.dirname(__file__), "../db/datenbank.db")
+
+
+class DatabaseException(Exception):
+    pass
+
+
+@dataclass
+class sqlite3ConTuple:
+    con: sqlite3.Connection
+    cur: sqlite3.Cursor
 
 
 class getCrepeDB:
@@ -9,15 +28,23 @@ class getCrepeDB:
 
     Returns: tuple[Connection, Cursor]
     """
-    def __enter__(self) -> tuple[mysql.connector.MySQLConnection, mysql.connector.cursor.MySQLCursor]:
 
-        dotenv_path2 = os.path.join(os.path.dirname(__file__), "../")
-        dotenv_path2 = os.path.join(dotenv_path2, ".env")
-        dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+    def __enter__(self) -> tuple[sqlite3.Connection, sqlite3.Cursor]:
 
-        if not load_dotenv(dotenv_path):
-            if not load_dotenv(dotenv_path2):
-                raise Exception("Konfigurationsdatei nicht gefunden!")
+        if not path.exists(DB_PATH):
+            raise DatabaseException("Es wurde keine gültige Datenbank gefunden!")
+
+        self.sql3 = sqlite3ConTuple
+        self.sql3.con = sqlite3.connect(DB_PATH)
+        self.sql3.cur = self.sql3.con.cursor()
+
+        return (self.sql3.con, self.sql3.cur)
+
+    def __enter2__(self) -> tuple[mysql.connector.MySQLConnection, mysql.connector.cursor.MySQLCursor]:
+
+        if not load_dotenv(DOTENV_PATH):
+            if not load_dotenv(DOTENV_PATH2):
+                raise Exception("Es konnte keine Konfigurationsdatei gefunden werden!")
 
         HOST = os.getenv("HOST")
         USER = os.getenv("USER")
@@ -37,5 +64,15 @@ class getCrepeDB:
         return self.mydb, self.mydb.cursor()
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        self.mydb.close()
+
+        try:
+            self.mydb.close()
+        except AttributeError:
+            pass
+
+        try:
+            self.sql3.con.close()
+        except AttributeError:
+            pass
+
         return False  # Propagates Exception

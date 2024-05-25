@@ -7,7 +7,7 @@ from flask import (
 # import flask
 from flask_classful import FlaskView, route
 import sqlite3
-import status
+from . import status
 # import status
 
 import datetime
@@ -18,9 +18,21 @@ import get_sales
 from config_loader import config
 import time
 
-from api.api_helpers import get_db, parse_price, get_crepes
+from classes import Crepes_Class
+from mysql_handler._database_handling import getCrepeDB
+from api.api_helpers import parse_price, get_crepes
 from setup_logger import api_logger
 
+a: Crepes_Class
+
+
+# def get_helpers() -> tuple[Callable, Callable]:
+#     from api.api_helpers import parse_price, get_crepes
+#     return parse_price, get_crepes
+
+
+with getCrepeDB():
+    pass
 
 blocked_routes = [
     "/api/banana"
@@ -36,7 +48,7 @@ time_zone = pytz.timezone("Europe/Berlin")
 
 api_bp = Blueprint('api_bp', __name__)
 
-CHANGE_DB = False
+CHANGE_DB = True
 """If False, does not write changes to the database"""
 
 if not CHANGE_DB:
@@ -44,11 +56,16 @@ if not CHANGE_DB:
     api_logger.warning("Data is not written to the database!")
 
 
+def get_api_bp() -> Blueprint:
+    return api_bp
+
+
 class CrepesView(FlaskView):
 
     @staticmethod
     @route("/get", methods=("GET",))
     def get():
+        # _, get_crepes = get_helpers()
         crepes = get_crepes(as_dict=True)
         if (crepes):
             return crepes
@@ -69,27 +86,25 @@ class CrepesView(FlaskView):
             api_logger.info("Crêpe deleted")
             return {"status": "success", "deleted": data_list}
 
-        con, cur = get_db()
         error_detail: str | None = None
 
-        for data in data_list:
-            id = data["id"]
-            name = data["name"]
+        with getCrepeDB() as (_, cur):
+            for data in data_list:
+                id = data["id"]
+                name = data["name"]
 
-            cur.execute("SELECT name FROM `Crêpes` WHERE id = ?", [id,])
-            db_name: str = cur.fetchone()[0]
+                cur.execute("SELECT name FROM `Crêpes` WHERE id = ?", [id,])
+                db_name: str = cur.fetchone()[0]
 
-            if db_name == name:
-                cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?",
-                            [id, name])
-            else:
-                api_logger.exception("Der zu löschende Crepe wurde nicht \
-                                  gefunden!")
-                error_detail = f"requested crepe not found! ({name})"
-                break
+                if db_name == name:
+                    cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?",
+                                [id, name])
+                else:
+                    api_logger.exception("Der zu löschende Crepe wurde nicht \
+                                    gefunden!")
+                    error_detail = f"requested crepe not found! ({name})"
+                    break
 
-        con.commit()
-        con.close()
         if error_detail:
             return {"status": "failed", "detail": error_detail}
         else:
@@ -121,24 +136,19 @@ class CrepesView(FlaskView):
             api_logger.info(f"Parsed Crêpes: {name} || {price} || {ingredients} \
                          || {color}")
 
-            con, cur = get_db()
+            with getCrepeDB() as (_, cur):
+                try:
+                    cur.execute("INSERT INTO Crêpes (name, price, ingredients,\
+                                colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
+                except sqlite3.OperationalError as e:
+                    return {"status": "error", "type": "database", "error": e.sqlite_errorname}
 
-            try:
-                cur.execute("INSERT INTO Crêpes (name, price, ingredients,\
-                             colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
-                con.commit()
-            except sqlite3.OperationalError as e:
-                return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-
-            except sqlite3.IntegrityError as e:
-                if e.sqlite_errorcode == 2067:
-                    return {"status": "error", "type": "crepe_exists"}
-
-                return {"status": "error", "type": "database", "error": e.sqlite_errorname}
-            except Exception:
-                return {"status": "error", "type": "unknown"}
-
-            con.close()
+                except sqlite3.IntegrityError as e:
+                    if e.sqlite_errorcode == 2067:
+                        return {"status": "error", "type": "crepe_exists"}
+                    return {"status": "error", "type": "database", "error": e.sqlite_errorname}
+                except Exception:
+                    return {"status": "error", "type": "unknown"}
 
         return {"status": "success"}
 
@@ -150,91 +160,117 @@ class CrepesView(FlaskView):
             api_logger.info("Edited Crêpe")
             return {"status": "success"}
 
-        con, cur = get_db()
         data = request.get_json()
         api_logger.debug(f"Edited Crêpes arrived!\nData: {data}")
-        for crepe in data:
-            id = crepe["id"]
-            name = crepe["name"]
-            price = crepe["price"]
-            price_str = parse_price(price)
 
-            cur.execute("SELECT name, price FROM Crêpes WHERE id=?", id)
-            res = cur.fetchone()
-            db_name = res[0]
-            db_price = res[1]
-            db_price_str = str(db_price).replace("\xa0", " ")
-            api_logger.debug(f"DB_Data: {db_name} ({type(db_name)}) :: {db_price} ({type(db_price)})")
+        with getCrepeDB() as (_, cur):
+            for crepe in data:
+                id = crepe["id"]
+                name = crepe["name"]
+                price = crepe["price"]
+                price_str = parse_price(price)
 
-            if (db_price != price_str):
-                api_logger.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
-                cur.execute("UPDATE Crêpes SET price=? WHERE id=?", (price, id))
-            if name != db_name:
-                api_logger.info(f"Database & Edited are not the same! {name} vs {db_name}")
-                cur.execute("UPDATE Crêpes SET name=? WHERE id=?", (name, id))
+                cur.execute("SELECT name, price FROM Crêpes WHERE id=?", id)
+                res = cur.fetchone()
+                db_name = res[0]
+                db_price = res[1]
+                db_price_str = str(db_price).replace("\xa0", " ")
+                api_logger.debug(f"DB_Data: {db_name} ({type(db_name)}) :: {db_price} ({type(db_price)})")
 
-        con.commit()
-        con.close()
+                if (db_price != price_str):
+                    api_logger.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
+                    cur.execute("UPDATE Crêpes SET price=? WHERE id=?", (price, id))
+                if name != db_name:
+                    api_logger.info(f"Database & Edited are not the same! {name} vs {db_name}")
+                    cur.execute("UPDATE Crêpes SET name=? WHERE id=?", (name, id))
+
         return {"status": "success"}
 
     @staticmethod
     @route("/sold", methods=("POST",))
     def crepe_sold():
 
-        if not CHANGE_DB:
+        if CHANGE_DB:
             api_logger.info("Sold Crêpes")
+        else:
+            api_logger.info("Sold Crêpes, but did not write to db")
             return {"status": "success"}
 
-        con, cur = get_db()
-        try:
-            data = request.json
-            if (data is None):
-                return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
+        to_return = {}, 0
 
-            api_logger.debug(f"New Crêpes: {data}")
-
-            to_db: list[tuple] = []
-
+        with getCrepeDB() as (_, cur):
             try:
-                cur.execute("SELECT MAX(saleID) FROM sales")
-                saleID_next = int(cur.fetchone()[0]) + 1
+                data = request.json
+                if (data is None):
+                    return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
+
+                api_logger.debug(f"New Sale: {data}")
+
+                to_db: list[tuple] = []
+
+                try:
+                    cur.execute("SELECT MAX(saleID) FROM sales")
+                    saleID_next = int(cur.fetchone()[0]) + 1
+                except Exception as e:
+                    api_logger.error(f"There has been an error: {e}")
+                    saleID_next = 0
+
+                now_time = datetime.datetime.now().isoformat()
+                SQL_SALE = "INSERT INTO sales (saletime, total, ownConsumption) VALUES (?, ?, ?)"
+
+                # match request.headers["ownConsumption"]:
+                #     case "true":
+                #         consumpt = "own"
+                #     case "false":
+                #         consumpt = "foreign"
+                #     case _:
+                #         consumpt = "unknown"
+
+                consumpt = request.headers["ownConsumption"]
+
+                total: float = 0.0
+
+                for crepe in data:
+                    total += float(crepe["price"])
+
+                api_logger.info(f"Total Value: {total=}")
+
+                api_logger.info(f"{now_time=} || {total=} || {consumpt=}")
+
+                cur.execute(SQL_SALE, (now_time, total, consumpt))
+                saleID = cur.lastrowid
+
+                SQL_SALE_ITEM = "INSERT INTO salesItem (`crêpesId`, saleId, amount, price) VALUES (?, ?, ?, ?)"
+
+                for crepe in data:
+                    cID = crepe["crepeId"]
+                    cNAME = crepe["name"]
+                    cPREIS = crepe["price"]
+                    cAMOUNT = crepe["amount"]
+
+                    if 'ownConsumption' in request.headers:
+                        consumpt = request.headers["ownConsumption"]
+                    else:
+                        api_logger.fatal("Own Consumption not found in headers!")
+
+                    if saleID is None: 
+                        raise Exception("Unerwartete Daten!")
+
+                    api_logger.info(f"{SQL_SALE_ITEM=} || ({cID=}, {saleID=}, {cAMOUNT=}, {cPREIS=})")
+                    cur.execute(SQL_SALE_ITEM, (cID, saleID, cAMOUNT, cPREIS))
+
+                    api_logger.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}; OWNCONSUMPTION: {consumpt}")
+
+                api_logger.info(f"{to_db=}")
+
+                api_logger.debug("Inserted Sale!")
             except Exception as e:
-                api_logger.error(f"There has been an error: {e}")
-                saleID_next = 0
-
-            api_logger.debug(f"Next SaleID: {saleID_next}")
-
-            now_time = datetime.datetime.now().isoformat()
-            for crepe in data:
-                cID = crepe["crepeId"]
-                cNAME = crepe["name"]
-                cPREIS = crepe["preis"]
-                cAMOUNT = crepe["amount"]
-
-                if 'ownConsumption' in request.headers:
-                    consumpt = request.headers["ownConsumption"]
-                else:
-                    api_logger.fatal("Own Consumption not found in headers!")
-
-                to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time, consumpt))
-
-                api_logger.debug(f"Sold: ID: {cID}; NAME: {cNAME}; PREIS: {cPREIS}; AMOUNT: {cAMOUNT}; OWNCONSUMPTION: {consumpt}")
-
-            cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, time, Consumption) VALUES (?, ?, ?, ?, ?, ?)", to_db)
-
-            api_logger.debug("Inserted Crêpes!")
-            api_logger.debug(cur.fetchone())
-
-            cur.connection.commit()
-            con.commit()
-            con.close()
-        except Exception as e:
-            api_logger.exception(e)
-            con.close()
-            con.close()
-            return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
-        con.close()
-        return {"status": "success"}, status.HTTP_200_OK
+                api_logger.exception(e)
+                to_return = {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
+            else:
+                to_return = {"status": "success"}, status.HTTP_200_OK
+            finally:
+                cur.connection.commit()
 
 
 class SalesView(FlaskView):
@@ -250,46 +286,43 @@ class SalesView(FlaskView):
     @staticmethod
     @route("/sold")
     def get_sold_crepe():
-        con, cur = get_db()
-        try:
-            data = request.json
-            if (data is None):
-                return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
-
-            api_logger.debug(f"New Crêpes: {data}")
-
-            to_db: list[tuple] = []
-
+        with getCrepeDB() as (_, cur):
             try:
-                cur.execute("SELECT MAX(saleID) FROM sales")
-                saleID_next = int(cur.fetchone()[0]) + 1
+                data = request.json
+                if (data is None):
+                    return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
+
+                api_logger.debug(f"New Crêpes: {data}")
+
+                to_db: list[tuple] = []
+
+                try:
+                    cur.execute("SELECT MAX(saleID) FROM sales")
+                    saleID_next = int(cur.fetchone()[0]) + 1
+                except Exception as e:
+                    api_logger.error(f"There has been an error: {e}")
+                    saleID_next = 0
+
+                api_logger.debug(f"Next SaleID: {saleID_next}")
+
+                now_time = datetime.datetime.now().isoformat()
+                for crepe in data:
+                    cID = crepe["crepeId"]
+                    cNAME = crepe["name"]
+                    cPREIS = crepe["preis"]
+                    cAMOUNT = crepe["amount"]
+
+                    to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time))
+
+                    api_logger.debug(f"Sold: ID: {cID}; NAME: {cNAME}; \
+                                PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
+
+                cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, \
+                                time) VALUES (?, ?, ?, ?, ?)", to_db)
+
             except Exception as e:
-                api_logger.error(f"There has been an error: {e}")
-                saleID_next = 0
-
-            api_logger.debug(f"Next SaleID: {saleID_next}")
-
-            now_time = datetime.datetime.now().isoformat()
-            for crepe in data:
-                cID = crepe["crepeId"]
-                cNAME = crepe["name"]
-                cPREIS = crepe["preis"]
-                cAMOUNT = crepe["amount"]
-
-                to_db.append((saleID_next, cNAME, cAMOUNT, cPREIS, now_time))
-
-                api_logger.debug(f"Sold: ID: {cID}; NAME: {cNAME}; \
-                              PREIS: {cPREIS}; AMOUNT: {cAMOUNT}")
-
-            cur.executemany("INSERT INTO sales (saleID, crepe, amount, price, \
-                             time) VALUES (?, ?, ?, ?, ?)", to_db)
-
-            con.commit()
-        except Exception as e:
-            api_logger.exception(e)
-            con.close()
-            return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
-        con.close()
+                api_logger.exception(e)
+                return {"status": "failed"}, status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"status": "success"}, status.HTTP_200_OK
 
     @staticmethod
@@ -315,15 +348,24 @@ def before_request():
     if request.headers.get("X-crepeAuth", "") == config.get("SECRETS", "auth_key"):
         return                                                                      # Go on with routing
     else:
+        api_logger.critical(f"Unauthorized access! {request.headers.get(key='X-crepeAuth', default='NOT_GIVEN')}")
         return {"status": "notAuthorized"}, status.HTTP_401_UNAUTHORIZED            # Stop unauthorized access
 
 
 @api_bp.get("/checkAuth")
-def check_auth():
-    if request.headers.get("X-crepeAuth", "PPP") == os.getenv("AUTH_KEY"):
+def check_auth() -> tuple[dict, int]:
+    if (verify_auth(request.headers.get("X-crepeAuth", "nope"))):
         return {"authStatus": "authorized"}, status.HTTP_200_OK
     else:
         return {"authStatus": "unauthorized"}, status.HTTP_401_UNAUTHORIZED
+
+
+def verify_auth(token: str) -> bool:
+    correct = os.getenv("AUTH_KEY")
+    if token == correct:
+        return True
+    else:
+        return False
 
 
 CrepesView.register(api_bp, route_base="/crepes")

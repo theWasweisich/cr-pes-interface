@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var in_table = [];
+var table;
 // Imported: formatter, set_data, Crêpes2, crepelist, set_color from global
 /**
  * Function that is called once user clicks one of the crepecontrol
@@ -16,20 +17,21 @@ var in_table = [];
  * @param button (optional) The button that has been clicked on
  */
 function button_pressed_action(target, crepes_class, button) {
+    var new_amount = 0;
     if (button == undefined) {
         console.error("Undefined Button!");
-        var new_amount = table.add_one_crepe(crepes_class);
+        new_amount = table.add_one_crepe(crepes_class);
     }
     else {
         if (button.classList.contains('add')) {
-            var new_amount = table.add_one_crepe(crepes_class);
+            new_amount = table.add_one_crepe(crepes_class);
         }
         else if (button.classList.contains('remove')) {
             if (crepes_class.amount == 0) {
                 return;
             }
             table.remove_one_crepe(crepes_class); // FIXME
-            var new_amount = crepes_class.amount;
+            new_amount = crepes_class.amount;
         }
     }
     console.assert(target != null, "Wasn da los?");
@@ -99,11 +101,14 @@ function setup() {
         });
     });
 }
-setup();
-/**
- * Use this whenever accessing the Table
- */
-var table = new Table();
+function crepes_onload() {
+    set_listeners_up();
+    setup();
+    /**
+     * Use this whenever accessing the Table
+     */
+    table = new Table();
+}
 /**
  * Funktion, mit der man mithilfe des HTMLElementes den Crêpe bekommt
  * @param elem The root div element of the crêpe
