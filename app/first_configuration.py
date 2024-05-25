@@ -137,10 +137,18 @@ def create_config():
 
 def prepare_database():
     print(bcolors.HEADER + "[*] --- Datenbank wird vorbereitet --- [*]\n" + bcolors.ENDC)
-    con = sqlite3.connect("datenbank.db")
+    if os.path.exists("./db/"):
+        if os.path.exists("./db/datenbank.db"):
+            return
+        try:
+            open("./db/datenbank.db", "w").close()
+        except FileExistsError:
+            pass
+
+    con = sqlite3.connect("./db/datenbank.db")
 
     cur = con.cursor()
-    with open('datenbank-schema.sql', "r") as f:
+    with open('./db/datenbank.schema', "r") as f:
         script = f.read()
 
     cur.executescript(script)
@@ -148,11 +156,10 @@ def prepare_database():
     print(bcolors.OKGREEN + "[+] Datenbank erfolgreich erstellt!\n" + bcolors.ENDC)
 
 
+@atexit.register
 def exitfunc():
     print(bcolors.ENDC)
 
-
-atexit.register(exitfunc)
 
 if __name__ == "__main__":
 

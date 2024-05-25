@@ -24,7 +24,7 @@ from user_handling import get_db
 import user_handling
 
 from config_loader import config
-import argparse
+from utilities.arg_handler import parser
 
 from api.api_blueprint import get_api_bp
 
@@ -36,63 +36,16 @@ api_bp = get_api_bp()
 
 os.chdir(os.path.dirname(__file__))  # Set current working directory to the app/ folder, in order for relative paths to work :)
 
-parser = argparse.ArgumentParser(
-    usage="The Crêpes Application",
-)
-
-group = parser.add_mutually_exclusive_group(required=False)
-
-parser.add_argument(
-    "-v",
-    "--verbose",
-    action="store_true", 
-    dest="verbose", 
-    default=False,
-    help="Run in verbose Mode"
-)
-
-group.add_argument(
-    "-p", 
-    "--production", 
-    action="store_true", 
-    dest="runProd", 
-    default=False,
-    help="Configure Server to simulate production environment"
-)
-
-group.add_argument(
-    "-w", 
-    "--waitress", 
-    action="store_true", 
-    dest="runWaitress", 
-    default=False,
-    help="Configure Server to use waitress to serve app"
-)
-
-group.add_argument(
-    "-d", 
-    "--debug", 
-    action="store_true", 
-    dest="runDebug", 
-    default=False,
-    help="Configure Server to run in development configuration"
-)
-
 
 class ArgumentError(Exception):
     pass
 
 
-VERBOSE = False
 args = parser.parse_args()
 if args.runWaitress and args.runProd:
     raise ArgumentError("Es kann nicht gleichzeitig der Waitress-Modus und Produktionsmodus aktiviert sein!")
 
 if args.verbose:
-    VERBOSE = True
-
-
-if VERBOSE:
     access_logger.addHandler(logging.StreamHandler())
 
 
@@ -270,7 +223,7 @@ def serve_warning_favicon():
 
 @app.route("/init", methods=("GET", "POST"))
 def initialisation():
-    logging.debug("Sections: " + repr(config.sections()))
+    app.logger.debug("Sections: " + repr(config.sections()))
 
     if request.method == "GET":
         return send_from_directory("./static/html/", "init.html")
@@ -312,14 +265,12 @@ def do_before_request_stuff():
         logger.setLevel(logging.DEBUG)
 
 
+@app.register_error_handler(404)
 def bad_request(e):
     if request.referrer:
         if "einstellungen" in request.referrer:
             return redirect("/einstellungen")
     return redirect("/")
-
-
-app.register_error_handler(404, bad_request)
 
 
 @atexit.register
