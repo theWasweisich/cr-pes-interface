@@ -125,6 +125,7 @@ def serve_login():
             return redirect("/login?login=failed", status.HTTP_303_SEE_OTHER)
 
         user = user_handling.get_user_from_username_and_password(username, password)
+        app.logger.warning(f"User: {user=}")
 
         if user is None:
             logging.warning(f"Failed Login Attempt! User: {user}")
@@ -132,28 +133,25 @@ def serve_login():
 
         try:
             if user.current_key is None:
-                secret_key = secrets.token_hex(100)
-                session["secret"] = secret_key
+                secret_key = secrets.token_bytes(100)
 
+                session["secret"] = secret_key
                 user.set_key(secret_key)
-            else:
-                secret_key = user.get_key()
-                if not secret_key:
-                    return redirect("/login")
+                assert user.get_key() == secret_key
 
             if user.priviledge == 10:
 
                 resp = redirect("/einstellungen")
-                resp.set_cookie('secret', secret_key, 3600)
+                resp.set_cookie(key='secret', value=str(secret_key), max_age=3600)
                 session["secret"] = secret_key
-                return redirect("/einstellungen")
+                return resp
 
             elif user.priviledge == 5:
 
                 resp = redirect("/schichten")
-                resp.set_cookie('secret', secret_key, 3600)
+                resp.set_cookie(key='secret', value=str(secret_key), max_age=3600)
                 session["secret"] = secret_key
-                return redirect("/schichten")
+                return resp
 
         except TypeError:
             return redirect("/login")

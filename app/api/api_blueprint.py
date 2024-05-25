@@ -328,8 +328,8 @@ class SalesView(FlaskView):
     @staticmethod
     @route("/get")
     def get_sales():
-        data = get_sales.get_dict()
-        return json.dumps(data), status.HTTP_200_OK
+        data = get_sales.create_sale_map()
+        return data, status.HTTP_200_OK
 
     @staticmethod
     @route("/heatmap")

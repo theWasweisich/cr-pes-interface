@@ -2,28 +2,42 @@ from dataclasses import dataclass
 import datetime
 import json
 import logging
-from typing import TypedDict
+from typing import TypedDict, Literal
+from mysql_handler._database_handling import getCrepeDB
 
 
 @dataclass
 class User:
-    def __init__(self, username, priviledge, current_key) -> None:
-        self.username = username
-        self.priviledge = priviledge
-        self.current_key = current_key
+    def __init__(self, id: int, username: str, priviledge: int, current_key: bytes) -> None:
+        self.id: int = id
+        self.username: str = username
+        self.priviledge: int = priviledge
+        self.current_key: bytes | None = current_key
 
     def is_authorized(self, level: int):
         logging.debug(f"Trying to authorize {self} to Level: {level}")
         return self.priviledge >= level
 
-    def get_key(self):
+    def get_key(self) -> bytes | None:
+        """Returns the users current key
+
+        Returns:
+            str: The users key
+        """
         return self.current_key
 
-    def set_key(self, key: str):
+    def set_key(self, key: bytes):
         self.current_key = key
+        with getCrepeDB() as (_, cur):
+            cur.execute("UPDATE users SET current_key = ? WHERE id = ?", (self.current_key, self.id))
+            cur.connection.commit()
 
-    def __str__(self):
-        return f"Username: {self.username} || Priviledge: {self.priviledge}"
+    def __repr__(self) -> str:
+        return json.dumps({
+            "username": self.username,
+            "priviledge": self.priviledge,
+            "current_key": self.current_key
+        })
 
 
 class CrepeSaleDict(TypedDict):
@@ -51,6 +65,7 @@ class CrepeSale():
         return CrepeSaleDict({"id": self.id, "saleID": self.saleID, "name": self.name, "amount": self.amount, "price": self.price, "time": self.time})
 
 
+@dataclass
 class Crepes_Class():
     def __init__(self, id: int, name: str, price: float, ingredients: list[str], color: str) -> None:
         self.id = id
@@ -71,6 +86,25 @@ class Crepes_Class():
             "ingredients": json.dumps(self.ingredients),
             "colour": self.color
          }
+
+
+@dataclass
+class SaleItem():
+    id: int
+    crepesId: int
+    saleId: int
+    amount: int
+    price: float
+    crepe: dict
+
+
+@dataclass
+class SingularSale():
+    id: int
+    saleTime: str
+    total: float
+    ownConsumption: bool | Literal["unknown"]
+    saleItems: list[dict]
 
 
 @dataclass
