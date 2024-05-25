@@ -1,0 +1,68 @@
+
+[
+    {
+        "name": "Zimt & Zucker",
+        "price": 2.5,
+        "type": "sweet"
+    },
+    {
+        "name": "Schoko",
+        "price": 3,
+        "type": "sweet"
+    },
+    {
+        "name": "Apfelmus & Zimt",
+        "price": 3,
+        "type": "sweet"
+    },
+    {
+        "name": "Schoko & Banane",
+        "price": 3.5,
+        "type": "sweet"
+    },
+    {
+        "name": "Kinderschokolade",
+        "price": 3.5,
+        "type": "sweet"
+    },
+    {
+        "name": "Käse",
+        "price": 3,
+        "type": "hearty"
+    },
+    {
+        "name": "Schinken",
+        "price": 3,
+        "type": "hearty"
+    },
+    {
+        "name": "Käse & Schinken",
+        "price": 3.5,
+        "type": "hearty"
+    },
+    {
+        "name": "Spezial",
+        "price": 4,
+        "type": "special"
+    },
+    {
+        "name": "Pizza",
+        "price": 4.5,
+        "type": "hearty"
+    },
+    {
+        "name": "Italiano",
+        "price": 4.5,
+        "type": "special"
+    },
+    {
+        "name": "Crêpe Natur",
+        "price": 2,
+        "type": "hearty"
+    },
+    {
+        "name": "Jahrescrêpes 'Raphael'",
+        "price": 3.5,
+        "type": "special"
+    }
+]
