@@ -125,7 +125,8 @@ def create_sale_map():
             continue
         for item in items:
             singular.saleItems.append(item.__dict__)
-        salemap[singular.id](singular.__dict__)
+        salemap[singular.id] = singular.__dict__
+    logging.info(f"Präparierte SaleMap: {json.dumps(salemap)=}")
     return json.dumps(salemap)
 
 

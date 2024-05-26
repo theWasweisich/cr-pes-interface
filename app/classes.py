@@ -36,7 +36,7 @@ class User:
         return json.dumps({
             "username": self.username,
             "priviledge": self.priviledge,
-            "current_key": self.current_key
+            "current_key": str(self.current_key)
         })
 
 

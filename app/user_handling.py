@@ -77,7 +77,7 @@ def get_user_from_username_and_password(username: str, password: str) -> User | 
 
     if db_password == hashed_pass:
         user = User(id=id, username=db_username, priviledge=priviledge, current_key=current_key)
-        logging.error(f"Returning User {user}")
+        logging.error(f"Returning User {user.username}")
         return user
     logging.error(f"Passwords do not match! {db_password=} vs. {hashed_pass=}")
     return None

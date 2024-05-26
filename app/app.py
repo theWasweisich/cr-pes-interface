@@ -142,15 +142,15 @@ def serve_login():
             if user.priviledge == 10:
 
                 resp = redirect("/einstellungen")
-                resp.set_cookie(key='secret', value=str(secret_key), max_age=3600)
-                session["secret"] = secret_key
+                resp.set_cookie(key='secret', value=str(user.current_key), max_age=3600)
+                session["secret"] = user.current_key
                 return resp
 
             elif user.priviledge == 5:
 
                 resp = redirect("/schichten")
-                resp.set_cookie(key='secret', value=str(secret_key), max_age=3600)
-                session["secret"] = secret_key
+                resp.set_cookie(key='secret', value=str(user.current_key), max_age=3600)
+                session["secret"] = user.current_key
                 return resp
 
         except TypeError:
@@ -301,9 +301,7 @@ if __name__ == "__main__":
     elif args.runDebug:
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
 
-        logging.getLogger("werkzeug").setLevel(logging.FATAL)
         app.run(host='127.0.0.1', port=80, debug=True)
-        logging.getLogger("werkzeug").setLevel(logging.INFO)
 
     # elif args.runDebug: <-- This does not work, because waitress cannot create an instance if directed from outside
     else:
@@ -311,6 +309,4 @@ if __name__ == "__main__":
 
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
 
-        logging.getLogger("werkzeug").setLevel(logging.FATAL)
         app.run(host='127.0.0.1', port=80, debug=False)
-        logging.getLogger("werkzeug").setLevel(logging.INFO)
