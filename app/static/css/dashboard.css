@@ -20,7 +20,7 @@ fieldset {
 table {
     padding-inline: 5px;
     width: 100%;
-    border-spacing: 0;
+    border-spacing: 5px;
     border-collapse: collapse;
     border-style: hidden;
     outline: 0.5px solid;
@@ -28,7 +28,7 @@ table {
 
     th {
         background-color: rgb(82, 86, 89);
-        border-bottom: 1px solid black;
+        border-bottom: 2px solid;
     }
 
     tr {
@@ -46,7 +46,15 @@ table {
     }
 
     td[data-cell]>button {
-        width: 100%;
+        width: 75%;
+        height: 75%;
+    }
+
+    td[data-cell="Details"], th[data-cell="Details"] {
+        text-align: center;
+    }
+
+    td[data-cell="Details"] {
         height: 100%;
     }
 
@@ -62,6 +70,18 @@ table {
             text-decoration: double underline;
             text-underline-offset: 1ex;
         }
+    }
+}
+
+dialog {
+
+    thead {
+        border: 1px solid;
+    }
+
+    td {
+        padding-inline: 5px;
+        padding-block: 7px;
     }
 }
 

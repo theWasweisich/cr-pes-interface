@@ -62,6 +62,7 @@ function map_data(data) {
         sale.set("total", Number(singularSale["total"]));
         sales.push(sale);
     });
+    sales_data = sales;
     return sales;
 }
 function map_sale_items(items) {
@@ -84,6 +85,49 @@ function populate_with_all(map) {
         populate_sales_table(salesMap);
     });
 }
+function saleDetailsDialogFunc(saleId) {
+    const dialog = document.getElementById("saleDetailsDialog");
+    const template = dialog.querySelector("template");
+    const tbody = dialog.querySelector("tbody");
+    function closeDialog() {
+        for (let i = 0; i < tbody.children.length; i++) {
+            const child = tbody.children[i];
+            child.remove();
+        }
+        dialog.close();
+    }
+    dialog.addEventListener('click', (event) => {
+        event.stopPropagation();
+        var rect = dialog.getBoundingClientRect();
+        var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+            rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+        if (!isInDialog) {
+            closeDialog();
+        }
+    });
+    if (dialog.open) {
+        closeDialog();
+    }
+    else {
+        dialog.showModal();
+    }
+    sales_data.forEach(sale_map => {
+        let all_crepes = sale_map.get("saleItems");
+        all_crepes.forEach(crepe => {
+            let clone = template.content.cloneNode(true);
+            let crêpeAmount = Number(crepe.get("amount"));
+            let fullPrice = Number(crepe.get("fullPrice"));
+            let crepe_name = crepe.get("crepe_name");
+            let crepe_single_price = Number(crepe.get("crepe_single_price"));
+            let crepe_ingredients = crepe.get("crepe_ingredients"); // TODO: Das könnte noch irgendwie verwendet werden irgendwo?
+            clone.querySelector('td[data-cell="amount"]').innerHTML = String(crêpeAmount);
+            clone.querySelector('td[data-cell="name"]').innerHTML = crepe_name;
+            clone.querySelector('td[data-cell="singlePrice"]').innerHTML = currency_formatter.format(crepe_single_price);
+            clone.querySelector('td[data-cell="combinedPrice"]').innerHTML = currency_formatter.format(fullPrice);
+            tbody.appendChild(clone);
+        });
+    });
+}
 function populate_sales_table(sale) {
     let tableBody = document.getElementById("sales-tbody");
     let template = document.getElementById("saleTable_template");
@@ -91,9 +135,12 @@ function populate_sales_table(sale) {
     const row = clone.querySelector("tr");
     let saleTime = format_time(sale.get("saleTime"));
     let total = format_money(sale.get("total"));
-    row.setAttribute("data-id", sale.get("id"));
+    let saleId = sale.get("id");
+    row.setAttribute("data-id", saleId);
     row.querySelector('td[data-cell="Time"]').innerHTML = saleTime;
     row.querySelector('td[data-cell="Revenue"]').innerHTML = total;
+    let detailsBtn = row.querySelector('td[data-cell="Details"]');
+    detailsBtn.setAttribute("onclick", `saleDetailsDialogFunc(${saleId});`);
     tableBody.appendChild(row);
 }
 function format_time(time) { return time_formatter.format(time); }
