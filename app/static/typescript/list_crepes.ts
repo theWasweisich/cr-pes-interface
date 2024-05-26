@@ -116,7 +116,7 @@ function insertCrêpe(crêpe: Crêpe): HTMLElement {
     
         const price = document.createElement("p")
         price.setAttribute("name", "price")
-        price.innerText = formatter.format(crêpe.price)
+        price.innerText = currency_formatter.format(crêpe.price)
     
         root.appendChild(crepecontrol)
         root.appendChild(name)
@@ -149,7 +149,7 @@ function insertCrêpe(crêpe: Crêpe): HTMLElement {
     (root.querySelector('h4') as HTMLElement).innerText = crêpe.name;
     let priceElem = root.querySelector('p[type="price"]') as HTMLElement;
     
-    priceElem.innerText = formatter.format(crêpe.price);
+    priceElem.innerText = currency_formatter.format(crêpe.price);
 
     root.addEventListener("click", (ev: MouseEvent) => event_listener(ev), true);
 

@@ -1,4 +1,5 @@
-from setup_logger import access_logger, server_handler, werkzeug_handler
+import json
+from setup_logger import access_logger, server_handler, werkzeug_handler, root_logger
 import os
 
 from datetime import datetime
@@ -20,11 +21,11 @@ import logging
 import secrets
 # import sys
 
-from user_handling import get_db
+from mysql_handler._database_handling import getCrepeDB
 import user_handling
 
 from config_loader import config
-import argparse
+from utilities.arg_handler import parser
 
 from api.api_blueprint import get_api_bp
 
@@ -36,63 +37,16 @@ api_bp = get_api_bp()
 
 os.chdir(os.path.dirname(__file__))  # Set current working directory to the app/ folder, in order for relative paths to work :)
 
-parser = argparse.ArgumentParser(
-    usage="The Crêpes Application",
-)
-
-group = parser.add_mutually_exclusive_group(required=False)
-
-parser.add_argument(
-    "-v",
-    "--verbose",
-    action="store_true", 
-    dest="verbose", 
-    default=False,
-    help="Run in verbose Mode"
-)
-
-group.add_argument(
-    "-p", 
-    "--production", 
-    action="store_true", 
-    dest="runProd", 
-    default=False,
-    help="Configure Server to simulate production environment"
-)
-
-group.add_argument(
-    "-w", 
-    "--waitress", 
-    action="store_true", 
-    dest="runWaitress", 
-    default=False,
-    help="Configure Server to use waitress to serve app"
-)
-
-group.add_argument(
-    "-d", 
-    "--debug", 
-    action="store_true", 
-    dest="runDebug", 
-    default=False,
-    help="Configure Server to run in development configuration"
-)
-
 
 class ArgumentError(Exception):
     pass
 
 
-VERBOSE = False
 args = parser.parse_args()
 if args.runWaitress and args.runProd:
     raise ArgumentError("Es kann nicht gleichzeitig der Waitress-Modus und Produktionsmodus aktiviert sein!")
 
 if args.verbose:
-    VERBOSE = True
-
-
-if VERBOSE:
     access_logger.addHandler(logging.StreamHandler())
 
 
@@ -108,6 +62,10 @@ ext = flask_sitemap.Sitemap(app=app)
 
 app.logger.removeHandler(default_handler)
 app.logger.addHandler(server_handler)
+app.config.update(
+    SESSION_COOKIE_SECURE=False,
+    SESSION_COOKIE_SAMESITE="Lax"
+)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
@@ -129,10 +87,9 @@ sales: list = []
 
 
 def valid_keys() -> list[str]:
-    con, cur = get_db()
-    cur.execute("SELECT s_key FROM secret_keys")
-    keys = cur.fetchall()
-    con.close()
+    with getCrepeDB() as (_, cur):
+        cur.execute("SELECT s_key FROM secret_keys")
+        keys = cur.fetchall()
     for i in range(len(keys)):
         keys[i] = keys[i][0]
     return keys
@@ -172,6 +129,7 @@ def serve_login():
             return redirect("/login?login=failed", status.HTTP_303_SEE_OTHER)
 
         user = user_handling.get_user_from_username_and_password(username, password)
+        app.logger.warning(f"User: {user=}")
 
         if user is None:
             logging.warning(f"Failed Login Attempt! User: {user}")
@@ -179,28 +137,25 @@ def serve_login():
 
         try:
             if user.current_key is None:
-                secret_key = secrets.token_hex(100)
-                session["secret"] = secret_key
+                secret_key = secrets.token_bytes(100)
 
+                session["secret"] = secret_key
                 user.set_key(secret_key)
-            else:
-                secret_key = user.get_key()
-                if not secret_key:
-                    return redirect("/login")
+                assert user.get_key() == secret_key
 
             if user.priviledge == 10:
 
                 resp = redirect("/einstellungen")
-                resp.set_cookie('secret', secret_key, 3600)
-                session["secret"] = secret_key
-                return redirect("/einstellungen")
+                resp.set_cookie(key='secret', value=str(user.current_key), max_age=3600)
+                session["secret"] = user.current_key
+                return resp
 
             elif user.priviledge == 5:
 
                 resp = redirect("/schichten")
-                resp.set_cookie('secret', secret_key, 3600)
-                session["secret"] = secret_key
-                return redirect("/schichten")
+                resp.set_cookie(key='secret', value=str(user.current_key), max_age=3600)
+                session["secret"] = user.current_key
+                return resp
 
         except TypeError:
             return redirect("/login")
@@ -270,7 +225,8 @@ def serve_warning_favicon():
 
 @app.route("/init", methods=("GET", "POST"))
 def initialisation():
-    logging.debug("Sections: " + repr(config.sections()))
+    # root_logger.critical("Sections: " + repr(config.sections()))
+    # root_logger.critical("Auth Key: " + repr(config.get("SECRETS", "auth_key")))
 
     if request.method == "GET":
         return send_from_directory("./static/html/", "init.html")
@@ -283,6 +239,7 @@ def initialisation():
                     "key": str(config.get("SECRETS", "auth_key"))
                     }, status.HTTP_200_OK
             else:
+                root_logger.critical("Failed password: " + json.dumps(request.json))
                 return {"status": "failed", "error": "Code does not match"}, status.HTTP_401_UNAUTHORIZED
 
     return 'METHOD NOT ALLOWED', status.HTTP_405_METHOD_NOT_ALLOWED
@@ -348,9 +305,7 @@ if __name__ == "__main__":
     elif args.runDebug:
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
 
-        logging.getLogger("werkzeug").setLevel(logging.FATAL)
         app.run(host='127.0.0.1', port=80, debug=True)
-        logging.getLogger("werkzeug").setLevel(logging.INFO)
 
     # elif args.runDebug: <-- This does not work, because waitress cannot create an instance if directed from outside
     else:
@@ -358,6 +313,4 @@ if __name__ == "__main__":
 
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
 
-        logging.getLogger("werkzeug").setLevel(logging.FATAL)
         app.run(host='127.0.0.1', port=80, debug=False)
-        logging.getLogger("werkzeug").setLevel(logging.INFO)

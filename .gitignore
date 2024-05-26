@@ -14,9 +14,9 @@ __pycache__
 key.pem
 cert.pem
 _venv_activate.bat
-/personal_notes
+personal_notes/
 *.env
-*.db
+#*.db
 /.flitzenv/
 node_modules
 *.ini

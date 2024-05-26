@@ -93,11 +93,11 @@ class CrepesView(FlaskView):
                 id = data["id"]
                 name = data["name"]
 
-                cur.execute("SELECT name FROM `Crêpes` WHERE id = ?", [id,])
+                cur.execute("SELECT name FROM crepes WHERE id = ?", [id,])
                 db_name: str = cur.fetchone()[0]
 
                 if db_name == name:
-                    cur.execute("DELETE FROM Crêpes WHERE id=? AND name=?",
+                    cur.execute("DELETE FROM crepes WHERE id=? AND name=?",
                                 [id, name])
                 else:
                     api_logger.exception("Der zu löschende Crepe wurde nicht \
@@ -138,7 +138,7 @@ class CrepesView(FlaskView):
 
             with getCrepeDB() as (_, cur):
                 try:
-                    cur.execute("INSERT INTO Crêpes (name, price, ingredients,\
+                    cur.execute("INSERT INTO crepes (name, price, ingredients,\
                                 colour) VALUES (?, ?, ?, ?)", (name, price, str(ingredients), color))
                 except sqlite3.OperationalError as e:
                     return {"status": "error", "type": "database", "error": e.sqlite_errorname}
@@ -170,7 +170,7 @@ class CrepesView(FlaskView):
                 price = crepe["price"]
                 price_str = parse_price(price)
 
-                cur.execute("SELECT name, price FROM Crêpes WHERE id=?", id)
+                cur.execute("SELECT name, price FROM crepes WHERE id=?", id)
                 res = cur.fetchone()
                 db_name = res[0]
                 db_price = res[1]
@@ -179,10 +179,10 @@ class CrepesView(FlaskView):
 
                 if (db_price != price_str):
                     api_logger.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
-                    cur.execute("UPDATE Crêpes SET price=? WHERE id=?", (price, id))
+                    cur.execute("UPDATE crepes SET price=? WHERE id=?", (price, id))
                 if name != db_name:
                     api_logger.info(f"Database & Edited are not the same! {name} vs {db_name}")
-                    cur.execute("UPDATE Crêpes SET name=? WHERE id=?", (name, id))
+                    cur.execute("UPDATE crepes SET name=? WHERE id=?", (name, id))
 
         return {"status": "success"}
 
@@ -240,7 +240,7 @@ class CrepesView(FlaskView):
                 cur.execute(SQL_SALE, (now_time, total, consumpt))
                 saleID = cur.lastrowid
 
-                SQL_SALE_ITEM = "INSERT INTO salesItem (`crêpesId`, saleId, amount, price) VALUES (?, ?, ?, ?)"
+                SQL_SALE_ITEM = "INSERT INTO salesItem (`crepesId`, saleId, amount, price) VALUES (?, ?, ?, ?)"
 
                 for crepe in data:
                     cID = crepe["crepeId"]
@@ -328,8 +328,8 @@ class SalesView(FlaskView):
     @staticmethod
     @route("/get")
     def get_sales():
-        data = get_sales.get_dict()
-        return json.dumps(data), status.HTTP_200_OK
+        data = get_sales.create_sale_map()
+        return data, status.HTTP_200_OK
 
     @staticmethod
     @route("/heatmap")

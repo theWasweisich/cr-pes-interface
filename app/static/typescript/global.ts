@@ -15,7 +15,7 @@ const urls = {
 
 var api_key = "";
 
-if (localStorage.getItem("auth") == null) {
+if (localStorage.getItem("auth") === null) {
     window.location.assign("/init");
 } else {
     api_key = localStorage.getItem("auth")
@@ -121,9 +121,19 @@ function set_data(root_element: HTMLElement, crepeId?: string, crepeName?: strin
 /**
  * For formatting number to currency
  */
-const formatter = new Intl.NumberFormat('de-DE', {
+const currency_formatter = new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR'
+})
+
+const time_formatter = new Intl.DateTimeFormat("de-DE", {
+    weekday: "long",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
 })
 
 /**

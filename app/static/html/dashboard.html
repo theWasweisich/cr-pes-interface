@@ -19,11 +19,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body onload="load_sales();">
+<body onload="init();">
     <header>
         <h1>
-            <span class="header-icon">settings</span>
-            <p>Einstellungen</p>
+            <span class="header-icon">monitoring</span>
+            <p>Dashboard</p>
         </h1>
         <div class="header-nav-bar">
             <a href="/"><button type="button" class="crepe-button">Kasse</button></a>
@@ -34,24 +34,55 @@
         <script src="/static/js/handwritten/clock.js" defer></script>
     </header>
 
+    <dialog id="saleDetailsDialog">
+        <h2>Verkaufsdetails:</h2>
+        <template>
+            <tr>
+                <td data-cell="amount"></td>
+                <td data-cell="name"></td>
+                <td data-cell="singlePrice"></td>
+                <td data-cell="combinedPrice"></td>
+            </tr>
+        </template>
+        <table>
+            <thead>
+                <tr>
+                    <td data-cell="amount">Stückzahl</td>
+                    <td data-cell="name">Crêpes</td>
+                    <td data-cell="singlePrice">Einzelpreis</td>
+                    <td data-cell="combinedPrice">Gesamtpreis</td>
+                </tr>
+            </thead>
+            <tbody id="salesDetailsTableBody">
+            </tbody>
+        </table>
+    </dialog>
 
     <fieldset>
         <legend>
             <h2>Vergangene Verkäufe</h2>
         </legend>
+        <template id="saleTable_template">
+            <tr data-id>
+                <td data-cell="Time"></td>
+                <td data-cell="Revenue"></td>
+                <td data-cell="Details">
+                    <button>Details</button>
+                </td>
+            </tr>
+        </template>
         <table id="sales">
             <thead>
                 <tr>
-                    <th data-cell="TIME">Verkauft am</th>
-                    <th data-cell="CrepeName">Crêpe</th>
-                    <th data-cell="Amount">Anzahl</th>
-                    <th data-cell="Price">Preis</th>
+                    <th data-cell="Time">Verkauft am</th>
+                    <th data-cell="Revenue">Einnahmen</th>
+                    <th data-cell="Details">Details</th>
                 </tr>
             </thead>
             <tbody id="sales-tbody">
-
             </tbody>
         </table>
+        <p id="testing"></p>
         <h2 id="global-total">Gesamteinnahmen: <span>0€</span></h2><br>
         <h2>Uhrzeit Verteilung:</h2>
         <canvas id="salesHeatmap"></canvas>

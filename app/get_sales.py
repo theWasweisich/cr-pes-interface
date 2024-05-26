@@ -1,9 +1,12 @@
+import json
 import logging
+from pprint import pprint
 from typing import Annotated, Literal, Optional, Union, overload
 import typing
-from classes import CrepeSale
+from classes import CrepeSale, SingularSale, Crepes_Class, SaleItem
 import datetime
 from sqlite3 import Connection, Cursor
+from mysql_handler._database_handling import getCrepeDB
 
 
 def import_db() -> tuple[Connection, Cursor]:
@@ -16,11 +19,23 @@ sales_complete: list[CrepeSale] = []
 
 
 @overload
-def get_data(as_string=None) -> list[CrepeSale]: ...  # noqa: E704
+def get_data(as_string=None) -> list[CrepeSale]:
+    """Fetches the sales data from the database
+
+    Returns:
+        list[CrepeSale]: A list containing the `CrepeSale` classes
+    """
+    ...
 
 
 @overload
-def get_data(as_string: Literal[True]) -> list[str]: ...  # noqa: E704
+def get_data(as_string: Literal[True]) -> list[str]:
+    """Fetches the sales data from the database
+
+    Returns:
+        list[str]: A list containing `CrepeSale` classes in string representation.
+    """
+    ...
 
 
 def get_data(as_string: Optional[Literal[True]] = None) -> Union[list[CrepeSale], list[str]]:
@@ -49,6 +64,70 @@ def get_data(as_string: Optional[Literal[True]] = None) -> Union[list[CrepeSale]
             return_list.append(CrepeSale(id=int(data[0]), saleID=int(data[1]), name=data[2], amount=int(data[3]), price=float(data[4]), time=time_))
         sales_complete.extend(return_list)
     return return_list
+
+
+def get_all_sales() -> list[SingularSale]:
+    to_return: list[SingularSale] = []
+
+    with getCrepeDB() as (_, cur):
+        SQL_QUERY = "SELECT id, saletime, total, ownConsumption FROM sales"
+        cur.execute(SQL_QUERY)
+        res = cur.fetchall()
+
+    for sale in res:
+        id: int = int(sale[0])
+        saletime: str = datetime.datetime.fromisoformat(sale[1]).isoformat()
+        total: float = float(sale[2])
+        ownConsumption: bool | Literal["unknown"] = sale[3]
+
+        to_return.append(SingularSale(id=id, saleTime=saletime, total=total, ownConsumption=ownConsumption, saleItems=[]))
+
+    return to_return
+
+
+def get_all_saleItems(saleId: int):
+    """Get a list of `saleItem` referring of a given saleId
+
+    Args:
+        saleId (int): The saleId
+    """
+    SQL1 = "SELECT id, crepesID, saleId, amount, price FROM salesItem WHERE saleId = ?"
+    SQL2 = "SELECT id, name, price, ingredients, colour, type FROM crepes WHERE id = ?"
+
+    saleItems: list[SaleItem] = []
+
+    with getCrepeDB() as (_, cur):
+        cur.execute(SQL1, (saleId,))
+        res = cur.fetchall()
+        for saleItem in res:
+            id: int = int(saleItem[0])
+            crepesId: int = int(saleItem[1])
+            amount: int = int(saleItem[3])
+            price: float = float(saleItem[4])
+
+            # Crêpe-Name raussuchen:
+            cur.execute(SQL2, (crepesId,))
+            crepe = cur.fetchone()
+            crepes = Crepes_Class(id=id, name=crepe[1], price=crepe[2], ingredients=crepe[3], color=crepe[4])
+            saleItems.append(SaleItem(id, crepesId=crepesId, saleId=saleId, amount=amount, price=price, crepe=crepes.return_as_dict()))
+
+    if len(saleItems) == 0:
+        return None
+    return saleItems
+
+
+def create_sale_map():
+    salemap = {}
+    sales: list[SingularSale] = get_all_sales()
+    for singular in sales:
+        items = get_all_saleItems(singular.id)
+        if items is None:
+            continue
+        for item in items:
+            singular.saleItems.append(item.__dict__)
+        salemap[singular.id] = singular.__dict__
+    logging.info(f"Präparierte SaleMap: {json.dumps(salemap)=}")
+    return json.dumps(salemap)
 
 
 def get_highest_sale_id(data: list[CrepeSale]) -> int:
@@ -172,4 +251,6 @@ def get_summary() -> list[
 
 
 if __name__ == "__main__":
-    print(get_heatmap())
+    map = create_sale_map()
+    pprint(map)
+    print(json.dumps(map))

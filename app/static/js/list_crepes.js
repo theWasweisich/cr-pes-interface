@@ -110,7 +110,7 @@ function insertCrêpe(crêpe) {
         name.innerText = crêpe.name;
         const price = document.createElement("p");
         price.setAttribute("name", "price");
-        price.innerText = formatter.format(crêpe.price);
+        price.innerText = currency_formatter.format(crêpe.price);
         root.appendChild(crepecontrol);
         root.appendChild(name);
         root.appendChild(price);
@@ -132,7 +132,7 @@ function insertCrêpe(crêpe) {
     root.setAttribute("data-id", crêpe.id.toString());
     root.querySelector('h4').innerText = crêpe.name;
     let priceElem = root.querySelector('p[type="price"]');
-    priceElem.innerText = formatter.format(crêpe.price);
+    priceElem.innerText = currency_formatter.format(crêpe.price);
     root.addEventListener("click", (ev) => event_listener(ev), true);
     container.appendChild(root);
     let inserted = container.childNodes[container.childNodes.length - 1];

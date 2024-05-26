@@ -51,7 +51,7 @@ class TableRow {
         this.name.innerText = new_name;
     }
     updatePrice(new_price) {
-        this.price.innerText = formatter.format(new_price);
+        this.price.innerText = currency_formatter.format(new_price);
     }
 }
 class Table {
@@ -80,7 +80,7 @@ class Table {
         for (let item of this.items) {
             total_value += item.crepe.amount * item.crepe.price;
         }
-        total_elem.innerHTML = formatter.format(total_value);
+        total_elem.innerHTML = currency_formatter.format(total_value);
         return total_value;
     }
     /**

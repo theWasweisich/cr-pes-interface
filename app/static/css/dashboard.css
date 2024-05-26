@@ -1,7 +1,9 @@
 :root {
     --table-primary: rgb(69, 72, 75);
+    --table-primary-darker: rgb(53, 56, 58);
     --table-secondary: rgb(45, 47, 49);
-    --table-row-height: 30px;
+    --table-secondary-darker: rgb(31, 32, 34);
+    --table-row-height: 50px;
 }
 
 html,
@@ -18,7 +20,7 @@ fieldset {
 table {
     padding-inline: 5px;
     width: 100%;
-    border-spacing: 0;
+    border-spacing: 5px;
     border-collapse: collapse;
     border-style: hidden;
     outline: 0.5px solid;
@@ -26,25 +28,35 @@ table {
 
     th {
         background-color: rgb(82, 86, 89);
-        border-bottom: 1px solid black;
+        border-bottom: 2px solid;
     }
 
     tr {
         text-align: right;
     }
 
-    tr[data-sale] {
+    tr[data-id] {
         background-color: var(--table-primary);
         height: var(--table-row-height);
-    }
 
+    }
+    
     tr.padding-row {
         line-height: 5px;
     }
 
-    /* td {
-        border: 1px solid black;
-    } */
+    td[data-cell]>button {
+        width: 75%;
+        height: 75%;
+    }
+
+    td[data-cell="Details"], th[data-cell="Details"] {
+        text-align: center;
+    }
+
+    td[data-cell="Details"] {
+        height: 100%;
+    }
 
     tr:nth-child(even):not([class]) {
         background-color: var(--table-secondary);
@@ -58,6 +70,18 @@ table {
             text-decoration: double underline;
             text-underline-offset: 1ex;
         }
+    }
+}
+
+dialog {
+
+    thead {
+        border: 1px solid;
+    }
+
+    td {
+        padding-inline: 5px;
+        padding-block: 7px;
     }
 }
 
