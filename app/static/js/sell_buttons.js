@@ -51,8 +51,8 @@ function send_sell_to_server(sale, own_consumption) {
         }
     });
 }
-function payed_func() {
-    return __awaiter(this, arguments, void 0, function* (own_consumption = false) {
+function payed_func(own_consumption = false) {
+    return __awaiter(this, void 0, void 0, function* () {
         function appendToLocalStorage() {
             var current_sold = localStorage.getItem("sold");
             var to_storage = [];
@@ -187,13 +187,13 @@ function change_dialog_handler() {
             if (selectedValue <= 0) {
                 selectedValue = 0;
             }
-            payedDisplay.value = formatter.format(selectedValue);
+            payedDisplay.value = currency_formatter.format(selectedValue);
             calculate_cashback();
         }
     });
     function calculate_cashback() {
         let to_cash_out = selectedValue - table.getTotalValue();
-        let to_cash_out_formatted = formatter.format(to_cash_out);
+        let to_cash_out_formatted = currency_formatter.format(to_cash_out);
         if (to_cash_out <= 0) {
             to_cash_out_formatted = "-,-- €";
         }
@@ -204,12 +204,12 @@ function change_dialog_handler() {
     }
     function calculate_still_needed() {
         let still_to_pay = selectedValue - table.getTotalValue();
-        let still_to_pay_formatted = formatter.format(still_to_pay);
+        let still_to_pay_formatted = currency_formatter.format(still_to_pay);
         if (still_to_pay >= 0) {
             still_to_pay_formatted = "-,-- €";
         }
         else {
-            still_to_pay_formatted = formatter.format(Math.abs(still_to_pay));
+            still_to_pay_formatted = currency_formatter.format(Math.abs(still_to_pay));
         }
         cashback_still_needed.disabled = false;
         cashback_still_needed.value = still_to_pay_formatted;

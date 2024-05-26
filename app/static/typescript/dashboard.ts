@@ -1,4 +1,6 @@
 
+var sales_data: Map<string, any>[] = []
+
 /**
  * 
  * @param url The relative uri endpoint where to fetch from
@@ -15,10 +17,12 @@ async function get_data(url: string): Promise<object> {
 }
 
 async function init() {
-    let data = await get_data("/api/sales/get");
-    console.log(data);
-    document.getElementById("testing").innerHTML = String(data);
-    return data
+    let data = await get_data(urls.getsales);
+    if (!data) {
+        throw Error("Keine Daten?")
+    }
+    let all_data = map_data(data);
+    populate_with_all(all_data);
 }
 
 /**
@@ -71,31 +75,29 @@ function map_sale_items(items: any) {
     return s_items
 }
 
-async function help_func() {
-    let d_map = map_data(await init());
-    let s_map = map_sale_items(d_map[0].get("saleItems"))
-    return [s_map, d_map]
-}
-
 function populate_with_all(map: Array<Map<string, any>>) {
-    map.forEach(sale => {
-        populate_sales_table(sale);
+    Object.keys(map).forEach(key => {
+        let salesMap = map[key];
+        populate_sales_table(salesMap);
     })
 }
 
-function populate_sales_table(sale) {
+function populate_sales_table(sale: Map<string, any>) {
     let tableBody = document.getElementById("sales-tbody") as HTMLTableElement;
     let template = document.getElementById("saleTable_template") as HTMLTemplateElement;
 
     const clone = template.content.cloneNode(true) as HTMLElement;
     const row = clone.querySelector("tr");
 
-    let saleTime = sale["saleTime"]
-    let total = sale["total"]
+    let saleTime = format_time(sale.get("saleTime"))
+    let total = format_money(sale.get("total"))
 
-    row.setAttribute("data-id", sale["id"]);
-    row.querySelector('td[data-cell="Time"]').innerHTML = sale["saleTime"]
-    row.querySelector('td[data-cell="Revenue"]').innerHTML = sale["total"]
+    row.setAttribute("data-id", sale.get("id"));
+    row.querySelector('td[data-cell="Time"]').innerHTML = saleTime
+    row.querySelector('td[data-cell="Revenue"]').innerHTML = total
 
     tableBody.appendChild(row);
 }
+
+function format_time(time: Date) { return time_formatter.format(time) }
+function format_money(money: number) { return currency_formatter.format(money) }

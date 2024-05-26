@@ -62,6 +62,10 @@ ext = flask_sitemap.Sitemap(app=app)
 
 app.logger.removeHandler(default_handler)
 app.logger.addHandler(server_handler)
+app.config.update(
+    SESSION_COOKIE_SECURE=False,
+    SESSION_COOKIE_SAMESITE="Lax"
+)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 

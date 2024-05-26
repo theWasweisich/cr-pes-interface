@@ -19,7 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body onload="load_sales();">
+<body onload="init();">
     <header>
         <h1>
             <span class="header-icon">settings</span>
@@ -43,7 +43,9 @@
             <tr data-id>
                 <td data-cell="Time"></td>
                 <td data-cell="Revenue"></td>
-                <td data-cell="Details">Details</td>
+                <td data-cell="Details">
+                    <button>Details</button>
+                </td>
             </tr>
         </template>
         <table id="sales">

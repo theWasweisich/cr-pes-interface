@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var sales_data = [];
 /**
  *
  * @param url The relative uri endpoint where to fetch from
@@ -25,10 +26,12 @@ function get_data(url) {
 }
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
-        let data = yield get_data("/api/sales/get");
-        console.log(data);
-        document.getElementById("testing").innerHTML = String(data);
-        return data;
+        let data = yield get_data(urls.getsales);
+        if (!data) {
+            throw Error("Keine Daten?");
+        }
+        let all_data = map_data(data);
+        populate_with_all(all_data);
     });
 }
 /**
@@ -75,16 +78,10 @@ function map_sale_items(items) {
     });
     return s_items;
 }
-function help_func() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let d_map = map_data(yield init());
-        let s_map = map_sale_items(d_map[0].get("saleItems"));
-        return [s_map, d_map];
-    });
-}
 function populate_with_all(map) {
-    map.forEach(sale => {
-        populate_sales_table(sale);
+    Object.keys(map).forEach(key => {
+        let salesMap = map[key];
+        populate_sales_table(salesMap);
     });
 }
 function populate_sales_table(sale) {
@@ -92,10 +89,12 @@ function populate_sales_table(sale) {
     let template = document.getElementById("saleTable_template");
     const clone = template.content.cloneNode(true);
     const row = clone.querySelector("tr");
-    let saleTime = sale["saleTime"];
-    let total = sale["total"];
-    row.setAttribute("data-id", sale["id"]);
-    row.querySelector('td[data-cell="Time"]').innerHTML = sale["saleTime"];
-    row.querySelector('td[data-cell="Revenue"]').innerHTML = sale["total"];
+    let saleTime = format_time(sale.get("saleTime"));
+    let total = format_money(sale.get("total"));
+    row.setAttribute("data-id", sale.get("id"));
+    row.querySelector('td[data-cell="Time"]').innerHTML = saleTime;
+    row.querySelector('td[data-cell="Revenue"]').innerHTML = total;
     tableBody.appendChild(row);
 }
+function format_time(time) { return time_formatter.format(time); }
+function format_money(money) { return currency_formatter.format(money); }

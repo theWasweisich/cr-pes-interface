@@ -51,12 +51,12 @@ function getCurrentCrepes() {
                 htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId));
                 htmlString = htmlString.replace(/!! NAME !!/g, crepe.name);
                 htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.price));
-                htmlString = htmlString.replace(/!! PRICE_STR !!/g, formatter.format(crepe.price));
+                htmlString = htmlString.replace(/!! PRICE_STR !!/g, currency_formatter.format(crepe.price));
                 htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.colour);
                 let newElem = document.createElement("div");
                 newElem.innerHTML = htmlString;
                 var elem = toAppendTo.appendChild(newElem);
-                elem.querySelector('input[name="Crêpes Preis"]').value = formatter.format(crepe.price);
+                elem.querySelector('input[name="Crêpes Preis"]').value = currency_formatter.format(crepe.price);
             }
         }
     });
@@ -76,7 +76,7 @@ function set_settings_up() {
             var price = crepe.getAttribute('data-price');
             var preis = crepe.querySelector('input[name="Crêpes Preis"]');
             var preis_machine_value = preis.getAttribute("data-value");
-            var preis_human_value = formatter.format(preis_machine_value);
+            var preis_human_value = currency_formatter.format(preis_machine_value);
             preis.setAttribute("value", preis_human_value);
             preis.setAttribute("placeholder", preis_human_value);
             crepelist.push(new Crêpe(Number(id), name, price, 0, null, crepe));
