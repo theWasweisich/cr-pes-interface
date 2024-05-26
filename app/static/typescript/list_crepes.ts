@@ -91,7 +91,7 @@ function insertCrêpe(crêpe: Crêpe): HTMLElement {
         root.classList.add("crepe_container")
         root.setAttribute("data-name", crêpe.name)
         root.setAttribute("data-preis", crêpe.price.toString())
-        root.setAttribute("data-color", crêpe.colour)
+        root.setAttribute("data-type", crêpe.type)
         root.setAttribute("data-id", crêpe.crepeId.toString())
     
     
@@ -143,7 +143,7 @@ function insertCrêpe(crêpe: Crêpe): HTMLElement {
     root.classList.add("crepe_container")
     root.setAttribute("data-name", crêpe.name);
     root.setAttribute("data-preis", crêpe.price.toString());
-    root.setAttribute("data-color", crêpe.colour);
+    root.setAttribute("data-type", crêpe.type);
     root.setAttribute("data-id", crêpe.id.toString());
 
     (root.querySelector('h4') as HTMLElement).innerText = crêpe.name;

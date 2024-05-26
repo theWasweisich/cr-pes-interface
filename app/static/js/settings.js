@@ -52,7 +52,7 @@ function getCurrentCrepes() {
                 htmlString = htmlString.replace(/!! NAME !!/g, crepe.name);
                 htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.price));
                 htmlString = htmlString.replace(/!! PRICE_STR !!/g, currency_formatter.format(crepe.price));
-                htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.colour);
+                htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.type);
                 let newElem = document.createElement("div");
                 newElem.innerHTML = htmlString;
                 var elem = toAppendTo.appendChild(newElem);

@@ -82,14 +82,14 @@ def get_crepes(as_dict: bool = True) -> list[Crepes_Class] | list[dict[str, str]
     """
 
     with getCrepeDB() as (_, cur):
-        cur.execute('SELECT id, name, price, ingredients, colour FROM crepes')
+        cur.execute('SELECT id, name, price, ingredients, type FROM crepes')
         crêpes_res = cur.fetchall()
 
     res_crêpes: list[Crepes_Class] | None = []
     as_dict_list: list[dict[str, str]] | None = []
 
     for crepe in crêpes_res:
-        res_crêpes.append(Crepes_Class(id=int(crepe[0]), name=crepe[1], price=float(crepe[2]), ingredients=crepe[3], color=crepe[4]))
+        res_crêpes.append(Crepes_Class(id=int(crepe[0]), name=crepe[1], price=float(crepe[2]), ingredients=crepe[3], type_=crepe[4]))
 
     if as_dict:
         for crepe in res_crêpes:

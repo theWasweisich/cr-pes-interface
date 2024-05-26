@@ -4,12 +4,12 @@ div[data-color="white"] {
 div[data-color="blue"] {
     background-color: var(--clr-crepe-blue);
 }
-div[data-color="purple"] {
+div[data-type="special"] {
     background-color: var(--clr-crepe-purple);
 }
-div[data-color="green"] {
+div[data-type="hearty"] {
     background-color: var(--clr-crepe-green);
 }
-div[data-color="yellow"] {
+div[data-type="sweet"] {
     background-color: var(--clr-crepe-yellow);
 }
