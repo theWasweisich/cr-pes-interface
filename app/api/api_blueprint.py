@@ -65,7 +65,6 @@ class CrepesView(FlaskView):
     @staticmethod
     @route("/get", methods=("GET",))
     def get():
-        # _, get_crepes = get_helpers()
         crepes = get_crepes(as_dict=True)
         if (crepes):
             return crepes
@@ -190,6 +189,10 @@ class CrepesView(FlaskView):
     @route("/sold", methods=("POST",))
     def crepe_sold():
 
+        data = request.json
+        if (data is None):
+            return {"status": "failed", "reason": "No crêpes in sale!"}, status.HTTP_400_BAD_REQUEST
+
         if CHANGE_DB:
             api_logger.info("Sold Crêpes")
         else:
@@ -200,9 +203,6 @@ class CrepesView(FlaskView):
 
         with getCrepeDB() as (_, cur):
             try:
-                data = request.json
-                if (data is None):
-                    return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
 
                 api_logger.debug(f"New Sale: {data}")
 
@@ -218,15 +218,17 @@ class CrepesView(FlaskView):
                 now_time = datetime.datetime.now().isoformat()
                 SQL_SALE = "INSERT INTO sales (saletime, total, ownConsumption) VALUES (?, ?, ?)"
 
-                # match request.headers["ownConsumption"]:
-                #     case "true":
-                #         consumpt = "own"
-                #     case "false":
-                #         consumpt = "foreign"
-                #     case _:
-                #         consumpt = "unknown"
-
                 consumpt = request.headers["ownConsumption"]
+
+                match consumpt:
+                    case "true":
+                        consumpt = True
+                    case "false":
+                        consumpt = False
+                    case "unknown":
+                        consumpt = "unknown"
+                    case _:
+                        raise Exception(f"Consumption hat keinen gültigen Wert! {consumpt=}")
 
                 total: float = 0.0
 
@@ -272,6 +274,8 @@ class CrepesView(FlaskView):
             finally:
                 cur.connection.commit()
 
+        return to_return
+
 
 class SalesView(FlaskView):
 
@@ -292,7 +296,9 @@ class SalesView(FlaskView):
                 if (data is None):
                     return {"status": "failed"}, status.HTTP_400_BAD_REQUEST
 
-                api_logger.debug(f"New Crêpes: {data}")
+                api_logger.debug(f"New Sale: {data}")
+
+                return {"status": "success"}, status.HTTP_200_OK
 
                 to_db: list[tuple] = []
 

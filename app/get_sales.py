@@ -92,7 +92,7 @@ def get_all_saleItems(saleId: int):
         saleId (int): The saleId
     """
     SQL1 = "SELECT id, crepesID, saleId, amount, price FROM salesItem WHERE saleId = ?"
-    SQL2 = "SELECT id, name, price, ingredients, colour, type FROM crepes WHERE id = ?"
+    SQL2 = "SELECT id, name, price, ingredients, type FROM crepes WHERE id = ?"
 
     saleItems: list[SaleItem] = []
 
@@ -108,7 +108,7 @@ def get_all_saleItems(saleId: int):
             # Crêpe-Name raussuchen:
             cur.execute(SQL2, (crepesId,))
             crepe = cur.fetchone()
-            crepes = Crepes_Class(id=id, name=crepe[1], price=crepe[2], ingredients=crepe[3], color=crepe[4])
+            crepes = Crepes_Class(id=id, name=crepe[1], price=crepe[2], ingredients=crepe[3], type_=crepe[4])
             saleItems.append(SaleItem(id, crepesId=crepesId, saleId=saleId, amount=amount, price=price, crepe=crepes.return_as_dict()))
 
     if len(saleItems) == 0:
@@ -252,5 +252,4 @@ def get_summary() -> list[
 
 if __name__ == "__main__":
     map = create_sale_map()
-    pprint(map)
-    print(json.dumps(map))
+    pprint(json.loads(map))
