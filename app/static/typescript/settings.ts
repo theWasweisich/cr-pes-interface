@@ -103,21 +103,7 @@ function editButtonFunc(btnElement: HTMLButtonElement) {
     crepeTypeInput.querySelector(`[value="${crepe_edit.type}"]`).setAttribute("selected", "");
 
     commitButton.addEventListener('click', () => {
-        let new_price = crepePriceInput.value
-            .replace(/[^\d,]+/, "")     // Removes everything but numerics and commas
-            .replace(/[,]/, ".");       // Replaces comma with  dot => Should be a valid number now :)
-        let new_name = crepeNameInput.value
-        let new_type = crepeTypeInput.options[crepeTypeInput.selectedIndex].value;
-        
-        if (Number.isNaN(new_price) || new_price === "") {
-            crepePriceInput.setCustomValidity("Kein gültiger Preis!");
-            crepePriceInput.reportValidity();
-            return;
-        }
-        let new_price_number: number = Number(new_price);
-
-        console.log(`Editation: Price: ${new_price}; Numeric_Price: ${new_price_number}; Name: ${new_name}; Type: ${new_type}`);
-        dialog.close();
+        handleEditCommit(index_exit);
     })
 
     if (!dialog.open) {
@@ -128,7 +114,66 @@ function editButtonFunc(btnElement: HTMLButtonElement) {
         if ((event.target as HTMLElement).id === "edit_crepe_dialog") {
             dialog.close();
         }
-    })
+    });
+}
+
+function handleEditCommit(index_of_crepe: number) {
+    const dialog = document.getElementById("edit_crepe_dialog") as HTMLDialogElement;
+
+    const crepeNameInput = document.getElementById("edit_crepe_name") as HTMLInputElement;
+    const crepePriceInput = document.getElementById("edit_crepe_price") as HTMLInputElement;
+    const crepeTypeInput = document.getElementById("edit_crepe_type") as HTMLSelectElement;
+    const commitButton = document.getElementById("edit_crepe_save") as HTMLButtonElement;
+
+    let new_price = crepePriceInput.value
+        .replace(/[^\d,]+/, "")     // Removes everything but numerics and commas
+        .replace(/[,]/, ".");       // Replaces comma with  dot => Should be a valid number now :)
+    let new_name = crepeNameInput.value
+    let new_type = crepeTypeInput.options[crepeTypeInput.selectedIndex].value;
+
+    if (Number.isNaN(new_price) || new_price === "") {
+        crepePriceInput.setCustomValidity("Kein gültiger Preis!");
+        crepePriceInput.reportValidity();
+        return;
+    }
+    let new_price_number: number = Number(new_price);
+
+    console.log(`Editation: Price: ${new_price}; Numeric_Price: ${new_price_number}; Name: ${new_name}; Type: ${new_type}`);
+
+    let crêpe = crepelist[index_of_crepe];
+
+    let has_been_edited = {
+        price: false,
+        name: false,
+        type: false
+    }
+
+    if (new_price_number !== crêpe.price) { has_been_edited.price = true; } 
+    if (new_name !== crêpe.name) { has_been_edited.name = true; } 
+    if (new_type !== crêpe.type) { has_been_edited.type = true; }
+    
+    if (!has_been_edited.name && !has_been_edited.price && !has_been_edited.type) {
+        // Nichts wurde bearbeitet
+    }
+
+    dialog.close();
+}
+
+/**
+ * 
+ * @param message The message to be sent
+ * @param duration The duration the message should last (in Seconds)
+ * @param color The color of the message container. CSS valid color value.
+ */
+function send_feedback_message(message: string, duration: number = 2, color: string) {
+    const container = document.getElementById("feedback_message_container") as HTMLDivElement;
+    const feedback_message = document.getElementById("feedback_message") as HTMLParagraphElement;
+
+    feedback_message.innerText = message;
+    container.classList.add("show")
+    setTimeout(() => {
+        container.classList.remove("show")
+    }, duration * 100);
 }
 
 /**
