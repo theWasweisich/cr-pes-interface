@@ -75,13 +75,13 @@ var crepelist = [];
 var crepemap = new Map();
 var connectionError = false;
 class Crêpe {
-    constructor(id, name, price, amount, colour, root_element, table_root_element) {
+    constructor(id, name, price, amount, type, root_element, table_root_element) {
         this.table_element = undefined;
         this.crepeId = id;
         this.name = name;
         this.price = price;
         this.amount = amount;
-        this.colour = colour;
+        this.type = type;
         this.root_element = root_element;
         this.table_element = table_root_element;
     }

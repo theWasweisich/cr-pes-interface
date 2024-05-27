@@ -67,12 +67,12 @@ class CrepeSale():
 
 @dataclass
 class Crepes_Class():
-    def __init__(self, id: int, name: str, price: float, ingredients: list[str], color: str) -> None:
+    def __init__(self, id: int, name: str, price: float, ingredients: list[str], type_: str) -> None:
         self.id = id
         self.name = name
         self.price = price
         self.ingredients = ingredients
-        self.color = color
+        self.type = type_
 
     def get_in_str(self):
         data = json.dumps((self.id, self.name, self.price, self.ingredients, self.color))
@@ -84,7 +84,7 @@ class Crepes_Class():
             "name": self.name,
             "price": self.price,
             "ingredients": json.dumps(self.ingredients),
-            "colour": self.color
+            "type": self.type
          }
 
 

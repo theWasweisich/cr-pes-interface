@@ -79,16 +79,16 @@ class Crêpe {
     price: number;
     crepeId: number;
     amount: number;
-    colour: string;
+    type: string;
     root_element: HTMLElement;
     table_element: HTMLTableElement | undefined = undefined;
 
-    constructor(id: number, name: string, price: number, amount: number, colour?: string, root_element?: HTMLElement, table_root_element?: HTMLTableElement) {
+    constructor(id: number, name: string, price: number, amount: number, type?: string, root_element?: HTMLElement, table_root_element?: HTMLTableElement) {
         this.crepeId = id;
         this.name = name;
         this.price = price;
         this.amount = amount;
-        this.colour = colour;
+        this.type = type;
         this.root_element = root_element;
         this.table_element = table_root_element;
     }

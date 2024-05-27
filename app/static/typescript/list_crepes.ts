@@ -34,13 +34,16 @@ async function fetch_crepes() {
             if (jason["status"] == "notAuthorized") {
                 console.error("Autorize nixxe")
                 return undefined
-            } else {
+            } else if (jason["status"] == "") {
+
+            } 
+            else {
                 return jason
             }
 
         } catch (error) {
             console.error(`Help me! I catched an error! This error to be more precise: ${error}`)
-            return null
+            return undefined
         }
 
     } else {
@@ -75,6 +78,12 @@ async function insertEverything() {
     return true;
 }
 
+/**
+ * If the register has been locked in the settings, this function will take care
+ */
+function enforceLock() {
+
+}
 
 /**
  * ### Please do not look at this function. It is a horrible pile of spaghetti
@@ -91,7 +100,7 @@ function insertCrêpe(crêpe: Crêpe): HTMLElement {
         root.classList.add("crepe_container")
         root.setAttribute("data-name", crêpe.name)
         root.setAttribute("data-preis", crêpe.price.toString())
-        root.setAttribute("data-color", crêpe.colour)
+        root.setAttribute("data-type", crêpe.type)
         root.setAttribute("data-id", crêpe.crepeId.toString())
     
     
@@ -143,7 +152,7 @@ function insertCrêpe(crêpe: Crêpe): HTMLElement {
     root.classList.add("crepe_container")
     root.setAttribute("data-name", crêpe.name);
     root.setAttribute("data-preis", crêpe.price.toString());
-    root.setAttribute("data-color", crêpe.colour);
+    root.setAttribute("data-type", crêpe.type);
     root.setAttribute("data-id", crêpe.id.toString());
 
     (root.querySelector('h4') as HTMLElement).innerText = crêpe.name;
