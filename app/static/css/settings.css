@@ -1,4 +1,5 @@
 @import url(/static/css/header_style.css);
+@import url(/static/css/colors.css);
 
 * {
     font-family: sans-serif;
@@ -10,22 +11,42 @@ html, body {
     padding: 0;
 }
 
-#newForm * {
-    transition: all 500ms;
+#content {
+    display: grid;
 }
 
-#newForm.success * {
-    background-color: green;
+#edit_crepe_dialog {
+    padding: 0;
+    box-sizing: content-box;
+    
+
+    #edit_dialog_containing {
+        padding: 16px;
+        display: block;
+    
+        > fieldset {
+
+            >.grid-layout {
+                display: grid;
+                grid-template-columns: 50px 1fr;
+                gap: 5px;
+        
+                > label {
+                    text-align: right;
+                }
+            }
+
+            >button {
+                width: 100%;
+            }
+        }
+    }
+
+    ::backdrop {
+        background-color: rgb(50, 50, 50);
+    }
 }
 
-input:not([type="button"]) {
-    border: none;
-    border-bottom: 1px dotted black;
-}
-
-input:invalid {
-    border-bottom: 1px solid red !important;
-}
 
 .crepe_container {
     position: relative;
@@ -35,15 +56,19 @@ input:invalid {
     margin: 2px;
     background-color: rgba(128, 128, 128, 0.309);
     border: 1px solid black;
-    
-    :first-child {
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
+
+    h3 {
+        margin-block: .5em;
     }
-    
-    :last-child {
-        border-bottom-left-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
+    h4 {
+        margin-block: .75em;
+    }
+
+    .controller {
+        --distance-top-left: 15px;
+        position: absolute;
+        right: var(--distance-top-left);
+        top: var(--distance-top-left);
     }
 }
 
@@ -82,10 +107,6 @@ a:has(#move_back) {
     transform: translateY(5px);
 }
 
-#crepes_list > .crepe_container {
-    margin-bottom: 15px;
-}
-
 fieldset {
     margin: 5px;
     width: max-content;
@@ -98,7 +119,11 @@ fieldset {
 }
 
 #crepes_list {
-    min-width: 750px;
+    display: grid;
+    grid-template-columns: repeat(2, 375px);
+    gap: 5px;
+
+    min-width: min-content;
     margin: 15px;
     border: 1px solid black;
     padding: 10px;
@@ -234,7 +259,7 @@ button[data-type="del"]:active {
 }
 
 #feedback_message_container {
-    position: absolute;
+    position: fixed;
     top: 0;
     opacity: 0;
     left: 50%;

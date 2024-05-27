@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,27 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Einstellungen</title>
 </head>
-<body>
+
+<body onload="getCurrentCrepes();">
+    <dialog id="edit_crepe_dialog">
+        <div id="edit_dialog_containing">
+            <h2>Crêpes bearbeiten</h2>
+            <fieldset>
+                <div class="grid-layout">
+                    <label for="edit_crepe_name">Name:</label><input type="text" id="edit_crepe_name">
+                    <label for="edit_crepe_price">Preis:</label><input type="text" id="edit_crepe_price">
+                    <label for="edit_crepe_type">Art:</label>
+                    <select id="edit_crepe_type">
+                        <option value="sweet">Süß</option>
+                        <option value="hearty">Herzhaft</option>
+                        <option value="special">Spezial</option>
+                    </select>
+                </div>
+                <br>
+                <button id="edit_crepe_save" type="button">Bearbeitung abschließen</button>
+            </fieldset>
+        </div>
+    </dialog>
     <div id="content">
         <header>
             <h1>
@@ -20,102 +41,47 @@
             </h1>
             <div class="header-nav-bar">
                 <a href="/"><button type="button" class="crepe-button">Kasse</button></a>
-                <a href="/einstellungen" disabled><button type="button" class="crepe-button active">Einstellungen</button></a>
+                <a href="/einstellungen" disabled><button type="button"
+                        class="crepe-button active">Einstellungen</button></a>
                 <a href="/dashboard"><button type="button" class="crepe-button">Dashboard</button></a>
                 <p id="clock"></p>
             </div>
             <script src="/static/js/handwritten/clock.js" defer></script>
         </header>
-        <div id="feedback_message_container">
-            <p id="feedback_message">TEST</p>
+        <hr>
+    </div>
+        <div id="no_crepes">
+            <h2>Here are no crêpes!</h2>
         </div>
-        <div id="crepes_action">
-            <div id="create" data-type="table">
-                <h2>Crêpes Erstellen</h2>
-                <!-- Hier beginnt die Erstellung -->
-                <form id="newForm" action="#" autocomplete="off" onsubmit="create_crepe(); return false;">
-                    <table>
-                        <tr>
-                            <td>
-                                <label for="crepeName">Crêpes Name:</label>
-                            </td>
-                            <td>
-                                <input type="text" id="crepeName" placeholder="Crêpes Name" required autocomplete="off"><br>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label for="price">Preis: </label>
-                            </td>
-                            <td>
-                                <input id="price" type="number" required autocomplete="off" placeholder="0"> €<br>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label for="ingredients">Zutaten</label>
-                            </td>
-                            <td>
-                                <input id="ingredients" type="text" placeholder="Zutaten mit , getrennt" required autocomplete="off">
-                            </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label for="color">Art</label>
-                            </td>
-                            <td>
-                                <select id="color">
-                                    <option value="white" selected>Spezial</option>
-                                    <option value="green">Deftig</option>
-                                    <option value="yellow">Süß</option>
-                                    <option value="purple">Jahrescrêpe</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input id="newSubmit" type="submit" value="Neuen Crêpes erstellen!">
-                            </td>
-                        </tr>
-                    </table>
-                </form>
-                <!-- Hier endet die Erstellung -->
+        <!-- Hier beginnt die Editierung -->
+        
+        <template id="crepeslist_tmpl">
+            <div class="crepe_container" data-id data-name data-price data-type was_edited="false">
+                <h3 class="crepe-name"></h3>
+                <h4 class="crepe-price"></h4>
+                <div class="controller">
+                    <button class="edit_button" onclick="editButtonFunc(this);">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                </div>
             </div>
-            <hr>
-        </div>
-        <div id="list">
-            <div id="no_crepes">
-                <h2>Here are no crêpes!</h2>
-            </div>
-            <!-- Hier beginnt die Editierung -->
-            <fieldset>
-                <legend>Bearbeiten</legend>
-                <form action="#" onsubmit="check_for_edits(); return false;">
-                    <button type="submit">Speichern</button>
-                    <div id="crepes_list" data-type="liste">
-                        <template id="crepeslist_tmpl">
-                            <div class="crepe_container" data-id="!! ID !!" data-name="!! NAME !!" data-preis="!! PRICE !!" data-colour="!! COLOUR !!" was_edited="false">
-                                <div class="edited_hint"></div>
-                                <div class="crepecontrol">
-                                    <div class="icon_container">
-                                        <button data-type="del" data-name="!! NAME !!" onclick="delte_crepe(this);">
-                                            <span class="material-symbols-outlined">delete</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <input name="Crêpes Name" type="text" value="!! NAME !!" oninput="input_changed(this);"/><br>
-                                <input name="Crêpes Preis" type="text" data-value="!! PRICE_STR !!" oninput="input_changed(this);" pattern="^(?:\d*(?:\.|,)*)+(?:\d+,\d+)(?:\s€|€|&nbsp;€)?$"/><br>
-                            </div>
-                        </template>
-                    </div>
-                </form>
-            </fieldset>
-        </div>
+        </template>
+
+        <fieldset>
+            <legend>Bearbeiten</legend>
+                <button type="submit">Speichern</button>
+                <div id="crepes_list" data-type="liste">
+                </div>
+        </fieldset>
+    </div>
+    </div>
+    <div id="feedback_message_container">
+        <p id="feedback_message">TEST</p>
     </div>
     <button id="save_btn" onclick="button_save_changes_to_server(); return false;" type="button">
         <label for="save_btn" id="save_text">Speichern</label>
         <span id="save_icon" class="material-symbols-outlined" aria-labelledby="save_text">save</span>
     </button>
 </body>
+
 </html>

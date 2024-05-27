@@ -74,6 +74,14 @@ function send_server(url, method, body) {
 var crepelist = [];
 var crepemap = new Map();
 var connectionError = false;
+/**
+ * Crêpe Class
+ * @param id Die Id des Crêpes
+ * @param name Der Name des Crêpes
+ * @param price: Der Preis des Crêpes
+ * @param amount Die Menge der Crêpes
+ * @param type Die Art des Crêpes
+ */
 class Crêpe {
     constructor(id, name, price, amount, type, root_element, table_root_element) {
         this.table_element = undefined;

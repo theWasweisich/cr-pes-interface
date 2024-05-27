@@ -26,69 +26,90 @@ let send_to_server_list = {
  */
 function getCurrentCrepes() {
     return __awaiter(this, void 0, void 0, function* () {
-        var res = yield send_server(urls.getcrepes, "GET");
-        var crêpes = yield res.json();
+        const res = yield send_server(urls.getcrepes, "GET");
+        const crêpes = yield res.json();
         crepelist.length = 0;
         for (var i = 0; i < (yield crêpes.length); i++) {
             let crêpe = yield crêpes[i];
-            var new_crêpe = new Crêpe(crêpe["id"], crêpe["name"], crêpe["price"], 0, crêpe["colour"]);
+            let crepe_id = crêpe["id"];
+            let crepe_name = crêpe["name"];
+            let crepe_price = crêpe["price"];
+            let crepe_type = crêpe["type"];
+            var new_crêpe = new Crêpe(crepe_id, crepe_name, crepe_price, 0, crepe_type);
             crepelist.push(new_crêpe);
         }
         populateCrêpesList(crepelist);
         /**
-         * Populates the Crepes Elements with the variable crepelist
+         * Populates the Crepes Elements using the variable crepelist
          */
         function populateCrêpesList(list) {
             const toAppendTo = document.getElementById("crepes_list");
-            const templ = document.getElementById("crepeslist_tmpl");
+            const template = document.getElementById("crepeslist_tmpl");
             const to_delete = toAppendTo.querySelectorAll("div");
             to_delete.forEach((elem) => {
                 elem.remove();
             });
             for (let i = 0; i < list.length; i++) {
                 let crepe = list[i];
-                let htmlString = templ.innerHTML;
-                htmlString = htmlString.replace(/!! ID !!/g, String(crepe.crepeId));
-                htmlString = htmlString.replace(/!! NAME !!/g, crepe.name);
-                htmlString = htmlString.replace(/!! PRICE !!/g, String(crepe.price));
-                htmlString = htmlString.replace(/!! PRICE_STR !!/g, currency_formatter.format(crepe.price));
-                htmlString = htmlString.replace(/!! COLOUR !!/g, crepe.type);
-                let newElem = document.createElement("div");
-                newElem.innerHTML = htmlString;
-                var elem = toAppendTo.appendChild(newElem);
-                elem.querySelector('input[name="Crêpes Preis"]').value = currency_formatter.format(crepe.price);
+                let elem_copy = template.content.cloneNode(true);
+                // attributes on .crepe_container: data-id data-name data-preis data-type
+                let crepe_container = elem_copy.querySelector("div.crepe_container");
+                crepe_container.setAttribute("data-id", String(crepe.crepeId));
+                crepe_container.setAttribute("data-name", String(crepe.name));
+                crepe_container.setAttribute("data-price", String(crepe.price));
+                crepe_container.setAttribute("data-type", String(crepe.type));
+                crepe_container.querySelector(".crepe-name").innerText = String(crepe.name);
+                crepe_container.querySelector(".crepe-price").innerText = currency_formatter.format(crepe.price);
+                toAppendTo.appendChild(elem_copy);
             }
         }
     });
 }
-/**
- * Populates crepeslist variable by reading the html element.
- * Therefore obsolete?
- */
-function set_settings_up() {
-    if (crepelist.length == 0) {
-        var list = document.getElementById("crepes_list");
-        var elems = list.querySelectorAll(".crepe_container");
-        for (let i = 0; i < elems.length; i++) {
-            const crepe = elems[i];
-            var id = crepe.getAttribute("data-id");
-            var name = crepe.getAttribute("data-name");
-            var price = crepe.getAttribute('data-price');
-            var preis = crepe.querySelector('input[name="Crêpes Preis"]');
-            var preis_machine_value = preis.getAttribute("data-value");
-            var preis_human_value = currency_formatter.format(preis_machine_value);
-            preis.setAttribute("value", preis_human_value);
-            preis.setAttribute("placeholder", preis_human_value);
-            crepelist.push(new Crêpe(Number(id), name, price, 0, null, crepe));
+function editButtonFunc(btnElement) {
+    const crepe_container = btnElement.parentElement.parentElement;
+    const dialog = document.getElementById("edit_crepe_dialog");
+    const dialog_containing = dialog.querySelector(".dialog_containing");
+    const crepeId = Number(crepe_container.getAttribute("data-id"));
+    const crepeNameInput = document.getElementById("edit_crepe_name");
+    const crepePriceInput = document.getElementById("edit_crepe_price");
+    const crepeTypeInput = document.getElementById("edit_crepe_type");
+    const commitButton = document.getElementById("edit_crepe_save");
+    let crepe_edit;
+    let index_exit;
+    crepelist.some(crepe => {
+        if (crepe.crepeId === crepeId) {
+            index_exit = crepelist.indexOf(crepe);
+            crepe_edit = crepe;
+            return true;
         }
+    });
+    crepeNameInput.value = crepe_edit.name;
+    crepePriceInput.value = currency_formatter.format(crepe_edit.price);
+    crepeTypeInput.querySelector(`[value="${crepe_edit.type}"]`).setAttribute("selected", "");
+    commitButton.addEventListener('click', () => {
+        let new_price = crepePriceInput.value
+            .replace(/[^\d,]+/, "") // Removes everything but numerics and commas
+            .replace(/[,]/, "."); // Replaces comma with  dot => Should be a valid number now :)
+        let new_name = crepeNameInput.value;
+        let new_type = crepeTypeInput.options[crepeTypeInput.selectedIndex].value;
+        if (Number.isNaN(new_price) || new_price === "") {
+            crepePriceInput.setCustomValidity("Kein gültiger Preis!");
+            crepePriceInput.reportValidity();
+            return;
+        }
+        let new_price_number = Number(new_price);
+        console.log(`Editation: Price: ${new_price}; Numeric_Price: ${new_price_number}; Name: ${new_name}; Type: ${new_type}`);
+        dialog.close();
+    });
+    if (!dialog.open) {
+        dialog.showModal();
     }
-    ;
-    check_if_need_to_speichern();
+    dialog.addEventListener('click', function (event) {
+        if (event.target.id === "edit_crepe_dialog") {
+            dialog.close();
+        }
+    });
 }
-getCurrentCrepes();
-// .then(() => {
-//     set_settings_up();
-// });
 /**
  * Function that is called by #save_btn
  * Sends changes to the server and colors the button accordingly
