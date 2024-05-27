@@ -72,7 +72,14 @@ var crepemap: Map<Crêpe, Map<unknown, unknown>> = new Map();
 
 var connectionError: boolean = false;
 
-
+/**
+ * Crêpe Class
+ * @param id Die Id des Crêpes
+ * @param name Der Name des Crêpes
+ * @param price: Der Preis des Crêpes
+ * @param amount Die Menge der Crêpes
+ * @param type Die Art des Crêpes
+ */
 class Crêpe {
     id: number;
     name: string;
