@@ -27,18 +27,6 @@ input:invalid {
     border-bottom: 1px solid red !important;
 }
 
-img {
-    position: absolute;
-    max-width: 300px;
-    right: 0;
-}
-
-@media (max-width: 900px) {
-    img {
-        display: none;
-    }
-}
-
 .crepe_container {
     position: relative;
     border-radius: 0.25rem;
@@ -58,10 +46,6 @@ img {
         border-bottom-right-radius: 0.5rem;
     }
 }
-
-
-
-
 
 .edited_hint {
     display: none;
@@ -140,47 +124,9 @@ fieldset {
     cursor: pointer;
 }
 
-/*
-Hier beginnt die Crêpes-Farbe
-*/
-
 .crepe_container {
     border: 1px solid black;
 }
-
-/*
-
-Hinweis: data-colour ist wie folgt: rrr,ggg,bbb
-
-
-*/
-
-
-div[data-colour='255,255,255'] {
-    background-color: rgba(255,255,255,0.9);
-}
-div[data-colour='0,157,255'] {
-    background-color: rgba(0,157,255,0.9);
-}
-div[data-colour='91,55,87'] {
-    background-color: rgba(91,55,87,0.9);
-}
-div[data-colour='86,110,64'] {
-    background-color: rgba(86,110,64,0.9);
-}
-div[data-colour='255,023,27'] {
-    background-color: rgba(255,023,27,0.9);
-}
-div[data-colour='34,234,136'] {
-    background-color: rgba(34,234,136,0.9);
-}
-div[data-colour='236,239,64'] {
-    background-color: rgba(236,239,64,0.9);
-}
-
-/*
-Hier endet die Crêpes-Farbe
-*/
 
 
 button[data-type="del"] {
@@ -228,10 +174,6 @@ button[data-type="del"]:active {
 }
 
 
-/*
-Hier ist das Speichern
-*/
-
 #save_btn {
     position: fixed;
     bottom: 15px;
@@ -267,14 +209,6 @@ Hier ist das Speichern
     100% { transform: rotate(360deg); }
 }
 
-/*
-Hier endet das Speichern
-*/
-
-
-/* 
-Hier beginnt der Stil des Tooltips
-*/
 .tooltipRightContainer {
     position: relative;
     display: inline-block;
@@ -298,21 +232,7 @@ Hier beginnt der Stil des Tooltips
 .tooltipRightInput:focus ~ .tooltipRight {
     visibility: visible;
 }
-/* 
-Hier endet der Stil des Tooltips
-*/
 
-/*
-Hier beginnt der Stil der Placeholder beim Bearbeiten
-*/
-
-
-
-/*
-Hier endet der Stil der Placeholder beim Bearbeiten
-*/
-
-/* Hier ist die feedback message */
 #feedback_message_container {
     position: absolute;
     top: 0;
