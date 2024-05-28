@@ -220,15 +220,15 @@ class CrepesView(FlaskView):
 
                 consumpt = request.headers["ownConsumption"]
 
-                match consumpt:
-                    case "true":
-                        consumpt = True
-                    case "false":
-                        consumpt = False
-                    case "unknown":
-                        consumpt = "unknown"
-                    case _:
-                        raise Exception(f"Consumption hat keinen gültigen Wert! {consumpt=}")
+                # match consumpt:
+                #     case "true":
+                #         consumpt = True
+                #     case "false":
+                #         consumpt = False
+                #     case "unknown":
+                #         consumpt = "unknown"
+                #     case _:
+                #         raise Exception(f"Consumption hat keinen gültigen Wert! {consumpt=}")
 
                 total: float = 0.0
 
@@ -298,7 +298,7 @@ class SalesView(FlaskView):
 
                 api_logger.debug(f"New Sale: {data}")
 
-                return {"status": "success"}, status.HTTP_200_OK
+                # return {"status": "success"}, status.HTTP_200_OK
 
                 to_db: list[tuple] = []
 

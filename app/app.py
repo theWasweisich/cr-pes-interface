@@ -1,5 +1,5 @@
 import json
-from setup_logger import access_logger, server_handler, werkzeug_handler, root_logger
+from setup_logger import access_logger, werkzeug_handler, root_logger
 import os
 
 from datetime import datetime
@@ -13,7 +13,6 @@ from flask import (
     url_for,
     send_from_directory,
 )
-from flask.logging import default_handler
 import flask_sitemap
 import status
 
@@ -60,8 +59,6 @@ flask_sitemap.config.SITEMAP_IGNORE_ENDPOINTS = "/sitemap.xml"
 app = Flask(__name__)
 ext = flask_sitemap.Sitemap(app=app)
 
-app.logger.removeHandler(default_handler)
-app.logger.addHandler(server_handler)
 app.config.update(
     SESSION_COOKIE_SECURE=False,
     SESSION_COOKIE_SAMESITE="Lax"
