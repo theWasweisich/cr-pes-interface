@@ -3,11 +3,10 @@
 // Some useful Variables
 var crepes_selected = false;
 
-
-window.addEventListener("beforeunload", (event: BeforeUnloadEvent) => {
+document.addEventListener("onbeforeunload", function () {
     if ((send_to_server_list.delete.length > 0) || (send_to_server_list.edit.length > 0) || (send_to_server_list.new.length > 0)) {
         event.preventDefault();
-    }
+    }    
 })
 
 
@@ -17,7 +16,6 @@ let send_to_server_list = {
     delete: new Array,
 };
 
-// TODO: getCurrentCrepes maybe obsolete?
 /**
  * Clears the list of crepes and then re-populates it with newly fetched crepes
  */
@@ -48,12 +46,17 @@ async function getCurrentCrepes() {
     function populateCrêpesList(list: Crêpe[]) {
         const toAppendTo = document.getElementById("crepes_list")
         const template = document.getElementById("crepeslist_tmpl") as HTMLTemplateElement;
-        const to_delete = toAppendTo.querySelectorAll("div") as NodeListOf<HTMLElement>
-    
-        to_delete.forEach((elem) => {
-            elem.remove();
-        })
-    
+
+        function delete_current_crepes() {
+            let to_delete = (toAppendTo.children as HTMLCollectionOf<HTMLDivElement>)
+            for (let i = 0; i < to_delete.length; i++) {
+                to_delete[i].remove();
+            }
+        }
+
+
+        delete_current_crepes();
+
         for (let i = 0; i < list.length; i++) {
             let crepe = list[i];
             
@@ -69,7 +72,6 @@ async function getCurrentCrepes() {
             (crepe_container.querySelector(".crepe-name") as HTMLElement).innerText = String(crepe.name);
             (crepe_container.querySelector(".crepe-price") as HTMLElement).innerText = currency_formatter.format(crepe.price);
             
-            
             toAppendTo.appendChild(elem_copy);
         }
     }
@@ -78,7 +80,6 @@ async function getCurrentCrepes() {
 function editButtonFunc(btnElement: HTMLButtonElement) {
     const crepe_container = btnElement.parentElement.parentElement as HTMLDivElement
     const dialog = document.getElementById("edit_crepe_dialog") as HTMLDialogElement;
-    const dialog_containing = dialog.querySelector(".dialog_containing") as HTMLDivElement;
     const crepeId = Number(crepe_container.getAttribute("data-id"))
     
     const crepeNameInput = document.getElementById("edit_crepe_name") as HTMLInputElement;
@@ -154,6 +155,7 @@ function handleEditCommit(index_of_crepe: number) {
     
     if (!has_been_edited.name && !has_been_edited.price && !has_been_edited.type) {
         // Nichts wurde bearbeitet
+        send_feedback_message("Nichts wurde bearbeitet!", 2, "red")
     }
 
     dialog.close();

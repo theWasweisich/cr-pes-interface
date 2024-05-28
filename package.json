@@ -1,10 +1,10 @@
 {
   "devDependencies": {
+    "@types/jquery": "^3.5.30",
     "typedoc": "^0.25.8",
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@types/jquery": "^3.5.29",
     "chart.js": "^4.4.2",
     "ts-node": "^10.9.2"
   }

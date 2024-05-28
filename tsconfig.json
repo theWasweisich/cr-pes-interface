@@ -6,6 +6,7 @@
         "outDir": "./app/static/js/",
         "rootDirs": ["./app/static/typescript", "./app/static/js"],
         "forceConsistentCasingInFileNames": true,
+        "allowSyntheticDefaultImports": true
     },
     "exclude": [
         "./app/static/js/*.js",

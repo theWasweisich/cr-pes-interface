@@ -51,8 +51,8 @@ function send_sell_to_server(sale, own_consumption) {
         }
     });
 }
-function payed_func(own_consumption = false) {
-    return __awaiter(this, void 0, void 0, function* () {
+function payed_func() {
+    return __awaiter(this, arguments, void 0, function* (own_consumption = false) {
         function appendToLocalStorage() {
             var current_sold = localStorage.getItem("sold");
             var to_storage = [];

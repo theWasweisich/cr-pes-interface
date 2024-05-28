@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 // Some useful Variables
 var crepes_selected = false;
-window.addEventListener("beforeunload", (event) => {
+document.addEventListener("onbeforeunload", function () {
     if ((send_to_server_list.delete.length > 0) || (send_to_server_list.edit.length > 0) || (send_to_server_list.new.length > 0)) {
         event.preventDefault();
     }
@@ -20,7 +20,6 @@ let send_to_server_list = {
     edit: new Array,
     delete: new Array,
 };
-// TODO: getCurrentCrepes maybe obsolete?
 /**
  * Clears the list of crepes and then re-populates it with newly fetched crepes
  */
@@ -45,10 +44,13 @@ function getCurrentCrepes() {
         function populateCrêpesList(list) {
             const toAppendTo = document.getElementById("crepes_list");
             const template = document.getElementById("crepeslist_tmpl");
-            const to_delete = toAppendTo.querySelectorAll("div");
-            to_delete.forEach((elem) => {
-                elem.remove();
-            });
+            function delete_current_crepes() {
+                let to_delete = toAppendTo.children;
+                for (let i = 0; i < to_delete.length; i++) {
+                    to_delete[i].remove();
+                }
+            }
+            delete_current_crepes();
             for (let i = 0; i < list.length; i++) {
                 let crepe = list[i];
                 let elem_copy = template.content.cloneNode(true);
@@ -68,7 +70,6 @@ function getCurrentCrepes() {
 function editButtonFunc(btnElement) {
     const crepe_container = btnElement.parentElement.parentElement;
     const dialog = document.getElementById("edit_crepe_dialog");
-    const dialog_containing = dialog.querySelector(".dialog_containing");
     const crepeId = Number(crepe_container.getAttribute("data-id"));
     const crepeNameInput = document.getElementById("edit_crepe_name");
     const crepePriceInput = document.getElementById("edit_crepe_price");
@@ -133,6 +134,7 @@ function handleEditCommit(index_of_crepe) {
     }
     if (!has_been_edited.name && !has_been_edited.price && !has_been_edited.type) {
         // Nichts wurde bearbeitet
+        send_feedback_message("Nichts wurde bearbeitet!", 2, "red");
     }
     dialog.close();
 }
