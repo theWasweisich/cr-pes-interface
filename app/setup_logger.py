@@ -3,8 +3,6 @@ import logging.config
 from pathlib import Path
 from os import path
 
-# logging.getLogger("werkzeug").setLevel(logging.ERROR)
-
 ACCESS_PATH = Path(path.join(path.dirname(__file__), "./logs/access.log"))
 SERVER_PATH = Path(path.join(path.dirname(__file__), "./logs/server.log"))
 WERKZEUG_PATH = Path(path.join(path.dirname(__file__), "./logs/werkzeug.log"))
@@ -32,5 +30,6 @@ root_logger.addHandler(server_handler)
 # logging.basicConfig(filename=SERVER_PATH, filemode="a", format=LOGGING_FORMAT, encoding="UTF-8", level=logging.DEBUG, errors="\n")
 
 api_logger = logging.getLogger("API Logger")
+api_logger.propagate = False
 api_logger.addHandler(server_handler)
 api_logger.setLevel(logging.DEBUG)
