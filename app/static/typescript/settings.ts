@@ -118,6 +118,10 @@ function editButtonFunc(btnElement: HTMLButtonElement) {
     });
 }
 
+/**
+ * Function called when the "Bearbeitung abschließen" Button is pressed
+ * @param index_of_crepe the index of the crêpes being edited
+ */
 function handleEditCommit(index_of_crepe: number) {
     const dialog = document.getElementById("edit_crepe_dialog") as HTMLDialogElement;
 

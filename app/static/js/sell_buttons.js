@@ -99,7 +99,7 @@ function setFavicon(state) {
      {
         link.href = "/favicon.ico";
     }
-    else // else, show red favicon
+    else // show red favicon
      {
         link.href = "/favicon_warn.ico";
     }

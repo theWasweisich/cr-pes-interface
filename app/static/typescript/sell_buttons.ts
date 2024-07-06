@@ -104,9 +104,9 @@ function setFavicon(state: boolean) {
     var link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
     if (state) // If state == true, show normal Favicon
     {
-        link.href = "/favicon.ico"
+        link.href = "/favicon.ico";
     }
-    else // else, show red favicon
+    else // show red favicon
     {
         link.href = "/favicon_warn.ico";
     }
