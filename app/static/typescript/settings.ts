@@ -3,21 +3,46 @@
 // Some useful Variables
 var crepes_selected = false;
 
-document.addEventListener("onbeforeunload", function () {
-    if ((send_to_server_list.delete.length > 0) || (send_to_server_list.edit.length > 0) || (send_to_server_list.new.length > 0)) {
+document.addEventListener("onbeforeunload", function (event) {
+    if ((send_to_server_list_with_monitor.delete.length > 0) || (send_to_server_list_with_monitor.edit.length > 0) || (send_to_server_list_with_monitor.new.length > 0)) {
         event.preventDefault();
-    }    
+    }
 })
 
 
+type SendToServerCrepe = {
+    id?: number
+    name?: string,
+    price?: number,
+    type?: string,
+    ingredients?: string,
+}
+
+const handler = {
+    set(target, prop, value, receiver) {
+        check_if_need_to_speichern();
+        return Reflect.set(target, prop, value, receiver);
+    },
+    get(target, prop, receiver) {
+        const value = Reflect.get(target, prop, receiver);
+        if (typeof value === 'object' && value !== null) {
+            return new Proxy(value, handler);
+        }
+        return value;
+    }
+}
+
 let send_to_server_list = {
-    new: new Array,
-    edit: new Array,
-    delete: new Array,
+    new: new Array<SendToServerCrepe>(),
+    edit: new Array<SendToServerCrepe>(),
+    delete: new Array<SendToServerCrepe>(),
 };
 
+const send_to_server_list_with_monitor = new Proxy(send_to_server_list, handler);
+
+
 /**
- * Clears the list of crepes and then re-populates it with newly fetched crepes
+ * Clears the list of crepelist and then re-populates it with newly fetched crepes
  */
 async function getCurrentCrepes() {
     const res = await send_server(urls.getcrepes, "GET")
@@ -38,12 +63,12 @@ async function getCurrentCrepes() {
         crepelist.push(new_crêpe)
 
     }
-    populateCrêpesList(crepelist);
+    populateCrêpesList();
 
     /**
      * Populates the Crepes Elements using the variable crepelist
      */
-    function populateCrêpesList(list: Crêpe[]) {
+    function populateCrêpesList() {
         const toAppendTo = document.getElementById("crepes_list")
         const template = document.getElementById("crepeslist_tmpl") as HTMLTemplateElement;
 
@@ -57,8 +82,8 @@ async function getCurrentCrepes() {
 
         delete_current_crepes();
 
-        for (let i = 0; i < list.length; i++) {
-            let crepe = list[i];
+        for (let i = 0; i < crepelist.length; i++) {
+            let crepe = crepelist[i];
             
             let elem_copy = template.content.cloneNode(true) as HTMLDivElement;
 
@@ -73,44 +98,34 @@ async function getCurrentCrepes() {
             (crepe_container.querySelector(".crepe-price") as HTMLElement).innerText = currency_formatter.format(crepe.price);
             
             toAppendTo.appendChild(elem_copy);
+            crepelist[i].root_element = crepe_container;
         }
     }
 }
 
-function editButtonFunc(btnElement: HTMLButtonElement) {
-    const crepe_container = btnElement.parentElement.parentElement as HTMLDivElement
-    const dialog = document.getElementById("edit_crepe_dialog") as HTMLDialogElement;
-    const crepeId = Number(crepe_container.getAttribute("data-id"))
-    
+/**
+ * Opens the edit dialog and attaches the {@link handleEditCommit} function
+ * @param crepe The crepe that needs to be edited
+ */
+function edit_crepe_dialog_function(crepe: Crêpe) {
     const crepeNameInput = document.getElementById("edit_crepe_name") as HTMLInputElement;
     const crepePriceInput = document.getElementById("edit_crepe_price") as HTMLInputElement;
     const crepeTypeInput = document.getElementById("edit_crepe_type") as HTMLSelectElement;
     const commitButton = document.getElementById("edit_crepe_save") as HTMLButtonElement;
+    const dialog = document.getElementById("edit_crepe_dialog") as HTMLDialogElement;
     
-    let crepe_edit: Crêpe;
-    let index_exit: number;
-
-
-    crepelist.some(crepe => {
-        if (crepe.crepeId === crepeId) {
-            index_exit = crepelist.indexOf(crepe);
-            crepe_edit = crepe;
-            return true;
-        }
-    });
-
-    crepeNameInput.value = crepe_edit.name;
-    crepePriceInput.value = currency_formatter.format(crepe_edit.price);
-    crepeTypeInput.querySelector(`[value="${crepe_edit.type}"]`).setAttribute("selected", "");
-
+    crepeNameInput.value = crepe.name;
+    crepePriceInput.value = currency_formatter.format(crepe.price);
+    crepeTypeInput.querySelector(`[value="${crepe.type}"]`).setAttribute("selected", "");
+    
     commitButton.addEventListener('click', () => {
-        handleEditCommit(index_exit);
+        handleEditCommit(crepe.crepeId);
     })
-
+    
     if (!dialog.open) {
         dialog.showModal();
     }
-
+    
     dialog.addEventListener('click', function (event: MouseEvent) {
         if ((event.target as HTMLElement).id === "edit_crepe_dialog") {
             dialog.close();
@@ -118,11 +133,47 @@ function editButtonFunc(btnElement: HTMLButtonElement) {
     });
 }
 
+function editButtonFunc(btnElement: HTMLButtonElement) {
+    const crepe_container = btnElement.parentElement.parentElement as HTMLDivElement
+    const crepeId = Number(crepe_container.getAttribute("data-id"))
+    
+    
+    let crepe_edit: Crêpe;
+
+    for (const crepe of crepelist) {
+        if (crepe.crepeId == crepeId) {
+            crepe_edit = crepe;
+            break;
+        }
+    }
+
+    console.log(`Editing: "${crepe_edit.name}"`)
+
+    edit_crepe_dialog_function(crepe_edit);
+
+}
+
+function get_crepe_by_id(id:number): Crêpe {
+    for (const crepe of crepelist) {
+        if (crepe.crepeId === id) {
+            return crepe
+        }
+    }
+}
+
+function get_crepe_index_by_id(id: number): number {
+    for (const [index, crepe] of crepelist.entries()) {
+        if (crepe.crepeId == id) {
+            return index;
+        }
+    }    
+}
+
 /**
  * Function called when the "Bearbeitung abschließen" Button is pressed
- * @param index_of_crepe the index of the crêpes being edited
+ * @param crepeId the crepeId of the crêpes being edited
  */
-function handleEditCommit(index_of_crepe: number) {
+function handleEditCommit(crepeId: number) {
     const dialog = document.getElementById("edit_crepe_dialog") as HTMLDialogElement;
 
     const crepeNameInput = document.getElementById("edit_crepe_name") as HTMLInputElement;
@@ -143,26 +194,54 @@ function handleEditCommit(index_of_crepe: number) {
     }
     let new_price_number: number = Number(new_price);
 
-    console.log(`Editation: Price: ${new_price}; Numeric_Price: ${new_price_number}; Name: ${new_name}; Type: ${new_type}`);
-
-    let crêpe = crepelist[index_of_crepe];
-
+    
+    let crêpe: Crêpe = get_crepe_by_id(crepeId);
+    
     let has_been_edited = {
         price: false,
         name: false,
         type: false
     }
-
+    
     if (new_price_number !== crêpe.price) { has_been_edited.price = true; } 
     if (new_name !== crêpe.name) { has_been_edited.name = true; } 
     if (new_type !== crêpe.type) { has_been_edited.type = true; }
     
     if (!has_been_edited.name && !has_been_edited.price && !has_been_edited.type) {
         // Nichts wurde bearbeitet
+        console.log("Dialog closed, but nothing was changed!")
         send_feedback_message("Nichts wurde bearbeitet!", 2, "red")
+    } else {
+        let edited_crêpe: Crêpe = new Crêpe(
+            crêpe.crepeId,
+            has_been_edited.name ? new_name : crêpe.name,
+            has_been_edited.price ? new_price_number : crêpe.price,
+            crêpe.amount,
+            crêpe.type,
+            crêpe.root_element
+        )
+        let to_list: SendToServerCrepe = {
+            id: edited_crêpe.crepeId,
+            name: edited_crêpe.name,
+            price: edited_crêpe.price,
+            type: edited_crêpe.type
+        }
+
+        send_to_server_list_with_monitor.edit.push(to_list);
+        update_crepe_item(edited_crêpe);
     }
 
     dialog.close();
+}
+
+function update_crepe_item(crepe: Crêpe) {
+    const rootelem = crepe.root_element
+    const elem_name = rootelem.querySelector("h3.crepe-name");
+    const elem_price = rootelem.querySelector("h4.crepe-price");
+
+    elem_name.textContent = crepe.name;
+    elem_price.textContent = currency_formatter.format(crepe.price);
+    rootelem.setAttribute("data-type", crepe.type);
 }
 
 /**
@@ -175,7 +254,7 @@ function send_feedback_message(message: string, duration: number = 2, color: str
     const container = document.getElementById("feedback_message_container") as HTMLDivElement;
     const feedback_message = document.getElementById("feedback_message") as HTMLParagraphElement;
 
-    feedback_message.innerText = message;
+    feedback_message.textContent = message;
     container.classList.add("show")
     setTimeout(() => {
         container.classList.remove("show")
@@ -200,22 +279,20 @@ async function button_save_changes_to_server() {
     }
 }
 
-/**
- * Funktion prüft, ob die Liste mit Crêpes leer ist
- * @returns boolean
- */
-function check_if_empty() {
-    if (document.getElementById('crepes_list').childElementCount == 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
 
 /**
  * Checks, if crepes_list is empty and if it is, shows the empty elem instead.
- */
+*/
 function toggle_empty() {
+
+    /**
+     * Funktion prüft, ob die Liste mit Crêpes leer ist
+     * @returns boolean
+     */
+    function check_if_empty(): boolean {
+        return document.getElementById('crepes_list').childElementCount === 0;
+    }
+
     var error_elem = document.getElementById('no_crepes');
     var list_elem = document.getElementById('crepes_list');
 
@@ -229,7 +306,7 @@ function toggle_empty() {
 }
 
 /**
- * Entfernt crêpes von der liste und fügt sie der send_to_server_list an.
+ * Entfernt crêpes von der liste und fügt sie der send_to_server_list_with_monitor an.
  * @param target Der Löschen Knopf
  */
 function delte_crepe(target: HTMLElement) {
@@ -243,11 +320,8 @@ function delte_crepe(target: HTMLElement) {
     var crepename = root.getAttribute('data-name');
     root.remove();
     toggle_empty();
-    var id = root.getAttribute("data-id")
-    send_to_server_list.delete.push({
-        "id": id,
-        "name": crepename
-    });
+    var id = Number(root.getAttribute("data-id"))
+    send_to_server_list_with_monitor.delete.push({ id: id, name: crepename });
     check_if_need_to_speichern();
 }
 
@@ -281,8 +355,13 @@ function loadCrepe(elem: HTMLSelectElement, crepes_data: Array<any>) {
     crepes_selected = true;
 }
 
-function editCrepe() {
-    
+function editCrepe(crepe_id: number) {
+    let crepe_to_edit: Crêpe;
+    for (const [index, crepe] of crepelist.entries()) {
+        if (crepe.crepeId === crepe_id) {
+
+        }
+    }
 }
 
 function create_crepe(): boolean {
@@ -292,14 +371,14 @@ function create_crepe(): boolean {
     let color = document.getElementById('color') as HTMLSelectElement;
     let form = document.getElementById("newForm") as HTMLFormElement;
     
-    var crepe_data = {
-        "name": name.value,
-        "price": price.value,
-        "ingredients": ingredients.value,
-        "color": color.value
+    var crepe_data: SendToServerCrepe = {
+        name: name.value,
+        price: Number(price.value),
+        ingredients: ingredients.value,
+        type: color.value
         };
 
-    send_to_server_list.new.push(crepe_data)
+    send_to_server_list_with_monitor.new.push(crepe_data)
     check_if_need_to_speichern();
 
     form.classList.add("success")
@@ -318,10 +397,10 @@ function create_crepe(): boolean {
  * 
  */
 async function send_settings_to_server(): Promise<boolean> {
-    
+
 
     async function send_delete() {
-        var response = await send_server(urls.delCrepe, "DELETE", send_to_server_list.delete)
+        var response = await send_server(urls.delCrepe, "DELETE", send_to_server_list_with_monitor.delete)
 
         var text = await response.text()
 
@@ -334,7 +413,7 @@ async function send_settings_to_server(): Promise<boolean> {
         }
     }
     async function send_edit() {
-        var response = await send_server(urls.editCrepe, "PATCH", send_to_server_list.edit)
+        var response = await send_server(urls.editCrepe, "PATCH", send_to_server_list_with_monitor.edit)
 
         var text = await response.text()
 
@@ -348,7 +427,7 @@ async function send_settings_to_server(): Promise<boolean> {
     };
     async function send_new() {
         console.log("Send new!")
-        var response = await send_server(urls.newCrepe, "PUT", send_to_server_list.new)
+        var response = await send_server(urls.newCrepe, "PUT", send_to_server_list_with_monitor.new)
 
         var text = await response.text()
 
@@ -365,9 +444,9 @@ async function send_settings_to_server(): Promise<boolean> {
     };
 
     var return_value: boolean = false
-    if (send_to_server_list.new.length >= 1) { return_value = true; send_new() }
-    if (send_to_server_list.edit.length >= 1) { return_value = true; send_edit() }
-    if (send_to_server_list.delete.length >= 1) { return_value = true; send_delete() }
+    if (send_to_server_list_with_monitor.new.length >= 1) { return_value = true; send_new() }
+    if (send_to_server_list_with_monitor.edit.length >= 1) { return_value = true; send_edit() }
+    if (send_to_server_list_with_monitor.delete.length >= 1) { return_value = true; send_delete() }
 
     return return_value;
 
@@ -380,12 +459,13 @@ async function send_settings_to_server(): Promise<boolean> {
  */
 async function save_changes(): Promise<boolean> {
     console.warn("Folgendes wird versandt: ");
-    console.warn(send_to_server_list)
+    console.warn(send_to_server_list_with_monitor)
+
     const res = await send_settings_to_server();
     if (res) {
-        send_to_server_list.delete = []
-        send_to_server_list.edit = []
-        send_to_server_list.new = []
+        send_to_server_list_with_monitor.delete = []
+        send_to_server_list_with_monitor.edit = []
+        send_to_server_list_with_monitor.new = []
         changes_saved(true);
         getCurrentCrepes();
         return true;
@@ -432,14 +512,10 @@ async function save_changes(): Promise<boolean> {
 function check_if_need_to_speichern(): boolean {
 
     /**
-     * Checks if send_to_server_list is empty
+     * Checks if send_to_server_list_with_monitor is empty
      */
     function is_all_empty(): boolean {
-        if (send_to_server_list.delete.length > 0 || send_to_server_list.edit.length > 0 || send_to_server_list.new.length > 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return (send_to_server_list_with_monitor.delete.length == 0 && send_to_server_list_with_monitor.edit.length == 0 && send_to_server_list_with_monitor.new.length == 0)
     }
 
     let btn = document.getElementById('save_btn') as HTMLButtonElement
@@ -495,8 +571,8 @@ function validate_all() {
 }
 
 /**
- * Validates set element and reports the validity afterwards
- * @param elem The Input element to check against
+ * Validates set crepe and reports the validity afterwards
+ * @param elem The Input crepe to check against
  */
 function validate_input(elem: HTMLInputElement) {
     const validity = elem.validity
@@ -520,7 +596,7 @@ function check_for_edits() {
     var list = document.getElementById("crepes_list")
     var crepes = list.getElementsByClassName("crepe_container");
 
-    send_to_server_list.edit = []
+    send_to_server_list_with_monitor.edit = []
     
     for (let i = 0; i < crepes.length; i++) {
         const crepe = crepes[i];
@@ -530,15 +606,17 @@ function check_for_edits() {
 
         
         if (crepe.getAttribute("was_edited") == "true") {
-            var id = crepe.getAttribute("data-id")
+            var id = Number(crepe.getAttribute("data-id"))
             var name = name_input.value
-            var price = price_input.value
+            var price = Number(price_input.value)
 
-            send_to_server_list.edit.push({
-                "id": id,
-                "name": name,
-                "price": price
-            })
+            let to_list: SendToServerCrepe = {
+                id: id,
+                name: name,
+                price: price
+            }
+
+            send_to_server_list_with_monitor.edit.push(to_list);
             check_if_need_to_speichern();
         }
     };

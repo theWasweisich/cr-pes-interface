@@ -10,18 +10,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 // Some useful Variables
 var crepes_selected = false;
-document.addEventListener("onbeforeunload", function () {
-    if ((send_to_server_list.delete.length > 0) || (send_to_server_list.edit.length > 0) || (send_to_server_list.new.length > 0)) {
+document.addEventListener("onbeforeunload", function (event) {
+    if ((send_to_server_list_with_monitor.delete.length > 0) || (send_to_server_list_with_monitor.edit.length > 0) || (send_to_server_list_with_monitor.new.length > 0)) {
         event.preventDefault();
     }
 });
-let send_to_server_list = {
-    new: new Array,
-    edit: new Array,
-    delete: new Array,
+const handler = {
+    set(target, prop, value, receiver) {
+        check_if_need_to_speichern();
+        return Reflect.set(target, prop, value, receiver);
+    },
+    get(target, prop, receiver) {
+        const value = Reflect.get(target, prop, receiver);
+        if (typeof value === 'object' && value !== null) {
+            return new Proxy(value, handler);
+        }
+        return value;
+    }
 };
+let send_to_server_list = {
+    new: new Array(),
+    edit: new Array(),
+    delete: new Array(),
+};
+const send_to_server_list_with_monitor = new Proxy(send_to_server_list, handler);
 /**
- * Clears the list of crepes and then re-populates it with newly fetched crepes
+ * Clears the list of crepelist and then re-populates it with newly fetched crepes
  */
 function getCurrentCrepes() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -37,11 +51,11 @@ function getCurrentCrepes() {
             var new_crêpe = new Crêpe(crepe_id, crepe_name, crepe_price, 0, crepe_type);
             crepelist.push(new_crêpe);
         }
-        populateCrêpesList(crepelist);
+        populateCrêpesList();
         /**
          * Populates the Crepes Elements using the variable crepelist
          */
-        function populateCrêpesList(list) {
+        function populateCrêpesList() {
             const toAppendTo = document.getElementById("crepes_list");
             const template = document.getElementById("crepeslist_tmpl");
             function delete_current_crepes() {
@@ -51,8 +65,8 @@ function getCurrentCrepes() {
                 }
             }
             delete_current_crepes();
-            for (let i = 0; i < list.length; i++) {
-                let crepe = list[i];
+            for (let i = 0; i < crepelist.length; i++) {
+                let crepe = crepelist[i];
                 let elem_copy = template.content.cloneNode(true);
                 // attributes on .crepe_container: data-id data-name data-preis data-type
                 let crepe_container = elem_copy.querySelector("div.crepe_container");
@@ -63,32 +77,26 @@ function getCurrentCrepes() {
                 crepe_container.querySelector(".crepe-name").innerText = String(crepe.name);
                 crepe_container.querySelector(".crepe-price").innerText = currency_formatter.format(crepe.price);
                 toAppendTo.appendChild(elem_copy);
+                crepelist[i].root_element = crepe_container;
             }
         }
     });
 }
-function editButtonFunc(btnElement) {
-    const crepe_container = btnElement.parentElement.parentElement;
-    const dialog = document.getElementById("edit_crepe_dialog");
-    const crepeId = Number(crepe_container.getAttribute("data-id"));
+/**
+ * Opens the edit dialog and attaches the {@link handleEditCommit} function
+ * @param crepe The crepe that needs to be edited
+ */
+function edit_crepe_dialog_function(crepe) {
     const crepeNameInput = document.getElementById("edit_crepe_name");
     const crepePriceInput = document.getElementById("edit_crepe_price");
     const crepeTypeInput = document.getElementById("edit_crepe_type");
     const commitButton = document.getElementById("edit_crepe_save");
-    let crepe_edit;
-    let index_exit;
-    crepelist.some(crepe => {
-        if (crepe.crepeId === crepeId) {
-            index_exit = crepelist.indexOf(crepe);
-            crepe_edit = crepe;
-            return true;
-        }
-    });
-    crepeNameInput.value = crepe_edit.name;
-    crepePriceInput.value = currency_formatter.format(crepe_edit.price);
-    crepeTypeInput.querySelector(`[value="${crepe_edit.type}"]`).setAttribute("selected", "");
+    const dialog = document.getElementById("edit_crepe_dialog");
+    crepeNameInput.value = crepe.name;
+    crepePriceInput.value = currency_formatter.format(crepe.price);
+    crepeTypeInput.querySelector(`[value="${crepe.type}"]`).setAttribute("selected", "");
     commitButton.addEventListener('click', () => {
-        handleEditCommit(index_exit);
+        handleEditCommit(crepe.crepeId);
     });
     if (!dialog.open) {
         dialog.showModal();
@@ -99,11 +107,38 @@ function editButtonFunc(btnElement) {
         }
     });
 }
+function editButtonFunc(btnElement) {
+    const crepe_container = btnElement.parentElement.parentElement;
+    const crepeId = Number(crepe_container.getAttribute("data-id"));
+    let crepe_edit;
+    for (const crepe of crepelist) {
+        if (crepe.crepeId == crepeId) {
+            crepe_edit = crepe;
+            break;
+        }
+    }
+    console.log(`Editing: "${crepe_edit.name}"`);
+    edit_crepe_dialog_function(crepe_edit);
+}
+function get_crepe_by_id(id) {
+    for (const crepe of crepelist) {
+        if (crepe.crepeId === id) {
+            return crepe;
+        }
+    }
+}
+function get_crepe_index_by_id(id) {
+    for (const [index, crepe] of crepelist.entries()) {
+        if (crepe.crepeId == id) {
+            return index;
+        }
+    }
+}
 /**
  * Function called when the "Bearbeitung abschließen" Button is pressed
- * @param index_of_crepe the index of the crêpes being edited
+ * @param crepeId the crepeId of the crêpes being edited
  */
-function handleEditCommit(index_of_crepe) {
+function handleEditCommit(crepeId) {
     const dialog = document.getElementById("edit_crepe_dialog");
     const crepeNameInput = document.getElementById("edit_crepe_name");
     const crepePriceInput = document.getElementById("edit_crepe_price");
@@ -120,8 +155,7 @@ function handleEditCommit(index_of_crepe) {
         return;
     }
     let new_price_number = Number(new_price);
-    console.log(`Editation: Price: ${new_price}; Numeric_Price: ${new_price_number}; Name: ${new_name}; Type: ${new_type}`);
-    let crêpe = crepelist[index_of_crepe];
+    let crêpe = get_crepe_by_id(crepeId);
     let has_been_edited = {
         price: false,
         name: false,
@@ -138,9 +172,29 @@ function handleEditCommit(index_of_crepe) {
     }
     if (!has_been_edited.name && !has_been_edited.price && !has_been_edited.type) {
         // Nichts wurde bearbeitet
+        console.log("Dialog closed, but nothing was changed!");
         send_feedback_message("Nichts wurde bearbeitet!", 2, "red");
     }
+    else {
+        let edited_crêpe = new Crêpe(crêpe.crepeId, has_been_edited.name ? new_name : crêpe.name, has_been_edited.price ? new_price_number : crêpe.price, crêpe.amount, crêpe.type, crêpe.root_element);
+        let to_list = {
+            id: edited_crêpe.crepeId,
+            name: edited_crêpe.name,
+            price: edited_crêpe.price,
+            type: edited_crêpe.type
+        };
+        send_to_server_list_with_monitor.edit.push(to_list);
+        update_crepe_item(edited_crêpe);
+    }
     dialog.close();
+}
+function update_crepe_item(crepe) {
+    const rootelem = crepe.root_element;
+    const elem_name = rootelem.querySelector("h3.crepe-name");
+    const elem_price = rootelem.querySelector("h4.crepe-price");
+    elem_name.textContent = crepe.name;
+    elem_price.textContent = currency_formatter.format(crepe.price);
+    rootelem.setAttribute("data-type", crepe.type);
 }
 /**
  *
@@ -151,7 +205,7 @@ function handleEditCommit(index_of_crepe) {
 function send_feedback_message(message, duration = 2, color) {
     const container = document.getElementById("feedback_message_container");
     const feedback_message = document.getElementById("feedback_message");
-    feedback_message.innerText = message;
+    feedback_message.textContent = message;
     container.classList.add("show");
     setTimeout(() => {
         container.classList.remove("show");
@@ -175,21 +229,16 @@ function button_save_changes_to_server() {
     });
 }
 /**
- * Funktion prüft, ob die Liste mit Crêpes leer ist
- * @returns boolean
- */
-function check_if_empty() {
-    if (document.getElementById('crepes_list').childElementCount == 0) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-/**
  * Checks, if crepes_list is empty and if it is, shows the empty elem instead.
- */
+*/
 function toggle_empty() {
+    /**
+     * Funktion prüft, ob die Liste mit Crêpes leer ist
+     * @returns boolean
+     */
+    function check_if_empty() {
+        return document.getElementById('crepes_list').childElementCount === 0;
+    }
     var error_elem = document.getElementById('no_crepes');
     var list_elem = document.getElementById('crepes_list');
     if (check_if_empty()) {
@@ -202,7 +251,7 @@ function toggle_empty() {
     }
 }
 /**
- * Entfernt crêpes von der liste und fügt sie der send_to_server_list an.
+ * Entfernt crêpes von der liste und fügt sie der send_to_server_list_with_monitor an.
  * @param target Der Löschen Knopf
  */
 function delte_crepe(target) {
@@ -216,11 +265,8 @@ function delte_crepe(target) {
     var crepename = root.getAttribute('data-name');
     root.remove();
     toggle_empty();
-    var id = root.getAttribute("data-id");
-    send_to_server_list.delete.push({
-        "id": id,
-        "name": crepename
-    });
+    var id = Number(root.getAttribute("data-id"));
+    send_to_server_list_with_monitor.delete.push({ id: id, name: crepename });
     check_if_need_to_speichern();
 }
 function loadCrepe(elem, crepes_data) {
@@ -245,7 +291,12 @@ function loadCrepe(elem, crepes_data) {
     });
     crepes_selected = true;
 }
-function editCrepe() {
+function editCrepe(crepe_id) {
+    let crepe_to_edit;
+    for (const [index, crepe] of crepelist.entries()) {
+        if (crepe.crepeId === crepe_id) {
+        }
+    }
 }
 function create_crepe() {
     let name = document.getElementById('crepeName');
@@ -254,12 +305,12 @@ function create_crepe() {
     let color = document.getElementById('color');
     let form = document.getElementById("newForm");
     var crepe_data = {
-        "name": name.value,
-        "price": price.value,
-        "ingredients": ingredients.value,
-        "color": color.value
+        name: name.value,
+        price: Number(price.value),
+        ingredients: ingredients.value,
+        type: color.value
     };
-    send_to_server_list.new.push(crepe_data);
+    send_to_server_list_with_monitor.new.push(crepe_data);
     check_if_need_to_speichern();
     form.classList.add("success");
     setTimeout(() => {
@@ -276,7 +327,7 @@ function send_settings_to_server() {
     return __awaiter(this, void 0, void 0, function* () {
         function send_delete() {
             return __awaiter(this, void 0, void 0, function* () {
-                var response = yield send_server(urls.delCrepe, "DELETE", send_to_server_list.delete);
+                var response = yield send_server(urls.delCrepe, "DELETE", send_to_server_list_with_monitor.delete);
                 var text = yield response.text();
                 if (response.ok) {
                     console.log(text);
@@ -290,7 +341,7 @@ function send_settings_to_server() {
         }
         function send_edit() {
             return __awaiter(this, void 0, void 0, function* () {
-                var response = yield send_server(urls.editCrepe, "PATCH", send_to_server_list.edit);
+                var response = yield send_server(urls.editCrepe, "PATCH", send_to_server_list_with_monitor.edit);
                 var text = yield response.text();
                 if (response.ok) {
                     console.log(text);
@@ -306,7 +357,7 @@ function send_settings_to_server() {
         function send_new() {
             return __awaiter(this, void 0, void 0, function* () {
                 console.log("Send new!");
-                var response = yield send_server(urls.newCrepe, "PUT", send_to_server_list.new);
+                var response = yield send_server(urls.newCrepe, "PUT", send_to_server_list_with_monitor.new);
                 var text = yield response.text();
                 if (response.ok) {
                     console.groupCollapsed("Gespeichert");
@@ -323,15 +374,15 @@ function send_settings_to_server() {
         }
         ;
         var return_value = false;
-        if (send_to_server_list.new.length >= 1) {
+        if (send_to_server_list_with_monitor.new.length >= 1) {
             return_value = true;
             send_new();
         }
-        if (send_to_server_list.edit.length >= 1) {
+        if (send_to_server_list_with_monitor.edit.length >= 1) {
             return_value = true;
             send_edit();
         }
-        if (send_to_server_list.delete.length >= 1) {
+        if (send_to_server_list_with_monitor.delete.length >= 1) {
             return_value = true;
             send_delete();
         }
@@ -346,12 +397,12 @@ function send_settings_to_server() {
 function save_changes() {
     return __awaiter(this, void 0, void 0, function* () {
         console.warn("Folgendes wird versandt: ");
-        console.warn(send_to_server_list);
+        console.warn(send_to_server_list_with_monitor);
         const res = yield send_settings_to_server();
         if (res) {
-            send_to_server_list.delete = [];
-            send_to_server_list.edit = [];
-            send_to_server_list.new = [];
+            send_to_server_list_with_monitor.delete = [];
+            send_to_server_list_with_monitor.edit = [];
+            send_to_server_list_with_monitor.new = [];
             changes_saved(true);
             getCurrentCrepes();
             return true;
@@ -396,15 +447,10 @@ function save_changes() {
  */
 function check_if_need_to_speichern() {
     /**
-     * Checks if send_to_server_list is empty
+     * Checks if send_to_server_list_with_monitor is empty
      */
     function is_all_empty() {
-        if (send_to_server_list.delete.length > 0 || send_to_server_list.edit.length > 0 || send_to_server_list.new.length > 0) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return (send_to_server_list_with_monitor.delete.length == 0 && send_to_server_list_with_monitor.edit.length == 0 && send_to_server_list_with_monitor.new.length == 0);
     }
     let btn = document.getElementById('save_btn');
     const empty = is_all_empty();
@@ -453,8 +499,8 @@ function validate_all() {
     }
 }
 /**
- * Validates set element and reports the validity afterwards
- * @param elem The Input element to check against
+ * Validates set crepe and reports the validity afterwards
+ * @param elem The Input crepe to check against
  */
 function validate_input(elem) {
     const validity = elem.validity;
@@ -477,20 +523,21 @@ function check_for_edits() {
     console.log("Check'in for edits");
     var list = document.getElementById("crepes_list");
     var crepes = list.getElementsByClassName("crepe_container");
-    send_to_server_list.edit = [];
+    send_to_server_list_with_monitor.edit = [];
     for (let i = 0; i < crepes.length; i++) {
         const crepe = crepes[i];
         var name_input = crepe.querySelector('input[name="Crêpes Name"]');
         var price_input = crepe.querySelector('input[name="Crêpes Preis"]');
         if (crepe.getAttribute("was_edited") == "true") {
-            var id = crepe.getAttribute("data-id");
+            var id = Number(crepe.getAttribute("data-id"));
             var name = name_input.value;
-            var price = price_input.value;
-            send_to_server_list.edit.push({
-                "id": id,
-                "name": name,
-                "price": price
-            });
+            var price = Number(price_input.value);
+            let to_list = {
+                id: id,
+                name: name,
+                price: price
+            };
+            send_to_server_list_with_monitor.edit.push(to_list);
             check_if_need_to_speichern();
         }
     }

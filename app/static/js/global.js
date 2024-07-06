@@ -71,7 +71,7 @@ function send_server(url, method, body) {
         return response;
     });
 }
-var crepelist = [];
+const crepelist = [];
 var crepemap = new Map();
 var connectionError = false;
 /**
@@ -81,6 +81,9 @@ var connectionError = false;
  * @param price: Der Preis des Crêpes
  * @param amount Die Menge der Crêpes
  * @param type Die Art des Crêpes
+ */
+/**
+ * The Crêpe class represents a single crêpe.
  */
 class Crêpe {
     constructor(id, name, price, amount, type, root_element, table_root_element) {
@@ -97,34 +100,37 @@ class Crêpe {
         return `\n${this.crepeId} ; ${this.name} ; ${this.price} ; ${this.amount}\n`;
     }
 }
+// /**
+//  * Adds all crêpes to the crepelist
+//  * @param root_element The root element of the crepe
+//  * @param crepeId The id of the crepe
+//  * @param crepeName The name of the crepe
+//  * @param crepeprice the Price of the crepe
+//  * @returns Nothing
+//  */
+// function set_data(root_element: HTMLElement, crepeId?: string, crepeName?: string, crepeprice?: number) {
+//     if (crepeName == undefined && crepeprice == undefined && crepeId == undefined) {
+//         crepeName = root_element.getAttribute('data-name')
+//         crepeprice = (root_element.getAttribute('data-price')) as unknown as number
+//         crepeId = (root_element.getAttribute('data-id'))
+//     }
+//     crepelist.push(new Crêpe(Number(crepeId), crepeName, Number(crepeprice), 0, null, root_element))
+//     return;
+// }
 /**
- * Adds all crêpes to the crepelist
- * @param root_element The root element of the crepe
- * @param crepeId The id of the crepe
- * @param crepeName The name of the crepe
- * @param crepeprice the Price of the crepe
- * @returns Nothing
- */
-function set_data(root_element, crepeId, crepeName, crepeprice) {
-    if (crepeName == undefined && crepeprice == undefined && crepeId == undefined) {
-        crepeName = root_element.getAttribute('data-name');
-        crepeprice = (root_element.getAttribute('data-price'));
-        crepeId = (root_element.getAttribute('data-id'));
-    }
-    crepelist.push(new Crêpe(Number(crepeId), crepeName, Number(crepeprice), 0, null, root_element));
-    return;
-}
-/**
- * For formatting number to currency
+ * Formatting a number to a human readable format (in €)
  */
 const currency_formatter = new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR'
 });
+/**
+ * Formatting a Date object to a human readable format
+ */
 const time_formatter = new Intl.DateTimeFormat("de-DE", {
-    weekday: "long",
     year: "numeric",
     month: "2-digit",
+    weekday: "long",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
