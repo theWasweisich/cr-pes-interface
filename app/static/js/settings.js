@@ -10,11 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 // Some useful Variables
 var crepes_selected = false;
-document.addEventListener("onbeforeunload", function (event) {
-    if ((send_to_server_list_with_monitor.delete.length > 0) || (send_to_server_list_with_monitor.edit.length > 0) || (send_to_server_list_with_monitor.new.length > 0)) {
-        event.preventDefault();
-    }
-});
+/**
+ * The handler is used to update the Save Button
+ * as soon as the send_to_server_list is changed
+ */
 const handler = {
     set(target, prop, value, receiver) {
         check_if_need_to_speichern();
@@ -33,6 +32,7 @@ let send_to_server_list = {
     edit: new Array(),
     delete: new Array(),
 };
+/** The monitor is used to change the save button state */
 const send_to_server_list_with_monitor = new Proxy(send_to_server_list, handler);
 /**
  * Clears the list of crepelist and then re-populates it with newly fetched crepes
@@ -60,13 +60,34 @@ function getCurrentCrepes() {
             const template = document.getElementById("crepeslist_tmpl");
             function delete_current_crepes() {
                 let to_delete = toAppendTo.children;
+                console.log(`Deleting:`, to_delete);
                 for (let i = 0; i < to_delete.length; i++) {
-                    to_delete[i].remove();
+                    toAppendTo.removeChild(to_delete[i]);
                 }
             }
+            function get_max_crepeId() {
+                let max_crepeId = -1;
+                for (let i = 0; i < crepelist.length; i++) {
+                    if (crepelist[i].crepeId > max_crepeId) {
+                        max_crepeId = crepelist[i].crepeId;
+                    }
+                }
+                return max_crepeId;
+            }
+            crepelist.sort((a, b) => {
+                if (a.crepeId > a.crepeId) {
+                    return 1;
+                }
+                else {
+                    return -1;
+                }
+            });
             delete_current_crepes();
             for (let i = 0; i < crepelist.length; i++) {
                 let crepe = crepelist[i];
+                if (i === 0 && crepe.name !== "Zimt & Zucker") {
+                    console.error("Wasn hier los?");
+                }
                 let elem_copy = template.content.cloneNode(true);
                 // attributes on .crepe_container: data-id data-name data-preis data-type
                 let crepe_container = elem_copy.querySelector("div.crepe_container");
@@ -220,11 +241,13 @@ function button_save_changes_to_server() {
     return __awaiter(this, void 0, void 0, function* () {
         var save_btn = document.getElementById('save_btn');
         if (yield save_changes()) {
+            save_btn.disabled = false;
             save_btn.style.backgroundColor = "rgba(0, 255, 0, 1);";
             save_btn.innerText = "Gespeichert!";
             setTimeout(() => {
-                save_btn.style.backgroundColor = "auto;";
+                save_btn.removeAttribute("style"); // resets style
                 save_btn.innerText = "Speichern";
+                save_btn.disabled = true;
             }, 2000);
         }
     });
@@ -268,7 +291,6 @@ function delte_crepe(target) {
     toggle_empty();
     var id = Number(root.getAttribute("data-id"));
     send_to_server_list_with_monitor.delete.push({ id: id, name: crepename });
-    check_if_need_to_speichern();
 }
 function loadCrepe(elem, crepes_data) {
     var crepes_id = document.getElementById('editID');
@@ -312,7 +334,6 @@ function create_crepe() {
         type: color.value
     };
     send_to_server_list_with_monitor.new.push(crepe_data);
-    check_if_need_to_speichern();
     form.classList.add("success");
     setTimeout(() => {
         form.classList.remove("success");
@@ -410,6 +431,7 @@ function save_changes() {
         }
         else {
             changes_saved(false);
+            getCurrentCrepes();
             return false;
         }
         /**
@@ -436,7 +458,6 @@ function save_changes() {
             function animation_out() {
                 const Anim = new KeyframeEffect(elem, [{ opacity: "0", top: "0" }], { duration: 500, fill: "forwards" });
                 new Animation(Anim, document.timeline).play();
-                check_if_need_to_speichern();
             }
         }
     });
@@ -459,11 +480,14 @@ function check_if_need_to_speichern() {
         btn.style.filter = "brightness(50%);";
         btn.style.backgroundColor = "rgb(120, 120, 120)";
         window.onbeforeunload = () => { };
+        btn.disabled = true;
         return false;
     }
     else {
         btn.style.filter = "brightness(1);";
         btn.style.backgroundColor = "rgb(0, 133, 35)";
+        btn.disabled = false;
+        window.onbeforeunload = (ev) => { ev.preventDefault(); };
         return true;
     }
 }
@@ -484,14 +508,13 @@ function input_changed(elem) {
         elem.checkValidity();
         container.setAttribute("was_edited", "true");
         marker.style.display = "block";
-        check_if_need_to_speichern();
     }
     else {
         elem.checkValidity();
         marker.style.display = "none";
         container.setAttribute("was_edited", "false");
-        check_if_need_to_speichern();
     }
+    check_if_need_to_speichern();
 }
 function validate_all() {
     var elems = document.getElementsByTagName("input");
@@ -539,9 +562,7 @@ function check_for_edits() {
                 price: price
             };
             send_to_server_list_with_monitor.edit.push(to_list);
-            check_if_need_to_speichern();
         }
     }
     ;
 }
-check_if_need_to_speichern();

@@ -52,7 +52,7 @@ if args.verbose:
 
 # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # Activate if logs should be print to console
 
-access_logger.removeHandler(logging.FileHandler("./logs/server.log", "w", encoding="UTF-8"))
+access_logger.removeHandler(logging.FileHandler("./logs/server.log", "a", encoding="UTF-8"))
 
 flask_sitemap.config.SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS = True
 flask_sitemap.config.SITEMAP_IGNORE_ENDPOINTS = "/sitemap.xml"
@@ -303,7 +303,7 @@ if __name__ == "__main__":
     elif args.runDebug:
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
 
-        app.run(host='127.0.0.1', port=80, debug=True, threaded=False)
+        app.run(host='127.0.0.1', port=80, debug=True, threaded=False)  # threaded=False needed for database management
 
     # elif args.runDebug: <-- This does not work, because waitress cannot create an instance if directed from outside
     else:
@@ -311,4 +311,4 @@ if __name__ == "__main__":
 
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
 
-        app.run(host='127.0.0.1', port=80, debug=False, threaded=False)
+        app.run(host='127.0.0.1', port=80, debug=False, threaded=False)  # threaded=False needed for database management

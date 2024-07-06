@@ -3,12 +3,6 @@
 // Some useful Variables
 var crepes_selected = false;
 
-document.addEventListener("onbeforeunload", function (event) {
-    if ((send_to_server_list_with_monitor.delete.length > 0) || (send_to_server_list_with_monitor.edit.length > 0) || (send_to_server_list_with_monitor.new.length > 0)) {
-        event.preventDefault();
-    }
-})
-
 
 type SendToServerCrepe = {
     id?: number
@@ -18,6 +12,10 @@ type SendToServerCrepe = {
     ingredients?: string,
 }
 
+/**
+ * The handler is used to update the Save Button
+ * as soon as the send_to_server_list is changed
+ */
 const handler = {
     set(target, prop, value, receiver) {
         check_if_need_to_speichern();
@@ -38,6 +36,7 @@ let send_to_server_list = {
     delete: new Array<SendToServerCrepe>(),
 };
 
+/** The monitor is used to change the save button state */
 const send_to_server_list_with_monitor = new Proxy(send_to_server_list, handler);
 
 
@@ -74,16 +73,39 @@ async function getCurrentCrepes() {
 
         function delete_current_crepes() {
             let to_delete = (toAppendTo.children as HTMLCollectionOf<HTMLDivElement>)
+            console.log(`Deleting:`, to_delete)
             for (let i = 0; i < to_delete.length; i++) {
-                to_delete[i].remove();
+                toAppendTo.removeChild(to_delete[i])
             }
         }
+
+        function get_max_crepeId(): number {
+            let max_crepeId: number = -1;
+            for (let i = 0; i < crepelist.length; i++) {
+                if (crepelist[i].crepeId > max_crepeId) {
+                    max_crepeId = crepelist[i].crepeId;
+                }
+            }
+            return max_crepeId;
+        }
+
+        crepelist.sort((a, b) => {
+            if (a.crepeId > a.crepeId) {
+                return 1;
+            } else {
+                return -1;
+            }
+        })
 
 
         delete_current_crepes();
 
         for (let i = 0; i < crepelist.length; i++) {
             let crepe = crepelist[i];
+
+            if (i === 0 && crepe.name !== "Zimt & Zucker") {
+                console.error("Wasn hier los?")
+            }
             
             let elem_copy = template.content.cloneNode(true) as HTMLDivElement;
 
@@ -269,14 +291,16 @@ function send_feedback_message(message: string, duration: number = 2, color: str
  */
 async function button_save_changes_to_server() {
 
-    var save_btn = document.getElementById('save_btn')
+    var save_btn = document.getElementById('save_btn') as HTMLButtonElement
 
     if (await save_changes()) {
+        save_btn.disabled = false;
         save_btn.style.backgroundColor = "rgba(0, 255, 0, 1);";
         save_btn.innerText = "Gespeichert!";
         setTimeout(() => {
-            save_btn.style.backgroundColor = "auto;";
+            save_btn.removeAttribute("style"); // resets style
             save_btn.innerText = "Speichern";
+            save_btn.disabled = true;
         }, 2000)
     }
 }
@@ -324,7 +348,6 @@ function delte_crepe(target: HTMLElement) {
     toggle_empty();
     var id = Number(root.getAttribute("data-id"))
     send_to_server_list_with_monitor.delete.push({ id: id, name: crepename });
-    check_if_need_to_speichern();
 }
 
 
@@ -381,7 +404,6 @@ function create_crepe(): boolean {
         };
 
     send_to_server_list_with_monitor.new.push(crepe_data)
-    check_if_need_to_speichern();
 
     form.classList.add("success")
     setTimeout(() => {
@@ -473,8 +495,10 @@ async function save_changes(): Promise<boolean> {
         return true;
     } else {
         changes_saved(false);
+        getCurrentCrepes();
         return false;
     }
+
 
     /**
      * Takes around 3000 ms
@@ -501,7 +525,6 @@ async function save_changes(): Promise<boolean> {
         function animation_out() {
             const Anim = new KeyframeEffect(elem, [{opacity: "0", top: "0"}], {duration: 500, fill: "forwards"})
             new Animation(Anim, document.timeline).play();
-            check_if_need_to_speichern()
         }
     }
 }
@@ -527,10 +550,13 @@ function check_if_need_to_speichern(): boolean {
         btn.style.filter = "brightness(50%);";
         btn.style.backgroundColor = "rgb(120, 120, 120)";
         window.onbeforeunload = () => {}
+        btn.disabled = true;
         return false
     } else {
         btn.style.filter = "brightness(1);";
         btn.style.backgroundColor = "rgb(0, 133, 35)";
+        btn.disabled = false;
+        window.onbeforeunload = (ev: BeforeUnloadEvent) => { ev.preventDefault(); };
         return true
     }
 }
@@ -556,13 +582,12 @@ function input_changed(elem: HTMLInputElement) {
         elem.checkValidity();
         container.setAttribute("was_edited", "true")
         marker.style.display = "block"
-        check_if_need_to_speichern();
     } else {
         elem.checkValidity();
         marker.style.display = "none"
         container.setAttribute("was_edited", "false")
-        check_if_need_to_speichern();
     }
+    check_if_need_to_speichern();
 }
 
 function validate_all() {
@@ -619,9 +644,6 @@ function check_for_edits() {
             }
 
             send_to_server_list_with_monitor.edit.push(to_list);
-            check_if_need_to_speichern();
         }
     };
 }
-
-check_if_need_to_speichern()
