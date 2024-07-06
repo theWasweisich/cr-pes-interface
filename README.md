@@ -34,6 +34,12 @@ Finally, run the server:
 python3 app.py
 ```
 
+## Generate the documentation
+
+```sh
+npx typedoc
+```
+
 ## Why what when?
 
 For usage instructions, please refer to the [Wiki](https://github.com/theWasweisich/crepes-interface/wiki).

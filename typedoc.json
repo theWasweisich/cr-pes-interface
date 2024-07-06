@@ -1,6 +1,10 @@
 {
     "entryPoints": ["app/static/typescript/*"],
-    "out": "./app/api/docs",
+    "exclude": [""],
+    "out": "./docs",
     "excludeNotDocumented": true,
     "name": "Crêpes Program",
+    "cleanOutputDir": true,
+    "plugin": ["typedoc-material-theme"],
+    "themeColor": "#cb9820"
 }

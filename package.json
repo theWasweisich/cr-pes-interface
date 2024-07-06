@@ -1,7 +1,8 @@
 {
   "devDependencies": {
     "@types/jquery": "^3.5.30",
-    "typedoc": "^0.25.8",
+    "typedoc": "^0.25.13",
+    "typedoc-material-theme": "^1.1.0",
     "typescript": "^5.3.3"
   },
   "dependencies": {
