@@ -168,25 +168,30 @@ class CrepesView(FlaskView):
                 edit_id = crepe["id"]
                 name = crepe["name"]
                 price = crepe["price"]
+                type_ = crepe["type"]
                 if type(price) is not str:
                     price = str(price)
                 price_str = parse_price(price)
 
                 if type(edit_id) is not str:
                     edit_id = str(edit_id)
-                cur.execute("SELECT name, price FROM crepes WHERE id=?", edit_id)
+                cur.execute("SELECT name, price, type FROM crepes WHERE id=?", edit_id)
                 res = cur.fetchone()
                 db_name = res[0]
                 db_price = res[1]
+                db_type = res[2]
                 db_price_str = str(db_price).replace("\xa0", " ")
                 api_logger.debug(f"DB_Data: {db_name} ({type(db_name)}) :: {db_price} ({type(db_price)})")
 
                 if (db_price != price_str):
-                    api_logger.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
+                    api_logger.info(f"Price has been edited!! {price_str} > {db_price_str}")
                     cur.execute("UPDATE crepes SET price=? WHERE id=?", (price, edit_id))
                 if name != db_name:
-                    api_logger.info(f"Database & Edited are not the same! {name} vs {db_name}")
+                    api_logger.info(f"Name has been edited! {db_name} > {name}")
                     cur.execute("UPDATE crepes SET name=? WHERE id=?", (name, edit_id))
+                if type_ != db_type:
+                    api_logger.info(f"Type has been edited! {db_type} > {type_}")
+                    cur.execute("UPDATE crepes SET type=? WHERE id=?", (type_, edit_id))
                 cur.connection.commit()
 
         return {"status": "success"}

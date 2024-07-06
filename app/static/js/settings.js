@@ -176,13 +176,14 @@ function handleEditCommit(crepeId) {
         send_feedback_message("Nichts wurde bearbeitet!", 2, "red");
     }
     else {
-        let edited_crêpe = new Crêpe(crêpe.crepeId, has_been_edited.name ? new_name : crêpe.name, has_been_edited.price ? new_price_number : crêpe.price, crêpe.amount, crêpe.type, crêpe.root_element);
+        let edited_crêpe = new Crêpe(crêpe.crepeId, has_been_edited.name ? new_name : crêpe.name, has_been_edited.price ? new_price_number : crêpe.price, crêpe.amount, has_been_edited.type ? new_type : crêpe.type, crêpe.root_element);
         let to_list = {
             id: edited_crêpe.crepeId,
             name: edited_crêpe.name,
             price: edited_crêpe.price,
             type: edited_crêpe.type
         };
+        console.log("to_list: ", to_list);
         send_to_server_list_with_monitor.edit.push(to_list);
         update_crepe_item(edited_crêpe);
     }

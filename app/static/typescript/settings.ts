@@ -217,7 +217,7 @@ function handleEditCommit(crepeId: number) {
             has_been_edited.name ? new_name : crêpe.name,
             has_been_edited.price ? new_price_number : crêpe.price,
             crêpe.amount,
-            crêpe.type,
+            has_been_edited.type ? new_type : crêpe.type,
             crêpe.root_element
         )
         let to_list: SendToServerCrepe = {
@@ -226,6 +226,8 @@ function handleEditCommit(crepeId: number) {
             price: edited_crêpe.price,
             type: edited_crêpe.type
         }
+
+        console.log("to_list: ", to_list)
 
         send_to_server_list_with_monitor.edit.push(to_list);
         update_crepe_item(edited_crêpe);
