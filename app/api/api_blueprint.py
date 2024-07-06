@@ -25,6 +25,8 @@ from setup_logger import api_logger
 
 a: Crepes_Class
 
+# pylint: skip-file
+
 
 # def get_helpers() -> tuple[Callable, Callable]:
 #     from api.api_helpers import parse_price, get_crepes
@@ -89,7 +91,7 @@ class CrepesView(FlaskView):
 
         with getCrepeDB() as (_, cur):
             for data in data_list:
-                id = data["id"]
+                delete_id = data["id"]
                 name = data["name"]
 
                 cur.execute("SELECT name FROM crepes WHERE id = ?", [id,])
@@ -97,7 +99,7 @@ class CrepesView(FlaskView):
 
                 if db_name == name:
                     cur.execute("DELETE FROM crepes WHERE id=? AND name=?",
-                                [id, name])
+                                [delete_id, name])
                 else:
                     api_logger.exception("Der zu löschende Crepe wurde nicht \
                                     gefunden!")
@@ -106,8 +108,7 @@ class CrepesView(FlaskView):
 
         if error_detail:
             return {"status": "failed", "detail": error_detail}
-        else:
-            return {"status": "success", "deleted": data_list}
+        return {"status": "success", "deleted": data_list}
 
     @staticmethod
     @route("/new", methods=("PUT",))
@@ -164,12 +165,16 @@ class CrepesView(FlaskView):
 
         with getCrepeDB() as (_, cur):
             for crepe in data:
-                id = crepe["id"]
+                edit_id = crepe["id"]
                 name = crepe["name"]
                 price = crepe["price"]
+                if type(price) is not str:
+                    price = str(price)
                 price_str = parse_price(price)
 
-                cur.execute("SELECT name, price FROM crepes WHERE id=?", id)
+                if type(edit_id) is not str:
+                    edit_id = str(edit_id)
+                cur.execute("SELECT name, price FROM crepes WHERE id=?", edit_id)
                 res = cur.fetchone()
                 db_name = res[0]
                 db_price = res[1]
@@ -178,10 +183,11 @@ class CrepesView(FlaskView):
 
                 if (db_price != price_str):
                     api_logger.info(f"Database & Edited are not the same! {db_price_str} vs {price_str}")
-                    cur.execute("UPDATE crepes SET price=? WHERE id=?", (price, id))
+                    cur.execute("UPDATE crepes SET price=? WHERE id=?", (price, edit_id))
                 if name != db_name:
                     api_logger.info(f"Database & Edited are not the same! {name} vs {db_name}")
-                    cur.execute("UPDATE crepes SET name=? WHERE id=?", (name, id))
+                    cur.execute("UPDATE crepes SET name=? WHERE id=?", (name, edit_id))
+                cur.connection.commit()
 
         return {"status": "success"}
 

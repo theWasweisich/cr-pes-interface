@@ -12,6 +12,8 @@ DOTENV_PATH = path.join(path.dirname(__file__), ".env")
 
 DB_PATH = path.join(path.dirname(__file__), "../db/datenbank.db")
 
+# pylint: skip-file
+
 
 class DatabaseException(Exception):
     pass

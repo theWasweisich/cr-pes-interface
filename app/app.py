@@ -31,6 +31,7 @@ from api.api_blueprint import get_api_bp
 from classes import bcolors
 import atexit
 
+# pylint: skip-file
 
 api_bp = get_api_bp()
 
@@ -302,7 +303,7 @@ if __name__ == "__main__":
     elif args.runDebug:
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
 
-        app.run(host='127.0.0.1', port=80, debug=True)
+        app.run(host='127.0.0.1', port=80, debug=True, threaded=False)
 
     # elif args.runDebug: <-- This does not work, because waitress cannot create an instance if directed from outside
     else:
@@ -310,4 +311,4 @@ if __name__ == "__main__":
 
         print(bcolors.WARNING + bcolors.BOLD + "Development server" + bcolors.ENDC)
 
-        app.run(host='127.0.0.1', port=80, debug=False)
+        app.run(host='127.0.0.1', port=80, debug=False, threaded=False)

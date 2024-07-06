@@ -3,13 +3,15 @@ import logging.config
 from pathlib import Path
 from os import path
 
+# pylint: skip-file
+
 ACCESS_PATH = Path(path.join(path.dirname(__file__), "./logs/access.log"))
 SERVER_PATH = Path(path.join(path.dirname(__file__), "./logs/server.log"))
 WERKZEUG_PATH = Path(path.join(path.dirname(__file__), "./logs/werkzeug.log"))
 
 LOGGING_FORMAT = "%(asctime)s %(levelname)s: %(message)s || (%(name)s)"
 
-server_handler = logging.FileHandler(SERVER_PATH, encoding="UTF-8", delay=False, mode="w")
+server_handler = logging.FileHandler(SERVER_PATH, encoding="UTF-8", delay=False, mode="a")
 access_handler = logging.FileHandler(filename=ACCESS_PATH, encoding="UTF-8")
 werkzeug_handler = logging.FileHandler(filename=WERKZEUG_PATH, encoding="UTF-8", delay=False, mode="w")
 
