@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +11,6 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Einstellungen</title>
 </head>
-
 <body onload="getCurrentCrepes();">
     <dialog id="edit_crepe_dialog">
         <div id="edit_dialog_containing">
@@ -50,29 +48,34 @@
         </header>
         <hr>
     </div>
-        <div id="no_crepes">
-            <h2>Here are no crêpes!</h2>
-        </div>
-        <!-- Hier beginnt die Editierung -->
-        
-        <template id="crepeslist_tmpl">
-            <div class="crepe_container" data-id data-name data-price data-type was_edited="false">
-                <h3 class="crepe-name"></h3>
-                <h4 class="crepe-price"></h4>
-                <div class="controller">
-                    <button class="edit_button" onclick="editButtonFunc(this);">
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                </div>
-            </div>
-        </template>
+    <div id="no_crepes">
+        <h2>Here are no crêpes!</h2>
+    </div>
+    <!-- Hier beginnt die Editierung -->
 
-        <fieldset>
-            <legend>Bearbeiten</legend>
-                <button type="submit">Speichern</button>
-                <div id="crepes_list" data-type="liste">
-                </div>
-        </fieldset>
+    <template id="crepeslist_tmpl">
+        <div class="crepe_container" data-id data-name data-price data-type was_edited="false">
+            <h3 class="crepe-name"></h3>
+            <h4 class="crepe-price"></h4>
+            <div class="controller">
+                <button class="edit_button" onclick="editButtonFunc(this);">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <fieldset>
+        <legend>Bearbeiten</legend>
+        <legend>Farb-Legende:</legend>
+        <ul>
+            <li>Süß: <div style="display: inline-block; width: 1.5ch; height: 1.5ch;" data-type="sweet"></div></li>
+            <li>Deftig: <div style="display: inline-block; width: 1.5ch; height: 1.5ch;" data-type="hearty"></div></li>
+            <li>Spezial: <div style="display: inline-block; width: 1.5ch; height: 1.5ch;" data-type="special"></div></li>
+        </ul>
+        <button type="submit">Speichern</button>
+        <div id="crepes_list" data-type="liste"></div>
+    </fieldset>
     </div>
     </div>
     <div id="feedback_message_container">
@@ -83,5 +86,4 @@
         <span id="save_icon" class="material-symbols-outlined" aria-labelledby="save_text">save</span>
     </button>
 </body>
-
 </html>
