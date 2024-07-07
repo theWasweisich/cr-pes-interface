@@ -22,7 +22,7 @@ Install the required libraries:
 python3 -m pip install -r requirements.txt
 ```
 
-Final Configuration:
+Initial Configuration:
 
 ```sh
 python3 first_configuration.py
