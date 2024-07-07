@@ -3,6 +3,12 @@
 // Some useful Variables
 var crepes_selected = false;
 
+// try {
+//     console.log("Crepelist: ", crepelist)
+// } catch (Error) {
+//     console.log(":(")
+// }
+
 
 type SendToServerCrepe = {
     id?: number
@@ -48,7 +54,10 @@ async function getCurrentCrepes() {
 
     const crêpes = await res.json()
 
-    crepelist.length = 0
+    // crepelist.length = 0
+    while (crepelist.length > 0) {
+        crepelist.pop();
+    }
 
     for (var i = 0; i < await crêpes.length; i++) {
         let crêpe = await crêpes[i];
@@ -60,8 +69,9 @@ async function getCurrentCrepes() {
 
         var new_crêpe = new Crêpe(crepe_id, crepe_name, crepe_price, 0, crepe_type)
         crepelist.push(new_crêpe)
-
     }
+
+    console.assert(crepelist.length == crêpes.length, "Hoppala")
     populateCrêpesList();
 
     /**
@@ -73,9 +83,11 @@ async function getCurrentCrepes() {
 
         function delete_current_crepes() {
             let to_delete = (toAppendTo.children as HTMLCollectionOf<HTMLDivElement>)
-            console.log(`Deleting:`, to_delete)
             for (let i = 0; i < to_delete.length; i++) {
-                toAppendTo.removeChild(to_delete[i])
+                to_delete[i].parentNode.removeChild(to_delete[0]);
+            }
+            if ((toAppendTo.children as HTMLCollectionOf<HTMLDivElement>).length !== 0) {
+                delete_current_crepes();
             }
         }
 
@@ -123,6 +135,7 @@ async function getCurrentCrepes() {
             crepelist[i].root_element = crepe_container;
         }
     }
+
 }
 
 /**

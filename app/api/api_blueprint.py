@@ -175,7 +175,7 @@ class CrepesView(FlaskView):
 
                 if type(edit_id) is not str:
                     edit_id = str(edit_id)
-                cur.execute("SELECT name, price, type FROM crepes WHERE id=?", edit_id)
+                cur.execute("SELECT name, price, type FROM crepes WHERE id=?", (edit_id,))
                 res = cur.fetchone()
                 db_name = res[0]
                 db_price = res[1]

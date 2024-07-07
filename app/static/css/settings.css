@@ -109,7 +109,7 @@ a:has(#move_back) {
 
 fieldset {
     margin: 5px;
-    width: max-content;
+    width: 70%; /* The width of the crepes container */
 }
 
 .crepe_container > input {
@@ -128,7 +128,7 @@ fieldset {
     border: 1px solid black;
     padding: 10px;
     background-color: rgba(255, 255, 255, 0.229);
-    max-width: 75%;
+    width: 75%;
     max-height: 500px;
     overflow-y: scroll;
     overflow-x: auto;

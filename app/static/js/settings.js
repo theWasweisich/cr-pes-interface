@@ -41,7 +41,10 @@ function getCurrentCrepes() {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield send_server(urls.getcrepes, "GET");
         const crêpes = yield res.json();
-        crepelist.length = 0;
+        // crepelist.length = 0
+        while (crepelist.length > 0) {
+            crepelist.pop();
+        }
         for (var i = 0; i < (yield crêpes.length); i++) {
             let crêpe = yield crêpes[i];
             let crepe_id = crêpe["id"];
@@ -51,6 +54,7 @@ function getCurrentCrepes() {
             var new_crêpe = new Crêpe(crepe_id, crepe_name, crepe_price, 0, crepe_type);
             crepelist.push(new_crêpe);
         }
+        console.assert(crepelist.length == crêpes.length, "Hoppala");
         populateCrêpesList();
         /**
          * Populates the Crepes Elements using the variable crepelist
@@ -60,9 +64,11 @@ function getCurrentCrepes() {
             const template = document.getElementById("crepeslist_tmpl");
             function delete_current_crepes() {
                 let to_delete = toAppendTo.children;
-                console.log(`Deleting:`, to_delete);
                 for (let i = 0; i < to_delete.length; i++) {
-                    toAppendTo.removeChild(to_delete[i]);
+                    to_delete[i].parentNode.removeChild(to_delete[0]);
+                }
+                if (toAppendTo.children.length !== 0) {
+                    delete_current_crepes();
                 }
             }
             function get_max_crepeId() {
