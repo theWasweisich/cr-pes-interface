@@ -118,12 +118,16 @@ function edit_crepe_dialog_function(crepe) {
     const crepePriceInput = document.getElementById("edit_crepe_price");
     const crepeTypeInput = document.getElementById("edit_crepe_type");
     const commitButton = document.getElementById("edit_crepe_save");
+    const deleteButton = document.getElementById("edit_crepe_delete");
     const dialog = document.getElementById("edit_crepe_dialog");
     crepeNameInput.value = crepe.name;
     crepePriceInput.value = currency_formatter.format(crepe.price);
     crepeTypeInput.querySelector(`[value="${crepe.type}"]`).setAttribute("selected", "");
     commitButton.addEventListener('click', () => {
         handleEditCommit(crepe.crepeId);
+    });
+    deleteButton.addEventListener('click', () => {
+        handleDeleteCommit(crepe.crepeId);
     });
     if (!dialog.open) {
         dialog.showModal();
@@ -215,6 +219,26 @@ function handleEditCommit(crepeId) {
         update_crepe_item(edited_crêpe);
     }
     dialog.close();
+}
+function handleDeleteCommit(crepeId) {
+    const dialog = document.getElementById("edit_crepe_dialog");
+    const crepe = get_crepe_by_id(crepeId);
+    const confirmation = confirm(`Möchten Sie "${crepe.name}" wirklich löschen?`);
+    if (confirmation) {
+        console.log("User hat akzeptiert");
+        const send_to_server_list = {
+            id: crepe.crepeId,
+            name: crepe.name,
+            price: crepe.price,
+            type: crepe.type
+        };
+        send_to_server_list_with_monitor.delete.push(send_to_server_list);
+        dialog.close();
+    }
+    else {
+        console.log("User hat abgelehnt");
+        dialog.close();
+    }
 }
 function update_crepe_item(crepe) {
     const rootelem = crepe.root_element;

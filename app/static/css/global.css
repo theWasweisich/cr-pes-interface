@@ -9,6 +9,7 @@
     --clr-secondary-surface: rgb(88, 88, 88);
     --clr-ok: rgb(0, 54, 0);
     --clr-caution: rgb(77, 0, 0);
+    --crl-caution-light: rgb(161, 0, 0);
     --clr-primary-border: rgb(96, 99, 109);
     --clr-caution-dark: rgb(44, 0, 0);
 }

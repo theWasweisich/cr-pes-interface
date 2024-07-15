@@ -6,7 +6,8 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
 }
@@ -18,28 +19,56 @@ html, body {
 #edit_crepe_dialog {
     padding: 0;
     box-sizing: content-box;
-    
+
 
     #edit_dialog_containing {
         padding: 16px;
         display: block;
-    
-        > fieldset {
+        width: min-content;
+
+        >h2 {
+            width: max-content;
+
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        >fieldset {
+
+            margin-left: auto;
+            margin-right: auto;
 
             >.grid-layout {
                 display: grid;
                 grid-template-columns: 50px 1fr;
                 gap: 5px;
-        
-                > label {
+
+                >label {
                     text-align: right;
                 }
             }
 
-            >button {
-                width: 100%;
+            >.btns {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+
+                >button {
+                    border-radius: 1ch;
+
+                }
+
+                .delete-btn {
+                    
+                    background-color: var(--clr-caution);
+                }
+                .delete-btn:hover {
+                    background-color: var(--clr-caution-light);
+                }
             }
+
         }
+
     }
 
     ::backdrop {
@@ -60,6 +89,7 @@ html, body {
     h3 {
         margin-block: .5em;
     }
+
     h4 {
         margin-block: .75em;
     }
@@ -103,17 +133,19 @@ a:has(#move_back) {
     background-color: black;
     color: white;
 }
+
 #move_back span {
     transform: translateY(5px);
 }
 
 fieldset {
     margin: 5px;
-    width: 70%; /* The width of the crepes container */
+    width: 70%;
+    /* The width of the crepes container */
 }
 
-.crepe_container > input {
-    background-color:transparent;
+.crepe_container>input {
+    background-color: transparent;
     border: none;
     border-bottom: 1px black dotted;
 }
@@ -145,6 +177,7 @@ fieldset {
 .icon_container {
     margin: 5px;
 }
+
 .icon_container button {
     cursor: pointer;
 }
@@ -210,7 +243,7 @@ button[data-type="del"]:active {
 
 #loader {
     border: 2px solid #f3f3f3;
-    border-top: 2px solid rgba(0,0,255,1);
+    border-top: 2px solid rgba(0, 0, 255, 1);
     border-radius: 50%;
     width: 30px;
     height: 30px;
@@ -230,8 +263,13 @@ button[data-type="del"]:active {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .tooltipRightContainer {
@@ -248,13 +286,13 @@ button[data-type="del"]:active {
     text-align: center;
     padding: 5px 0;
     border-radius: 6px;
-    
+
     position: absolute;
     right: 0;
     z-index: 1;
 }
 
-.tooltipRightInput:focus ~ .tooltipRight {
+.tooltipRightInput:focus~.tooltipRight {
     visibility: visible;
 }
 

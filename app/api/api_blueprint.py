@@ -244,7 +244,8 @@ class CrepesView(FlaskView):
                 total: float = 0.0
 
                 for crepe in data:
-                    total += float(crepe["price"])
+                    api_logger.debug(crepe)
+                    total += (float(crepe["price"]) * int(crepe["amount"]))
 
                 api_logger.info(f"Total Value: {total=}")
 

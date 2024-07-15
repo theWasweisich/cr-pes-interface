@@ -147,6 +147,7 @@ function edit_crepe_dialog_function(crepe: Crêpe) {
     const crepePriceInput = document.getElementById("edit_crepe_price") as HTMLInputElement;
     const crepeTypeInput = document.getElementById("edit_crepe_type") as HTMLSelectElement;
     const commitButton = document.getElementById("edit_crepe_save") as HTMLButtonElement;
+    const deleteButton = document.getElementById("edit_crepe_delete") as HTMLButtonElement;
     const dialog = document.getElementById("edit_crepe_dialog") as HTMLDialogElement;
     
     crepeNameInput.value = crepe.name;
@@ -156,6 +157,11 @@ function edit_crepe_dialog_function(crepe: Crêpe) {
     commitButton.addEventListener('click', () => {
         handleEditCommit(crepe.crepeId);
     })
+
+    deleteButton.addEventListener('click', () => {
+        handleDeleteCommit(crepe.crepeId);
+    })
+
     
     if (!dialog.open) {
         dialog.showModal();
@@ -210,25 +216,25 @@ function get_crepe_index_by_id(id: number): number {
  */
 function handleEditCommit(crepeId: number) {
     const dialog = document.getElementById("edit_crepe_dialog") as HTMLDialogElement;
-
+    
     const crepeNameInput = document.getElementById("edit_crepe_name") as HTMLInputElement;
     const crepePriceInput = document.getElementById("edit_crepe_price") as HTMLInputElement;
     const crepeTypeInput = document.getElementById("edit_crepe_type") as HTMLSelectElement;
     const commitButton = document.getElementById("edit_crepe_save") as HTMLButtonElement;
-
+    
     let new_price = crepePriceInput.value
-        .replace(/[^\d,]+/, "")     // Removes everything but numerics and commas
-        .replace(/[,]/, ".");       // Replaces comma with  dot => Should be a valid number now :)
+    .replace(/[^\d,]+/, "")     // Removes everything but numerics and commas
+    .replace(/[,]/, ".");       // Replaces comma with  dot => Should be a valid number now :)
     let new_name = crepeNameInput.value
     let new_type = crepeTypeInput.options[crepeTypeInput.selectedIndex].value;
-
+    
     if (Number.isNaN(new_price) || new_price === "") {
         crepePriceInput.setCustomValidity("Kein gültiger Preis!");
         crepePriceInput.reportValidity();
         return;
     }
     let new_price_number: number = Number(new_price);
-
+    
     
     let crêpe: Crêpe = get_crepe_by_id(crepeId);
     
@@ -261,21 +267,48 @@ function handleEditCommit(crepeId: number) {
             price: edited_crêpe.price,
             type: edited_crêpe.type
         }
-
+        
         console.log("to_list: ", to_list)
-
+        
         send_to_server_list_with_monitor.edit.push(to_list);
         update_crepe_item(edited_crêpe);
     }
-
+    
     dialog.close();
+}
+
+function handleDeleteCommit(crepeId: number) {
+    const dialog = document.getElementById("edit_crepe_dialog") as HTMLDialogElement;
+
+    
+    const crepe = get_crepe_by_id(crepeId);
+    
+    const confirmation = confirm(`Möchten Sie "${crepe.name}" wirklich löschen?`)
+    
+    if (confirmation) {
+        console.log("User hat akzeptiert");
+
+        const send_to_server_list: SendToServerCrepe = {
+            id: crepe.crepeId,
+            name: crepe.name,
+            price: crepe.price,
+            type: crepe.type
+        }
+
+        send_to_server_list_with_monitor.delete.push(send_to_server_list);
+        dialog.close();
+    } else {
+        console.log("User hat abgelehnt")
+        dialog.close(); 
+    }
+
 }
 
 function update_crepe_item(crepe: Crêpe) {
     const rootelem = crepe.root_element
     const elem_name = rootelem.querySelector("h3.crepe-name");
     const elem_price = rootelem.querySelector("h4.crepe-price");
-
+    
     elem_name.textContent = crepe.name;
     elem_price.textContent = currency_formatter.format(crepe.price);
     rootelem.setAttribute("data-type", crepe.type);
